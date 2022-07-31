@@ -1,0 +1,39 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "${workspaceFolder}/tools/build.bat",
+            "group": "build",
+            "presentation": {
+                "revealProblems": "onProblem",
+                "close": true
+            }
+        },
+        {
+            "label": "Install",
+            "type": "shell",
+            "command": "${workspaceFolder}/dist/oc2-modding-install.bat nopause \\\"C:\\Other\\Games\\Steam\\steamapps\\common\\Overcooked! 2\\Overcooked2.exe\\\"",
+            "dependsOn": ["Build"],
+            "group": "build",
+            "presentation": {
+                "revealProblems": "onProblem",
+                "close": true
+            }
+        },
+        {
+            "label": "Playtest",
+            "type": "shell",
+            "command": "start \\\"C:\\Other\\Games\\Steam\\steamapps\\common\\Overcooked! 2\\Overcooked2.exe\\\"",
+            "dependsOn": ["Build", "Install"],
+            "group": "build",
+            "presentation": {
+                "revealProblems": "onProblem",
+                "close": true
+            }
+        },
+    ]
+}
