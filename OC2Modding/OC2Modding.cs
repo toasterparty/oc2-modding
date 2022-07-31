@@ -35,7 +35,7 @@ namespace OC2Modding
             }
 
             /* Inject Mods */
-            // PatchUnlockAllChefs.load();
+            PatchUnlockAllChefs.Awake();
         }
     }
 }
