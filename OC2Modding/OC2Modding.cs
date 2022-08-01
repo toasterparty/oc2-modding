@@ -37,6 +37,7 @@ namespace OC2Modding
             /* Inject Mods */
             UnlockAllChefs.Awake();
             UnlockAllLevels.Awake();
+            TimerAlwaysStarts.Awake();
         }
     }
 }

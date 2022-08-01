@@ -43,8 +43,6 @@ namespace OC2Modding
                 }
             }
 
-            OC2Modding.Log.LogInfo($"Force unlocked all chefs");
-
             __result = list.ToArray();
             return false; // Replace original function
         }
