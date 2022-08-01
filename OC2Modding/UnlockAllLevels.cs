@@ -4,7 +4,7 @@ using HarmonyLib;
 
 namespace OC2Modding
 {
-    public class UnlockAllLevels
+    public static class UnlockAllLevels
     {
         private static ConfigEntry<bool> configRevealAllLevels;
         private static ConfigEntry<bool> configPurchaseAllLevels;
@@ -38,7 +38,7 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(SaveSlotElement), nameof(SaveSlotElement.ServerLoadCampaign))]
         [HarmonyPrefix]
-        public static bool ServerLoadCampaign()
+        private static bool ServerLoadCampaign()
         {
             if (configSkipTutorial.Value)
             {
@@ -49,7 +49,7 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.GetLevelProgress))]
         [HarmonyPostfix]
-        public static void GetLevelProgress(ref GameProgress.GameProgressData.LevelProgress __result)
+        private static void GetLevelProgress(ref GameProgress.GameProgressData.LevelProgress __result)
         {
             if (configPurchaseAllLevels.Value)
             {
@@ -66,7 +66,7 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.IsLevelUnlocked))]
         [HarmonyPostfix]
-        public static void IsLevelUnlocked(ref bool __result)
+        private static void IsLevelUnlocked(ref bool __result)
         {
             if (configRevealAllLevels.Value)
             {

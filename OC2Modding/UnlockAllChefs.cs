@@ -27,7 +27,7 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(MetaGameProgress), nameof(MetaGameProgress.GetUnlockedAvatars))]
         [HarmonyPrefix]
-        public static bool GetUnlockedAvatars(ref AvatarDirectoryData[] ___m_allAvatarDirectories, ref ChefAvatarData[] __result)
+        private static bool GetUnlockedAvatars(ref AvatarDirectoryData[] ___m_allAvatarDirectories, ref ChefAvatarData[] __result)
         {
             List<ChefAvatarData> list = new List<ChefAvatarData>();
 
@@ -37,7 +37,8 @@ namespace OC2Modding
                 for (int j = 0; j < avatarDirectoryData.Avatars.Length; j++)
                 {
                     ChefAvatarData chefAvatarData = avatarDirectoryData.Avatars[j];
-                    if (chefAvatarData != null) {
+                    if (chefAvatarData != null)
+                    {
                         list.Add(chefAvatarData);
                     }
                 }

@@ -27,7 +27,7 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(GameModes.ServerCampaignMode), nameof(GameModes.ServerCampaignMode.Begin))]
         [HarmonyPrefix]
-        public static bool Begin(ref GameModes.ClientContext ___m_context)
+        private static bool Begin(ref GameModes.ClientContext ___m_context)
         {
             ___m_context.m_levelConfig.m_recipesBeforeTimerStarts = 0;
             return true; // execute original
