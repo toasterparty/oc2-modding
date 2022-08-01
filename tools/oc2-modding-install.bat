@@ -5,7 +5,8 @@
 setlocal
 
 set DIST_DIR="%~dp0"
-set NO_PAUSE=%1
+set NO_PAUSE=%~1
+set BEPINEX_VER=BepInEx_x86_5.4.21.0
 
 echo.
 echo Overcooked! 2 Mod Installer
@@ -19,11 +20,12 @@ if "%~2" == "" goto blank
 call :install %2
 goto :EOF
 
+:blank
+
 echo Please select your game executable
 echo Typically ".../steam/steamapps/common/Overcooked! 2/Overcooked2.exe"
 echo.
 
-:blank
 for /f "delims=" %%I in ('powershell -noprofile "iex (${%~f0} | out-string)"') do call :install "%%~I"
 goto :EOF
 
@@ -32,9 +34,6 @@ set GAME_DIR="%~dp1"
 set BEPINEX_DIR="%~dp1\BepInEx\"
 set PLUGINS_DIR="%~dp1\BepInEx\plugins"
 
-if not exist %BEPINEX_DIR% echo Error: BepInEx does not appear to be installed correctly, please install BepInEx and try agin
-if not exist %BEPINEX_DIR% exit 1
-
 if not exist %PLUGINS_DIR% mkdir %PLUGINS_DIR%
 
 echo Installing 'OC2 Modding' into %PLUGINS_DIR%...
@@ -42,13 +41,16 @@ echo.
 
 xcopy %DIST_DIR%\*.dll %PLUGINS_DIR% /y /q
 xcopy %DIST_DIR%\oc2-modding-uninstall.bat %GAME_DIR% /y /q
+xcopy %DIST_DIR%\%BEPINEX_VER% %GAME_DIR% /y /q /s /e
 
 echo.
 echo Successfully installed 'OC2 Modding'
 echo.
 
-if %NO_PAUSE% == nopause goto :EOF
+if "%NO_PAUSE%" == "nopause" goto :EOF
+
 pause
+
 goto :EOF
 
 : end Batch portion / begin PowerShell hybrid chimera #>
