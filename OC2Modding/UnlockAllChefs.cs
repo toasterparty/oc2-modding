@@ -4,7 +4,7 @@ using HarmonyLib;
 
 namespace OC2Modding
 {
-    public class PatchUnlockAllChefs
+    public class UnlockAllChefs
     {
         private static ConfigEntry<bool> configUnlockAllChefs;
 
@@ -21,11 +21,11 @@ namespace OC2Modding
             /* Inject Mod */
             if (configUnlockAllChefs.Value)
             {
-                Harmony.CreateAndPatchAll(typeof(PatchUnlockAllChefs));
+                Harmony.CreateAndPatchAll(typeof(UnlockAllChefs));
             }
         }
 
-        [HarmonyPatch(typeof(MetaGameProgress), "GetUnlockedAvatars")]
+        [HarmonyPatch(typeof(MetaGameProgress), nameof(MetaGameProgress.GetUnlockedAvatars))]
         [HarmonyPrefix]
         public static bool GetUnlockedAvatars(ref AvatarDirectoryData[] ___m_allAvatarDirectories, ref ChefAvatarData[] __result)
         {
