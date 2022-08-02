@@ -39,6 +39,7 @@ namespace OC2Modding
             UnlockAllChefs.Awake();
             UnlockAllLevels.Awake();
             TimerAlwaysStarts.Awake();
+            SkipTutorialPopups.Awake();
         }
     }
 }
