@@ -7,6 +7,7 @@ namespace OC2Modding
     {
         private static ConfigEntry<bool> configFixDoubleServing;
         private static ConfigEntry<bool> configFixSinkBug;
+        private static ConfigEntry<bool> configFixControlStickThrowBug;
 
         public static void Awake()
         {
@@ -23,6 +24,12 @@ namespace OC2Modding
                 true, // Default Config value
                 "Set to true to fix a bug where sinks can have reduced usability for the rest of the level" // Friendly description
             );
+            configFixControlStickThrowBug = OC2Modding.configFile.Bind(
+                "Bugfixes", // Config Category
+                "FixControlStickThrowBug", // Config key name
+                true, // Default Config value
+                "Set to true to fix a bug where cancelling out of a platform control stick in a specific way would eat the next throw input" // Friendly description
+            );
 
             /* Inject Mod */
             if (configFixDoubleServing.Value)
@@ -32,6 +39,38 @@ namespace OC2Modding
             if (configFixSinkBug.Value)
             {
                 Harmony.CreateAndPatchAll(typeof(FixBugs.fixSinkBug));
+            }
+            if (configFixControlStickThrowBug.Value)
+            {
+                Harmony.CreateAndPatchAll(typeof(FixBugs.fixControlStickBug));
+            }
+        }
+
+        class fixControlStickBug
+        {
+            [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), "Update_Throw")]
+            [HarmonyPrefix]
+            private static void Update_Throw(ref float _deltaTime, ref bool isUsePressed, ref bool justReleased, ref bool isSuppressed, ref ICarrier ___m_iCarrier, ref PlayerControls.ControlSchemeData ___m_controlScheme)
+            {
+                if (!isUsePressed && justReleased && isSuppressed && ___m_iCarrier.InspectCarriedItem() != null)
+                {
+                    isSuppressed = false;
+
+                    OC2Modding.Log.LogWarning($"Rectified bad throw state! (Control Stick Bug)");
+                }
+            }
+
+            [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), "Update_Aim")]
+            [HarmonyPrefix]
+            private static bool Update_Aim(ref PlayerControls.ControlSchemeData ___m_controlScheme, ref ICarrier ___m_iCarrier, ref bool isUsePressed)
+            {
+                if (___m_controlScheme.m_worksurfaceUseButton.IsDown() && ___m_controlScheme.IsUseSuppressed() && !___m_controlScheme.IsUseJustReleased() && ___m_iCarrier.InspectCarriedItem() != null)
+                {
+                    isUsePressed = true;
+                    // OC2Modding.Log.LogWarning($"Rectified bad throw state! (Control Stick Bug)");
+                }
+
+                return true; // execute original function
             }
         }
 
