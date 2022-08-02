@@ -1,5 +1,6 @@
 using BepInEx.Configuration;
 using HarmonyLib;
+using UnityEngine;
 
 namespace OC2Modding
 {
@@ -8,6 +9,7 @@ namespace OC2Modding
         private static ConfigEntry<bool> configFixDoubleServing;
         private static ConfigEntry<bool> configFixSinkBug;
         private static ConfigEntry<bool> configFixControlStickThrowBug;
+        private static ConfigEntry<bool> configFixEmptyBurnerThrow;
 
         public static void Awake()
         {
@@ -30,6 +32,12 @@ namespace OC2Modding
                 true, // Default Config value
                 "Set to true to fix a bug where cancelling out of a platform control stick in a specific way would eat the next throw input" // Friendly description
             );
+            configFixEmptyBurnerThrow = OC2Modding.configFile.Bind(
+                "Bugfixes", // Config Category
+                "FixEmptyBurnerThrow", // Config key name
+                true, // Default Config value
+                "Set to true to fix a bug where you cannot throw items when standing directly over a burner/mixer with no pan/bowl" // Friendly description
+            );
 
             /* Inject Mod */
             if (configFixDoubleServing.Value)
@@ -44,13 +52,31 @@ namespace OC2Modding
             {
                 Harmony.CreateAndPatchAll(typeof(FixBugs.fixControlStickBug));
             }
+            if (configFixEmptyBurnerThrow.Value)
+            {
+                Harmony.CreateAndPatchAll(typeof(FixBugs.fixEmptyBurnerThrow));
+            }
+
+        }
+
+        class fixEmptyBurnerThrow
+        {
+            [HarmonyPatch(typeof(PlayerControlsHelper), nameof(PlayerControlsHelper.IsHeldItemInsideStaticCollision))]
+            [HarmonyPrefix]
+            private static void IsHeldItemInsideStaticCollision(ref bool __result, ref int ___s_staticCollisionLayerMask)
+            {
+                if (___s_staticCollisionLayerMask == 0)
+                {
+                    ___s_staticCollisionLayerMask = LayerMask.GetMask(new string[] { "Default", "Ground", "Walls", "Worktops", "PlateStationBlock" });
+                }
+            }
         }
 
         class fixControlStickBug
         {
             [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), "Update_Throw")]
             [HarmonyPrefix]
-            private static void Update_Throw(ref float _deltaTime, ref bool isUsePressed, ref bool justReleased, ref bool isSuppressed, ref ICarrier ___m_iCarrier, ref PlayerControls.ControlSchemeData ___m_controlScheme)
+            private static void Update_Throw(ref bool isUsePressed, ref bool justReleased, ref bool isSuppressed, ref ICarrier ___m_iCarrier)
             {
                 if (!isUsePressed && justReleased && isSuppressed && ___m_iCarrier.InspectCarriedItem() != null)
                 {
@@ -67,7 +93,6 @@ namespace OC2Modding
                 if (___m_controlScheme.m_worksurfaceUseButton.IsDown() && ___m_controlScheme.IsUseSuppressed() && !___m_controlScheme.IsUseJustReleased() && ___m_iCarrier.InspectCarriedItem() != null)
                 {
                     isUsePressed = true;
-                    // OC2Modding.Log.LogWarning($"Rectified bad throw state! (Control Stick Bug)");
                 }
 
                 return true; // execute original function

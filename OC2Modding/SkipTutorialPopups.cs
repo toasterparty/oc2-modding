@@ -29,7 +29,6 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void CanSpawn(ref bool __result)
         {
-            OC2Modding.Log.LogWarning("CanSpawn");
             __result = false;
         }
     }
