@@ -22,7 +22,7 @@ namespace OC2Modding
             /* Initialize Configuration */
             configFile = new ConfigFile(Path.Combine(Paths.ConfigPath, "OC2Modding.cfg"), true);
             configDisableAllMods = OC2Modding.configFile.Bind(
-                "General",
+                "_DisableAllMods_",
                 "DisableAllMods",
                 false,
                 "Set to true to completely return the game back to it's original state"

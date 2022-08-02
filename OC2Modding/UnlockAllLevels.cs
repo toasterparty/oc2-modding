@@ -14,19 +14,19 @@ namespace OC2Modding
         {
             /* Setup Configuration */
             configSkipTutorial = OC2Modding.configFile.Bind(
-                "General", // Config Category
+                "QualityOfLife", // Config Category
                 "SkipTutorial", // Config key name
                 false, // Default Config value
                 "Set to true to skip the mandatory tutorial when starting a new game" // Friendly description
             );
             configRevealAllLevels = OC2Modding.configFile.Bind(
-                "General", // Config Category
-                "UnlockAllLevels", // Config key name
+                "QualityOfLife", // Config Category
+                "RevealAllLevels", // Config key name
                 false, // Default Config value
-                "Set to true to flip all tiles on the board" // Friendly description
+                "Set to true to immediately flip all hidden tiles on the overworld" // Friendly description
             );
             configPurchaseAllLevels = OC2Modding.configFile.Bind(
-                "General", // Config Category
+                "GameModifications", // Config Category
                 "PurchaseAllLevels", // Config key name
                 false, // Default Config value
                 "Set to true to remove the requirement for purchasing levels before playing them" // Friendly description

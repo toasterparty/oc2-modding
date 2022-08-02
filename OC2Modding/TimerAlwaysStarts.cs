@@ -12,7 +12,7 @@ namespace OC2Modding
         {
             /* Setup Configuration */
             configTimerAlwaysStarts = OC2Modding.configFile.Bind(
-                "General", // Config Category
+                "GameModifications", // Config Category
                 "TimerAlwaysStarts", // Config key name
                 false, // Default Config value
                 "Set to true to make levels which normally have \"Prep Time\" start immediately" // Friendly description

@@ -12,7 +12,7 @@ namespace OC2Modding
         {
             /* Setup Configuration */
             configUnlockAllChefs = OC2Modding.configFile.Bind(
-                "Cosmetic", // Config Category
+                "QualityOfLife", // Config Category
                 "UnlockAllChefs", // Config key name
                 false, // Default Config value
                 "Set to true to show all Chefs on the Chef selection screen" // Friendly description
