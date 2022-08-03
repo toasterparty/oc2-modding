@@ -42,6 +42,7 @@ echo.
 xcopy %DIST_DIR%\*.dll %PLUGINS_DIR% /y /q
 xcopy %DIST_DIR%\oc2-modding-uninstall.bat %GAME_DIR% /y /q
 xcopy %DIST_DIR%\%BEPINEX_VER% %GAME_DIR% /y /q /s /e
+xcopy %DIST_DIR%\curl %GAME_DIR% /y /q /s /e
 
 echo.
 echo Successfully installed 'OC2 Modding'

@@ -1,6 +1,6 @@
 @echo off
-wsl rm -f changelog.txt 
-wsl rm -f winhttp.dll
-wsl rm -f doorstop_config.ini
-wsl rm -rf BepInEx
-wsl rm -rf mono
+del /f /q changelog.txt 
+del /f /q winhttp.dll
+del /f /q doorstop_config.ini
+del /f /q /s BepInEx
+del /f /q /s curl
