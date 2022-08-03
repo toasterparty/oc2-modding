@@ -38,6 +38,7 @@ namespace OC2Modding
             FixBugs.Awake();
             UnlockAllChefs.Awake();
             UnlockAllLevels.Awake();
+            UnlockAllDLC.Awake();
             TimerAlwaysStarts.Awake();
             SkipTutorialPopups.Awake();
             PreserveCookProgress.Awake();
