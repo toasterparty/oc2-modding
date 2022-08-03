@@ -77,9 +77,9 @@ namespace OC2Modding
         /* Replace the function with postfix because that has better patch compatability */
         [HarmonyPatch(typeof(ServerCookableContainer), "CalculateCombinedCookingProgress")]
         [HarmonyPostfix]
-        private static void CalculateCombinedCookingProgress(ref float recipientProgress, ref int recipientContents, ref float receivedProgress, ref int receivedContents, ref float __result, ref ServerMixingHandler ___m_MixingHandler)
+        private static void CalculateCombinedCookingProgress(ref float recipientProgress, ref int recipientContents, ref float receivedProgress, ref int receivedContents, ref float __result, ref ServerCookingHandler ___m_cookingHandler)
         {
-            __result = CalculateCombinedProgress(recipientProgress, recipientContents, receivedProgress, receivedContents, ___m_MixingHandler.AccessMixingTime);
+            __result = CalculateCombinedProgress(recipientProgress, recipientContents, receivedProgress, receivedContents, ___m_cookingHandler.AccessCookingTime);
         }
     }
 }
