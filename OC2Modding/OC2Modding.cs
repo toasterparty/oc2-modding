@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Configuration;
@@ -41,6 +41,7 @@ namespace OC2Modding
             TimerAlwaysStarts.Awake();
             SkipTutorialPopups.Awake();
             PreserveCookProgress.Awake();
+            DisplayLeaderboardScores.Awake();
         }
     }
 }
