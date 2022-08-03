@@ -22,7 +22,7 @@ namespace OC2Modding
             configRevealAllLevels = OC2Modding.configFile.Bind(
                 "QualityOfLife", // Config Category
                 "RevealAllLevels", // Config key name
-                false, // Default Config value
+                true, // Default Config value
                 "Set to true to immediately flip all hidden tiles on the overworld" // Friendly description
             );
             configPurchaseAllLevels = OC2Modding.configFile.Bind(
