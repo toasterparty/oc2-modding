@@ -13,7 +13,7 @@ ping 127.0.0.1 -n 1 > nul
 
 dotnet build || exit 1
 
-ping 127.0.0.1 -n 1 > nul
+ping 127.0.0.1 -n 2 > nul
 
 xcopy %BUILD_DIR%\com.github.toasterparty.OC2Modding.dll %DIST_DIR% /y /q || exit 1
 
