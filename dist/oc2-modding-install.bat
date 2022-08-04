@@ -12,9 +12,19 @@ echo.
 echo Overcooked! 2 Mod Installer
 echo.
 
-if not exist %DIST_DIR%\com.github.toasterparty.OC2Modding.dll echo Error: Must run from 'dist' dir, not 'tools' dir
-if not exist %DIST_DIR%\com.github.toasterparty.OC2Modding.dll echo.
+if not exist %DIST_DIR%\com.github.toasterparty.OC2Modding.dll echo Error: You must build the plugin first
+if not exist %DIST_DIR%\curl\curl\curl.exe echo Error: curl not found
+if not exist %DIST_DIR%\%BEPINEX_VER% echo Error: %BEPINEX_VER% not found
+
+echo.
+
+if not exist %DIST_DIR%\com.github.toasterparty.OC2Modding.dll pause
+if not exist %DIST_DIR%\curl\curl\curl.exe pause
+if not exist %DIST_DIR%\%BEPINEX_VER% pause
+
 if not exist %DIST_DIR%\com.github.toasterparty.OC2Modding.dll exit 1
+if not exist %DIST_DIR%\curl\curl\curl.exe exit 1
+if not exist %DIST_DIR%\%BEPINEX_VER% exit 1
 
 if "%~2" == "" goto blank
 call :install %2
@@ -42,6 +52,7 @@ echo.
 xcopy %DIST_DIR%\*.dll %PLUGINS_DIR% /y /q
 xcopy %DIST_DIR%\oc2-modding-uninstall.bat %GAME_DIR% /y /q
 xcopy %DIST_DIR%\%BEPINEX_VER% %GAME_DIR% /y /q /s /e
+xcopy %DIST_DIR%\doorstop_config.ini %GAME_DIR% /y /q
 xcopy %DIST_DIR%\curl %GAME_DIR% /y /q /s /e
 
 echo.

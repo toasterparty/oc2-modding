@@ -1,3 +1,5 @@
 */bin/*
 */obj/*
-dist/*
+dist/*.dll
+dist/curl/*
+dist/BepInEx*

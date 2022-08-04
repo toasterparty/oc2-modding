@@ -8,11 +8,13 @@ set TOOLS_DIR="%~dp0\..\tools"
 if not exist %DIST_DIR% mkdir %DIST_DIR%
 
 cd %SRC_DIR% || exit 1
+
+@REM 2 second delay to prevent collision with intellisense
+ping 127.0.0.1 -n 2 > nul
+
 dotnet build || exit 1
 
 xcopy %BUILD_DIR%\com.github.toasterparty.OC2Modding.dll %DIST_DIR% /y /q || exit 1
-xcopy %TOOLS_DIR%\oc2-modding-install.bat %DIST_DIR% /y /q || exit 1
-xcopy %TOOLS_DIR%\oc2-modding-uninstall.bat %DIST_DIR% /y /q || exit 1
 
 echo.
 echo Successfully built 'OC2 Modding'
