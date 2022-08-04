@@ -234,11 +234,10 @@ namespace OC2Modding
             return $"{world + 1}-{x + 1}";
         }
 
-        private static List<int> getScoresFromLeaderboard(int levelId)
+        private static List<int> getScoresFromLeaderboard(int DLCID, int levelId, uint playerCount)
         {
-            uint playerCount = (uint)ClientUserSystem.m_Users.Count;
+            // TOOD: build cache and return answers from it on Awake
 
-            int DLCID = CurrentDLC.GetCurrentDLCID();
             string dlc = CurrentDLC.DLCToString(DLCID);
 
             string level = "";
@@ -345,6 +344,15 @@ namespace OC2Modding
             OC2Modding.Log.LogInfo($"{dlc} {level} ({playerCount} Player)");
 
             return getScoresFromLeaderboard("Overcooked 2", dlc, level, playerCount, 5);
+        }
+
+        private static List<int> getScoresFromLeaderboard(int levelId)
+        {
+            uint playerCount = (uint)ClientUserSystem.m_Users.Count;
+
+            int DLCID = CurrentDLC.GetCurrentDLCID();
+
+            return getScoresFromLeaderboard(DLCID, levelId, playerCount);
         }
 
         private static string numToRank(int num)
