@@ -43,6 +43,19 @@ namespace OC2Modding
             SkipTutorialPopups.Awake();
             PreserveCookProgress.Awake();
             DisplayLeaderboardScores.Awake();
+            DisplayFPS.Awake();
+        }
+
+        private void Update()
+        {
+            DisplayLeaderboardScores.Update();
+            DisplayFPS.Update();
+        }
+
+        private void OnGUI()
+        {
+            DisplayLeaderboardScores.OnGUI();
+            DisplayFPS.OnGUI();
         }
     }
 }

@@ -9,10 +9,11 @@ if not exist %DIST_DIR% mkdir %DIST_DIR%
 
 cd %SRC_DIR% || exit 1
 
-@REM 2 second delay to prevent collision with intellisense
-ping 127.0.0.1 -n 2 > nul
+ping 127.0.0.1 -n 1 > nul
 
 dotnet build || exit 1
+
+ping 127.0.0.1 -n 1 > nul
 
 xcopy %BUILD_DIR%\com.github.toasterparty.OC2Modding.dll %DIST_DIR% /y /q || exit 1
 
