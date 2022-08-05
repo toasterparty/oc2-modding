@@ -20,7 +20,11 @@
 
 ```
 UnityEngine.dll
-UnityEngine.CoreModule.dll
+UnityEngine.CoreModule.dll 
+UnityEngine.PhysicsModule.dll 
+UnityEngine.TextRenderingModule.dll 
+UnityEngine.UI.dll 
+UnityEngine.UIModule.dll 
 Assembly-CSharp.dll
 ```
 
@@ -38,40 +42,28 @@ This will create a folder called `dist` and populate it with the plugin dll file
 If done right, your directory should look like this:
 
 ```
-> dir -r
+\dist\
+    BepInEx_x86_5.4.21.0
+    curl
+    com.github.toasterparty.OC2Modding.dll
+    doorstop_config.ini
+    oc2-modding-install.bat
+    oc2-modding-uninstall.bat
 
-    Directory: ...\dist
-d-----         7/31/2022   9:24 AM                BepInEx_x86_5.4.21.0
-d-----          8/3/2022   8:28 AM                curl
--a----          8/3/2022   8:26 AM          19456 com.github.toasterparty.OC2Modding.dll
--a----          8/3/2022   8:27 AM           1722 oc2-modding-install.bat
--a----          8/3/2022   8:26 AM            132 oc2-modding-uninstall.bat
+\dist\BepInEx_x86_5.4.21.0\
+    BepInEx
+    changelog.txt
+    doorstop_config.ini
+    winhttp.dll
 
+\dist\curl\
+    curl
 
-    Directory: ...\dist\BepInEx_x86_5.4.21.0
-d-----         7/31/2022   9:24 AM                BepInEx
-------         7/19/2022   8:28 PM            375 changelog.txt
-------         4/11/2021   9:29 AM            891 doorstop_config.ini
-------         7/19/2022   8:28 PM          20992 winhttp.dll
-
-
-    Directory: ...\dist\BepInEx_x86_5.4.21.0\BepInEx
-d-----         7/31/2022   9:24 AM                core
-
-
-    Directory: ...\dist\BepInEx_x86_5.4.21.0\BepInEx\core
-------          2/2/2022   6:28 PM         204800 0Harmony.dll
-------             ...redacted for brevity...
-
-    Directory: ...\dist\curl
-d-----          8/3/2022   8:28 AM                curl
-
-
-    Directory: ...\dist\curl\curl
--a----         7/19/2022   3:12 AM         222477 curl-ca-bundle.crt
--a----         6/27/2022   6:12 AM        5918280 curl.exe
--a----         6/27/2022   6:12 AM           2206 libcurl-x64.def
--a----         6/27/2022   6:12 AM        5716040 libcurl-x64.dll
+\dist\curl\curl\
+    curl-ca-bundle.crt
+    curl.exe
+    libcurl-x64.def
+    libcurl-x64.dll
 ```
 
 6. Install
