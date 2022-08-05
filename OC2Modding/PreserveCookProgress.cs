@@ -6,7 +6,7 @@ namespace OC2Modding
 {
     public class PreserveCookProgress
     {
-        private static ConfigEntry<bool> configPreserveCookingProgress;
+        public static ConfigEntry<bool> configPreserveCookingProgress;
 
         public static void Awake()
         {

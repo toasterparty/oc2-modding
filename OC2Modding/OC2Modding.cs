@@ -44,17 +44,21 @@ namespace OC2Modding
             PreserveCookProgress.Awake();
             LeaderboardMod.Awake();
             DisplayFPS.Awake();
+
+            DisplayModsOnResultsScreen.Awake(); // This MUST go last
         }
 
         private void Update()
         {
             LeaderboardMod.Update();
             DisplayFPS.Update();
+            DisplayModsOnResultsScreen.Update();
         }
 
         private void OnGUI()
         {
             DisplayFPS.OnGUI();
+            DisplayModsOnResultsScreen.OnGUI();
         }
     }
 }

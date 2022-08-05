@@ -6,10 +6,10 @@ namespace OC2Modding
 {
     public class FixBugs
     {
-        private static ConfigEntry<bool> configFixDoubleServing;
-        private static ConfigEntry<bool> configFixSinkBug;
-        private static ConfigEntry<bool> configFixControlStickThrowBug;
-        private static ConfigEntry<bool> configFixEmptyBurnerThrow;
+        public static ConfigEntry<bool> configFixDoubleServing;
+        public static ConfigEntry<bool> configFixSinkBug;
+        public static ConfigEntry<bool> configFixControlStickThrowBug;
+        public static ConfigEntry<bool> configFixEmptyBurnerThrow;
 
         public static void Awake()
         {

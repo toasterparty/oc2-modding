@@ -6,7 +6,7 @@ namespace OC2Modding
 {
     public class TimerAlwaysStarts
     {
-        private static ConfigEntry<bool> configTimerAlwaysStarts;
+        public static ConfigEntry<bool> configTimerAlwaysStarts;
 
         public static void Awake()
         {
