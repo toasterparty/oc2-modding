@@ -47,7 +47,7 @@ namespace OC2Modding
             }
             if (CustomOrderLifetime.configCustomOrderLifetime.Value != 100.0)
             {
-                modsDisplay.m_Text += $"\n{(int)CustomOrderLifetime.configCustomOrderLifetime.Value}Sec Order Lifetime";
+                modsDisplay.m_Text += $"\n{(int)CustomOrderLifetime.configCustomOrderLifetime.Value}s Order Lifetime";
             }
 
             /* Inject Mod */
@@ -103,7 +103,7 @@ namespace OC2Modding
 
             public void OnGUI()
             {
-                Rect rect = new Rect(0f, (float)Screen.height * 0.7f, (float)Screen.width * 0.99f, (float)this.m_GUIStyle.fontSize);
+                Rect rect = new Rect(0f, (float)Screen.height * 0.65f, (float)Screen.width * 0.99f, (float)this.m_GUIStyle.fontSize);
                 for (int i = 0; i < this.m_Displays.Count; i++)
                 {
                     this.m_Displays[i].OnDraw(ref rect, this.m_GUIStyle);
