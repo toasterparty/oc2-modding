@@ -44,6 +44,7 @@ namespace OC2Modding
             PreserveCookProgress.Awake();
             LeaderboardMod.Awake();
             DisplayFPS.Awake();
+            CustomOrderLifetime.Awake();
 
             DisplayModsOnResultsScreen.Awake(); // This MUST go last
         }
