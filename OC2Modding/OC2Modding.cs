@@ -45,6 +45,7 @@ namespace OC2Modding
             LeaderboardMod.Awake();
             DisplayFPS.Awake();
             CustomOrderLifetime.Awake();
+            AlwaysServeOldestOrder.Awake();
 
             DisplayModsOnResultsScreen.Awake(); // This MUST go last
         }

@@ -29,6 +29,14 @@ namespace OC2Modding
             {
                 modsDisplay.m_Text += "\nPreserve Cooking Progress";
             }
+            if (CustomOrderLifetime.configCustomOrderLifetime.Value != 100.0)
+            {
+                modsDisplay.m_Text += $"\n{(int)CustomOrderLifetime.configCustomOrderLifetime.Value}s Order Lifetime";
+            }
+            if (AlwaysServeOldestOrder.configAlwaysServeOldestOrder.Value)
+            {
+                modsDisplay.m_Text += "\nAlways Serve Oldest Order";
+            }
             if (FixBugs.configFixDoubleServing.Value)
             {
                 modsDisplay.m_Text += "\nDouble Servering Bugfix";
@@ -44,10 +52,6 @@ namespace OC2Modding
             if (FixBugs.configFixControlStickThrowBug.Value)
             {
                 modsDisplay.m_Text += "\nControl Stick Throw Cooldown Bugfix";
-            }
-            if (CustomOrderLifetime.configCustomOrderLifetime.Value != 100.0)
-            {
-                modsDisplay.m_Text += $"\n{(int)CustomOrderLifetime.configCustomOrderLifetime.Value}s Order Lifetime";
             }
 
             /* Inject Mod */
