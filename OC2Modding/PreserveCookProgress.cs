@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace OC2Modding
 {
-    public class PreserveCookProgress
+    public static class PreserveCookProgress
     {
         public static ConfigEntry<bool> configPreserveCookingProgress;
 
@@ -18,10 +18,12 @@ namespace OC2Modding
                 "In the base game, certain cooking vessels reset their cooking progress to 0% or 50% when a new item is added. Enabling this option makes the behavior consistent across all vessels (Adding uncooked items to cooked ones preserves always preserves cooked progress)" // Friendly description
             );
 
-            if (configPreserveCookingProgress.Value)
+            if (!configPreserveCookingProgress.Value)
             {
-                Harmony.CreateAndPatchAll(typeof(PreserveCookProgress));
+                return;
             }
+
+            Harmony.CreateAndPatchAll(typeof(PreserveCookProgress));
         }
 
         [HarmonyPatch(typeof(ServerCookingHandler), nameof(ServerCookingHandler.SetCookingProgress))]
@@ -30,7 +32,6 @@ namespace OC2Modding
         {
             return _cookingProgress != 0f; // skip function if cooking containers being told to reset their cooking progress for no reason
         }
-
 
         private static float CalculateCombinedProgress(float recipientProgress, int recipientContents, float receivedProgress, int receivedContents, float AccessCookingTime)
         {

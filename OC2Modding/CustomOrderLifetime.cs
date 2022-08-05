@@ -3,7 +3,7 @@ using HarmonyLib;
 
 namespace OC2Modding
 {
-    public class CustomOrderLifetime
+    public static class CustomOrderLifetime
     {
         public static ConfigEntry<float> configCustomOrderLifetime;
 
@@ -17,10 +17,12 @@ namespace OC2Modding
                 "Customize how long orders take before expiring" // Friendly description
             );
 
-            if (configCustomOrderLifetime.Value != 100.0f)
+            if (configCustomOrderLifetime.Value == 100.0f)
             {
-                Harmony.CreateAndPatchAll(typeof(CustomOrderLifetime));
+                return;
             }
+
+            Harmony.CreateAndPatchAll(typeof(CustomOrderLifetime));
         }
 
         [HarmonyPatch(typeof(GameSession), nameof(GameSession.GetGameModeServer))]

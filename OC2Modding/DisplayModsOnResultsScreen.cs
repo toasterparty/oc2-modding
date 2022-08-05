@@ -5,7 +5,7 @@ using BitStream;
 
 namespace OC2Modding
 {
-    public class DisplayModsOnResultsScreen
+    public static class DisplayModsOnResultsScreen
     {
         private static MyOnScreenDebugDisplay onScreenDebugDisplay;
         private static ModsDisplay modsDisplay = null;
@@ -44,6 +44,10 @@ namespace OC2Modding
             if (FixBugs.configFixControlStickThrowBug.Value)
             {
                 modsDisplay.m_Text += "\nControl Stick Throw Cooldown Bugfix";
+            }
+            if (CustomOrderLifetime.configCustomOrderLifetime.Value != 100.0)
+            {
+                modsDisplay.m_Text += $"\n{(int)CustomOrderLifetime.configCustomOrderLifetime.Value}Sec Order Lifetime";
             }
 
             /* Inject Mod */
@@ -85,7 +89,7 @@ namespace OC2Modding
                 this.m_Displays = new List<DebugDisplay>();
                 this.m_GUIStyle = new GUIStyle();
                 this.m_GUIStyle.alignment = TextAnchor.UpperRight;
-                this.m_GUIStyle.fontSize = (int)((float)Screen.height * 0.03f);
+                this.m_GUIStyle.fontSize = (int)((float)Screen.height * 0.02f);
                 this.m_GUIStyle.normal.textColor = new Color(0.91f, 0.426f, 0.074f, 1f);
             }
 
@@ -141,7 +145,6 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void OnOutro()
         {
-            OC2Modding.Log.LogInfo("OnOutro");
             shouldDisplay = true;
         }
 
@@ -149,7 +152,6 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void LoadScene()
         {
-            OC2Modding.Log.LogInfo("LoadScene");
             shouldDisplay = false;
         }
     }

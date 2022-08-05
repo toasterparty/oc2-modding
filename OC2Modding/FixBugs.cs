@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace OC2Modding
 {
-    public class FixBugs
+    public static class FixBugs
     {
         public static ConfigEntry<bool> configFixDoubleServing;
         public static ConfigEntry<bool> configFixSinkBug;
@@ -56,10 +56,9 @@ namespace OC2Modding
             {
                 Harmony.CreateAndPatchAll(typeof(FixBugs.fixEmptyBurnerThrow));
             }
-
         }
 
-        class fixEmptyBurnerThrow
+        private static class fixEmptyBurnerThrow
         {
             [HarmonyPatch(typeof(PlayerControlsHelper), nameof(PlayerControlsHelper.IsHeldItemInsideStaticCollision))]
             [HarmonyPrefix]
@@ -72,7 +71,7 @@ namespace OC2Modding
             }
         }
 
-        class fixControlStickBug
+        private static class fixControlStickBug
         {
             [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), "Update_Throw")]
             [HarmonyPrefix]
@@ -88,31 +87,27 @@ namespace OC2Modding
 
             [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), "Update_Aim")]
             [HarmonyPrefix]
-            private static bool Update_Aim(ref PlayerControls.ControlSchemeData ___m_controlScheme, ref ICarrier ___m_iCarrier, ref bool isUsePressed)
+            private static void Update_Aim(ref PlayerControls.ControlSchemeData ___m_controlScheme, ref ICarrier ___m_iCarrier, ref bool isUsePressed)
             {
                 if (___m_controlScheme.m_worksurfaceUseButton.IsDown() && ___m_controlScheme.IsUseSuppressed() && !___m_controlScheme.IsUseJustReleased() && ___m_iCarrier.InspectCarriedItem() != null)
                 {
                     isUsePressed = true;
                 }
-
-                return true; // execute original function
             }
         }
 
-        class fixDoubleServing
+        private static class fixDoubleServing
         {
             private static bool skipNext = false;
 
             [HarmonyPatch(typeof(ServerPlateStation), "DeliverCurrentPlate")]
             [HarmonyPrefix]
-            private static bool DeliverCurrentPlate(ref ServerPlateStation __instance, ref ServerPlate ___m_plate, ref IKitchenOrderHandler ___m_orderHandler)
+            private static void DeliverCurrentPlate(ref ServerPlateStation __instance, ref ServerPlate ___m_plate, ref IKitchenOrderHandler ___m_orderHandler)
             {
                 if (___m_plate.IsReserved())
                 {
                     skipNext = true;
                 }
-
-                return true; // execute original function
             }
 
             [HarmonyPatch(typeof(ServerKitchenFlowControllerBase), nameof(ServerKitchenFlowControllerBase.FoodDelivered))]
@@ -130,28 +125,26 @@ namespace OC2Modding
             }
         }
 
-        class fixSinkBug
+        private static class fixSinkBug
         {
             [HarmonyPatch(typeof(ServerWashingStation), "OnItemAdded")]
             [HarmonyPrefix]
-            private static bool OnItemAddedPrefix(ref IHandlePickup ___m_originalPickupReferee, ref ServerHandlePickupReferral ___m_handlePickupReferral)
+            private static void OnItemAddedPrefix(ref IHandlePickup ___m_originalPickupReferee, ref ServerHandlePickupReferral ___m_handlePickupReferral)
             {
                 if (___m_originalPickupReferee == null && ___m_handlePickupReferral != null)
                 {
                     ___m_originalPickupReferee = ___m_handlePickupReferral.GetHandlePickupReferree();
                 }
-                return true;
             }
 
             [HarmonyPatch(typeof(ClientWashingStation), "OnItemAddedOntoSink")]
             [HarmonyPrefix]
-            private static bool OnItemAddedOntoSink(ref IClientHandlePickup ___m_pickupReferree, ref ClientHandlePickupReferral ___m_handlePickupreferral)
+            private static void OnItemAddedOntoSink(ref IClientHandlePickup ___m_pickupReferree, ref ClientHandlePickupReferral ___m_handlePickupreferral)
             {
                 if (___m_pickupReferree == null && ___m_handlePickupreferral != null)
                 {
                     ___m_pickupReferree = ___m_handlePickupreferral.GetHandlePickupReferree();
                 }
-                return true;
             }
         }
     }

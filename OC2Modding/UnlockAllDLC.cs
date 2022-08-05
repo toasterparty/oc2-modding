@@ -17,6 +17,11 @@ namespace OC2Modding
                 "Set to true to unlock all DLC, I don't know if this works, because I own all DLC -toasterparty" // Friendly description
             );
 
+            if(!configUnlockAllDLC.Value)
+            {
+                return;
+            }
+
             /* Inject Mod */
             Harmony.CreateAndPatchAll(typeof(UnlockAllDLC));
         }

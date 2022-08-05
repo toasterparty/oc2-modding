@@ -4,7 +4,7 @@ using HarmonyLib;
 
 namespace OC2Modding
 {
-    public class SkipTutorialPopups
+    public static class SkipTutorialPopups
     {
         private static ConfigEntry<bool> configSkipTutorialPopups;
 
@@ -19,10 +19,12 @@ namespace OC2Modding
             );
 
             /* Inject Mod */
-            if (configSkipTutorialPopups.Value)
+            if (!configSkipTutorialPopups.Value)
             {
-                Harmony.CreateAndPatchAll(typeof(SkipTutorialPopups));
+                return;
             }
+
+            Harmony.CreateAndPatchAll(typeof(SkipTutorialPopups));
         }
 
         [HarmonyPatch(typeof(TutorialPopup), nameof(TutorialPopup.CanSpawn))]

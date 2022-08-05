@@ -38,13 +38,12 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(SaveSlotElement), nameof(SaveSlotElement.ServerLoadCampaign))]
         [HarmonyPrefix]
-        private static bool ServerLoadCampaign()
+        private static void ServerLoadCampaign()
         {
             if (configSkipTutorial.Value)
             {
                 GameUtils.GetDebugConfig().m_skipTutorial = true;
             }
-            return true; // run original function
         }
 
         [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.GetLevelProgress))]

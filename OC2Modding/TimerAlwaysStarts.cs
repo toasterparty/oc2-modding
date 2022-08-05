@@ -4,7 +4,7 @@ using HarmonyLib;
 
 namespace OC2Modding
 {
-    public class TimerAlwaysStarts
+    public static class TimerAlwaysStarts
     {
         public static ConfigEntry<bool> configTimerAlwaysStarts;
 
@@ -18,19 +18,20 @@ namespace OC2Modding
                 "Set to true to make levels which normally have \"Prep Time\" start immediately" // Friendly description
             );
 
-            /* Inject Mod */
-            if (configTimerAlwaysStarts.Value)
+            if (!configTimerAlwaysStarts.Value)
             {
-                Harmony.CreateAndPatchAll(typeof(TimerAlwaysStarts));
+                return;
             }
+
+            /* Inject Mod */
+            Harmony.CreateAndPatchAll(typeof(TimerAlwaysStarts));
         }
 
         [HarmonyPatch(typeof(GameModes.ServerCampaignMode), nameof(GameModes.ServerCampaignMode.Begin))]
         [HarmonyPrefix]
-        private static bool Begin(ref GameModes.ClientContext ___m_context)
+        private static void Begin(ref GameModes.ClientContext ___m_context)
         {
             ___m_context.m_levelConfig.m_recipesBeforeTimerStarts = 0;
-            return true; // execute original
         }
     }
 }

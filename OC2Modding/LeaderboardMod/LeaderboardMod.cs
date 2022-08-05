@@ -27,6 +27,7 @@ namespace OC2Modding
             {
                 return;
             }
+
             Harmony.CreateAndPatchAll(typeof(LeaderboardMod));
 
             playerCountSwitchButton1 = new LogicalKeycodeButton(KeyCode.Alpha1, ControlPadInput.Button.Invalid);

@@ -1,11 +1,10 @@
 using BepInEx.Configuration;
-using HarmonyLib;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace OC2Modding
 {
-    public class DisplayFPS
+    public static class DisplayFPS
     {
         private static ConfigEntry<bool> configDisplayFPS;
         private static MyOnScreenDebugDisplayFPS onScreenDebugDisplayFPS;
@@ -21,15 +20,14 @@ namespace OC2Modding
                 "Set to true to show FPS when HOME is pressed (hide with END)" // Friendly description
             );
 
+            if (!configDisplayFPS.Value)
+            {
+                return;
+            }
+
             /* Setup */
             onScreenDebugDisplayFPS = new MyOnScreenDebugDisplayFPS();
             onScreenDebugDisplayFPS.Awake();
-
-            /* Inject Mod */
-            if (configDisplayFPS.Value)
-            {
-                Harmony.CreateAndPatchAll(typeof(DisplayFPS));
-            }
         }
 
         public static void Update()

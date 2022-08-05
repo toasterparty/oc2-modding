@@ -4,7 +4,7 @@ using HarmonyLib;
 
 namespace OC2Modding
 {
-    public class UnlockAllChefs
+    public static class UnlockAllChefs
     {
         private static ConfigEntry<bool> configUnlockAllChefs;
 
@@ -18,11 +18,13 @@ namespace OC2Modding
                 "Set to true to show all Chefs on the Chef selection screen" // Friendly description
             );
 
-            /* Inject Mod */
-            if (configUnlockAllChefs.Value)
+            if (!configUnlockAllChefs.Value)
             {
-                Harmony.CreateAndPatchAll(typeof(UnlockAllChefs));
+                return;
             }
+
+            /* Inject Mod */
+            Harmony.CreateAndPatchAll(typeof(UnlockAllChefs));
         }
 
         [HarmonyPatch(typeof(MetaGameProgress), nameof(MetaGameProgress.GetUnlockedAvatars))]
