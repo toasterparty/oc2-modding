@@ -12,10 +12,19 @@ namespace OC2Modding
 {
     public class DisplayLeaderboardScores
     {
+        private struct LeaderboardScoresKey
+        {
+            public int DLCID;
+            public int levelId;
+            public uint playerCount;
+        }
+
         private static ConfigEntry<bool> configDisplayLeaderboardScores;
         private static MyOnScreenDebugDisplay onScreenDebugDisplay;
         private static LeaderboardDisplay leaderboardDisplay = null;
         private static Dictionary<int, bool> enabledNodes;
+        private static Dictionary<LeaderboardScoresKey, List<int>> leaderboardScores = null;
+        private static IEnumerable<string> lines = null;
 
         public static void Awake()
         {
@@ -34,11 +43,14 @@ namespace OC2Modding
 
             /* Setup */
             onScreenDebugDisplay = new MyOnScreenDebugDisplay();
+            leaderboardScores = new Dictionary<LeaderboardScoresKey, List<int>>();
             enabledNodes = new Dictionary<int, bool>();
             onScreenDebugDisplay.Awake();
             onScreenDebugDisplay.AddDisplay(new LeaderboardDisplay());
 
             downloadLeaderboardFile();
+
+            buildCache();
 
             /* Inject Mod */
             Harmony.CreateAndPatchAll(typeof(DisplayLeaderboardScores));
@@ -90,7 +102,11 @@ namespace OC2Modding
 
             try
             {
-                IEnumerable<string> lines = File.ReadAllLines("leaderboard_scores.csv");
+                if (lines == null)
+                {
+                    lines = File.ReadAllLines("leaderboard_scores.csv");
+                }
+
                 bool firstLine = true;
                 foreach (string line in lines)
                 {
@@ -108,6 +124,28 @@ namespace OC2Modding
                         }
 
                         string sanitaryLine = line.Replace("Sun’s Out,", "Sun's Out");
+                        
+                        int commaCount = 0;
+                        int score = 0;
+                        bool inTeamName = false;
+                        
+                        for (int i = 0; i < sanitaryLine.Length-1; i++)
+                        {
+                            if(sanitaryLine[i] == '"' && commaCount == 5 && !inTeamName)
+                            {
+                                inTeamName = true;
+                            }
+                            else if (sanitaryLine[i] == '"' && inTeamName)
+                            {
+                                var substrings = sanitaryLine.Substring(i+2).Split(',');
+                                score = Int32.Parse(substrings[0]);
+                            }
+                            else if (sanitaryLine[i] == ',')
+                            {
+                                commaCount++;
+                            }
+                        }
+
                         string[] values = sanitaryLine.Split(',');
                         if (UInt32.Parse(values[3]) != playerCount || values[2].Replace("\"", "") != level || values[0].Replace("\"", "") != game || values[1].Replace("\"", "") != dlc)
                         {
@@ -120,8 +158,11 @@ namespace OC2Modding
                             continue; // The score isn't good enough to return
                         }
 
-                        // Return this score
-                        int score = Int32.Parse(values[6]);
+                        if (score == 0)
+                        {
+                            score = Int32.Parse(values[6]);
+                        }
+
                         scores.Add(score);
                     }
                     catch (Exception e)
@@ -234,9 +275,37 @@ namespace OC2Modding
             return $"{world + 1}-{x + 1}";
         }
 
+        private static void buildCache()
+        {
+            for (uint playerCount = 1; playerCount <= 4; playerCount++)
+            {
+                foreach (int DLCID in new int[] { -1, 2, 3, 5, 7, 8})
+                {
+                    for (int i = 0; i < 100; i++)
+                    {
+                        List<int> result = getScoresFromLeaderboard(DLCID, i, playerCount);
+                        if (result.Count == 0)
+                        {
+                            break;
+                        }
+                    }
+                }   
+            }
+
+            lines = null;
+        }
+
         private static List<int> getScoresFromLeaderboard(int DLCID, int levelId, uint playerCount)
         {
-            // TOOD: build cache and return answers from it on Awake
+            LeaderboardScoresKey key;
+            key.DLCID = DLCID;
+            key.levelId = levelId;
+            key.playerCount = playerCount;
+
+            if (leaderboardScores.ContainsKey(key))
+            {
+                return leaderboardScores[key];
+            }
 
             string dlc = CurrentDLC.DLCToString(DLCID);
 
@@ -260,7 +329,7 @@ namespace OC2Modding
                     );
                 }
             }
-            else if (dlc == "Campfire Cook Off" || dlc == "Carnival of Chaos" || dlc == "Surf 'n Turf")
+            else if (dlc == "Campfire Cook Off" || dlc == "Carnival of Chaos" || dlc == "Surf 'n' Turf")
             {
                 if (levelId > 12)
                 {
@@ -338,12 +407,17 @@ namespace OC2Modding
             if (dlc == "" || level == "" || playerCount < 1 || playerCount > 4)
             {
                 OC2Modding.Log.LogWarning($"Failed to parse level for leaderboard display: dlc={DLCID}, levelId={levelId}, playerCount={playerCount}");
+                OC2Modding.Log.LogWarning($"\tdlc={dlc}, level={level}");
                 return new List<int>();
             }
 
-            OC2Modding.Log.LogInfo($"{dlc} {level} ({playerCount} Player)");
+            List<int> result = getScoresFromLeaderboard("Overcooked 2", dlc, level, playerCount, 5);
+            if (result.Count != 0)
+            {
+                leaderboardScores[key] = result;
+            }
 
-            return getScoresFromLeaderboard("Overcooked 2", dlc, level, playerCount, 5);
+            return result;
         }
 
         private static List<int> getScoresFromLeaderboard(int levelId)
