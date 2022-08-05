@@ -1,3 +1,5 @@
+// My worse implementation of hpmv's leaderboard display
+
 using BepInEx.Configuration;
 using HarmonyLib;
 using System;
