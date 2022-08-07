@@ -1,4 +1,3 @@
-using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine;
 
@@ -6,56 +5,12 @@ namespace OC2Modding
 {
     public static class FixBugs
     {
-        public static ConfigEntry<bool> configFixDoubleServing;
-        public static ConfigEntry<bool> configFixSinkBug;
-        public static ConfigEntry<bool> configFixControlStickThrowBug;
-        public static ConfigEntry<bool> configFixEmptyBurnerThrow;
-
         public static void Awake()
         {
-            /* Setup Configuration */
-            configFixDoubleServing = OC2Modding.configFile.Bind(
-                "Bugfixes", // Config Category
-                "FixDoubleServing", // Config key name
-                true, // Default Config value
-                "Set to true to fix a bug which ruins competitive play" // Friendly description
-            );
-            configFixSinkBug = OC2Modding.configFile.Bind(
-                "Bugfixes", // Config Category
-                "FixSinkBug", // Config key name
-                true, // Default Config value
-                "Set to true to fix a bug where sinks can have reduced usability for the rest of the level" // Friendly description
-            );
-            configFixControlStickThrowBug = OC2Modding.configFile.Bind(
-                "Bugfixes", // Config Category
-                "FixControlStickThrowBug", // Config key name
-                true, // Default Config value
-                "Set to true to fix a bug where cancelling out of a platform control stick in a specific way would eat the next throw input" // Friendly description
-            );
-            configFixEmptyBurnerThrow = OC2Modding.configFile.Bind(
-                "Bugfixes", // Config Category
-                "FixEmptyBurnerThrow", // Config key name
-                true, // Default Config value
-                "Set to true to fix a bug where you cannot throw items when standing directly over a burner/mixer with no pan/bowl" // Friendly description
-            );
-
-            /* Inject Mod */
-            if (configFixDoubleServing.Value)
-            {
-                Harmony.CreateAndPatchAll(typeof(FixBugs.fixDoubleServing));
-            }
-            if (configFixSinkBug.Value)
-            {
-                Harmony.CreateAndPatchAll(typeof(FixBugs.fixSinkBug));
-            }
-            if (configFixControlStickThrowBug.Value)
-            {
-                Harmony.CreateAndPatchAll(typeof(FixBugs.fixControlStickBug));
-            }
-            if (configFixEmptyBurnerThrow.Value)
-            {
-                Harmony.CreateAndPatchAll(typeof(FixBugs.fixEmptyBurnerThrow));
-            }
+            Harmony.CreateAndPatchAll(typeof(FixBugs.fixDoubleServing));
+            Harmony.CreateAndPatchAll(typeof(FixBugs.fixSinkBug));
+            Harmony.CreateAndPatchAll(typeof(FixBugs.fixControlStickBug));
+            Harmony.CreateAndPatchAll(typeof(FixBugs.fixEmptyBurnerThrow));
         }
 
         private static class fixEmptyBurnerThrow
@@ -64,7 +19,7 @@ namespace OC2Modding
             [HarmonyPrefix]
             private static void IsHeldItemInsideStaticCollision(ref bool __result, ref int ___s_staticCollisionLayerMask)
             {
-                if (___s_staticCollisionLayerMask == 0)
+                if (OC2Config.FixEmptyBurnerThrow && ___s_staticCollisionLayerMask == 0)
                 {
                     ___s_staticCollisionLayerMask = LayerMask.GetMask(new string[] { "Default", "Ground", "Walls", "Worktops", "PlateStationBlock" });
                 }
@@ -77,7 +32,7 @@ namespace OC2Modding
             [HarmonyPrefix]
             private static void Update_Throw(ref bool isUsePressed, ref bool justReleased, ref bool isSuppressed, ref ICarrier ___m_iCarrier)
             {
-                if (!isUsePressed && justReleased && isSuppressed && ___m_iCarrier.InspectCarriedItem() != null)
+                if (OC2Config.FixControlStickThrowBug && !isUsePressed && justReleased && isSuppressed && ___m_iCarrier.InspectCarriedItem() != null)
                 {
                     isSuppressed = false;
 
@@ -89,7 +44,7 @@ namespace OC2Modding
             [HarmonyPrefix]
             private static void Update_Aim(ref PlayerControls.ControlSchemeData ___m_controlScheme, ref ICarrier ___m_iCarrier, ref bool isUsePressed)
             {
-                if (___m_controlScheme.m_worksurfaceUseButton.IsDown() && ___m_controlScheme.IsUseSuppressed() && !___m_controlScheme.IsUseJustReleased() && ___m_iCarrier.InspectCarriedItem() != null)
+                if (OC2Config.FixControlStickThrowBug && ___m_controlScheme.m_worksurfaceUseButton.IsDown() && ___m_controlScheme.IsUseSuppressed() && !___m_controlScheme.IsUseJustReleased() && ___m_iCarrier.InspectCarriedItem() != null)
                 {
                     isUsePressed = true;
                 }
@@ -104,7 +59,7 @@ namespace OC2Modding
             [HarmonyPrefix]
             private static void DeliverCurrentPlate(ref ServerPlateStation __instance, ref ServerPlate ___m_plate, ref IKitchenOrderHandler ___m_orderHandler)
             {
-                if (___m_plate.IsReserved())
+                if (OC2Config.FixDoubleServing && ___m_plate.IsReserved())
                 {
                     skipNext = true;
                 }
@@ -131,7 +86,7 @@ namespace OC2Modding
             [HarmonyPrefix]
             private static void OnItemAddedPrefix(ref IHandlePickup ___m_originalPickupReferee, ref ServerHandlePickupReferral ___m_handlePickupReferral)
             {
-                if (___m_originalPickupReferee == null && ___m_handlePickupReferral != null)
+                if (OC2Config.FixSinkBug && ___m_originalPickupReferee == null && ___m_handlePickupReferral != null)
                 {
                     ___m_originalPickupReferee = ___m_handlePickupReferral.GetHandlePickupReferree();
                 }
@@ -141,7 +96,7 @@ namespace OC2Modding
             [HarmonyPrefix]
             private static void OnItemAddedOntoSink(ref IClientHandlePickup ___m_pickupReferree, ref ClientHandlePickupReferral ___m_handlePickupreferral)
             {
-                if (___m_pickupReferree == null && ___m_handlePickupreferral != null)
+                if (OC2Config.FixSinkBug && ___m_pickupReferree == null && ___m_handlePickupreferral != null)
                 {
                     ___m_pickupReferree = ___m_handlePickupreferral.GetHandlePickupReferree();
                 }

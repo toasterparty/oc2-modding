@@ -1,38 +1,11 @@
-using BepInEx.Configuration;
-using System.Collections.Generic;
 using HarmonyLib;
 
 namespace OC2Modding
 {
     public static class UnlockAllLevels
     {
-        private static ConfigEntry<bool> configRevealAllLevels;
-        private static ConfigEntry<bool> configPurchaseAllLevels;
-        private static ConfigEntry<bool> configSkipTutorial;
-
         public static void Awake()
         {
-            /* Setup Configuration */
-            configSkipTutorial = OC2Modding.configFile.Bind(
-                "QualityOfLife", // Config Category
-                "SkipTutorial", // Config key name
-                false, // Default Config value
-                "Set to true to skip the mandatory tutorial when starting a new game" // Friendly description
-            );
-            configRevealAllLevels = OC2Modding.configFile.Bind(
-                "QualityOfLife", // Config Category
-                "RevealAllLevels", // Config key name
-                true, // Default Config value
-                "Set to true to immediately flip all hidden tiles on the overworld" // Friendly description
-            );
-            configPurchaseAllLevels = OC2Modding.configFile.Bind(
-                "GameModifications", // Config Category
-                "PurchaseAllLevels", // Config key name
-                false, // Default Config value
-                "Set to true to remove the requirement for purchasing levels before playing them" // Friendly description
-            );
-
-            /* Inject Mod */
             Harmony.CreateAndPatchAll(typeof(UnlockAllLevels));
         }
 
@@ -40,7 +13,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void ServerLoadCampaign()
         {
-            if (configSkipTutorial.Value)
+            if (OC2Config.SkipTutorial)
             {
                 GameUtils.GetDebugConfig().m_skipTutorial = true;
             }
@@ -50,12 +23,12 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void GetLevelProgress(ref GameProgress.GameProgressData.LevelProgress __result)
         {
-            if (configPurchaseAllLevels.Value)
+            if (OC2Config.PurchaseAllLevels)
             {
                 __result.Purchased = true;
             }
 
-            if (configRevealAllLevels.Value)
+            if (OC2Config.RevealAllLevels)
             {
                 __result.Revealed = true;
                 __result.NGPEnabled = true;
@@ -67,7 +40,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void IsLevelUnlocked(ref bool __result)
         {
-            if (configRevealAllLevels.Value)
+            if (OC2Config.RevealAllLevels)
             {
                 __result = true;
             }

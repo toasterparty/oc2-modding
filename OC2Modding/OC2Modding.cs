@@ -1,7 +1,5 @@
-﻿using System.IO;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Logging;
-using BepInEx.Configuration;
 
 namespace OC2Modding
 {
@@ -10,8 +8,6 @@ namespace OC2Modding
     public class OC2Modding : BaseUnityPlugin
     {
         internal static ManualLogSource Log;
-        public static ConfigFile configFile;
-        private static ConfigEntry<bool> configDisableAllMods;
 
         private void Awake()
         {
@@ -20,19 +16,8 @@ namespace OC2Modding
             OC2Modding.Log.LogInfo($"OC2Modding is alive!");
 
             /* Initialize Configuration */
-            configFile = new ConfigFile(Path.Combine(Paths.ConfigPath, "OC2Modding.cfg"), true);
-            configDisableAllMods = OC2Modding.configFile.Bind(
-                "_DisableAllMods_",
-                "DisableAllMods",
-                false,
-                "Set to true to completely return the game back to it's original state"
-            );
-
-            if (configDisableAllMods.Value)
-            {
-                OC2Modding.Log.LogInfo($"All mods DISABLED!");
-                return;
-            }
+            OC2Config.Awake();
+            if (OC2Config.DisableAllMods) return;
 
             /* Inject Mods */
             FixBugs.Awake();
@@ -52,6 +37,7 @@ namespace OC2Modding
 
         private void Update()
         {
+            if (OC2Config.DisableAllMods) return;
             LeaderboardMod.Update();
             DisplayFPS.Update();
             DisplayModsOnResultsScreen.Update();
@@ -59,6 +45,7 @@ namespace OC2Modding
 
         private void OnGUI()
         {
+            if (OC2Config.DisableAllMods) return;
             DisplayFPS.OnGUI();
             DisplayModsOnResultsScreen.OnGUI();
         }

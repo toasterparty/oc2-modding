@@ -1,4 +1,3 @@
-using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine;
 
@@ -6,23 +5,8 @@ namespace OC2Modding
 {
     public static class PreserveCookProgress
     {
-        public static ConfigEntry<bool> configPreserveCookingProgress;
-
         public static void Awake()
         {
-            /* Setup Configuration */
-            configPreserveCookingProgress = OC2Modding.configFile.Bind(
-                "GameModifications", // Config Category
-                "PreserveCookingProgress", // Config key name
-                false, // Default Config value
-                "In the base game, certain cooking vessels reset their cooking progress to 0% or 50% when a new item is added. Enabling this option makes the behavior consistent across all vessels (Adding uncooked items to cooked ones preserves always preserves cooked progress)" // Friendly description
-            );
-
-            if (!configPreserveCookingProgress.Value)
-            {
-                return;
-            }
-
             Harmony.CreateAndPatchAll(typeof(PreserveCookProgress));
         }
 
@@ -30,7 +14,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool SetCookingProgress(ref float _cookingProgress)
         {
-            return _cookingProgress != 0f; // skip function if cooking containers being told to reset their cooking progress for no reason
+            return !OC2Config.PreserveCookingProgress || _cookingProgress != 0f; // skip function if cooking containers being told to reset their cooking progress for no reason
         }
 
         private static float CalculateCombinedProgress(float recipientProgress, int recipientContents, float receivedProgress, int receivedContents, float AccessCookingTime)
@@ -60,11 +44,14 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void AddOrderContentsPostfix(ref ServerCookingHandler ___m_cookingHandler, ref ServerIngredientContainer ___m_itemContainer, ref AssembledDefinitionNode[] _contents)
         {
-            int receivedContents = _contents.Length;
-            int recipientContents = ___m_itemContainer.GetContentsCount();
+            if (OC2Config.PreserveCookingProgress)
+            {
+                int receivedContents = _contents.Length;
+                int recipientContents = ___m_itemContainer.GetContentsCount();
 
-            float newProgress = CalculateCombinedProgress(___m_cookingHandler.GetCookingProgress(), recipientContents, 0f, receivedContents, ___m_cookingHandler.AccessCookingTime);
-            ___m_cookingHandler.SetCookingProgress(newProgress);
+                float newProgress = CalculateCombinedProgress(___m_cookingHandler.GetCookingProgress(), recipientContents, 0f, receivedContents, ___m_cookingHandler.AccessCookingTime);
+                ___m_cookingHandler.SetCookingProgress(newProgress);
+            }
         }
 
         /* Replace the function with postfix because that has better patch compatability */
@@ -72,7 +59,10 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void CalculateCombinedMixingProgress(ref float recipientProgress, ref int recipientContents, ref float receivedProgress, ref int receivedContents, ref float __result, ref ServerMixingHandler ___m_MixingHandler)
         {
-            __result = CalculateCombinedProgress(recipientProgress, recipientContents, receivedProgress, receivedContents, ___m_MixingHandler.AccessMixingTime);
+            if (OC2Config.PreserveCookingProgress)
+            {
+                __result = CalculateCombinedProgress(recipientProgress, recipientContents, receivedProgress, receivedContents, ___m_MixingHandler.AccessMixingTime);
+            }
         }
 
         /* Replace the function with postfix because that has better patch compatability */
@@ -80,7 +70,10 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void CalculateCombinedCookingProgress(ref float recipientProgress, ref int recipientContents, ref float receivedProgress, ref int receivedContents, ref float __result, ref ServerCookingHandler ___m_cookingHandler)
         {
-            __result = CalculateCombinedProgress(recipientProgress, recipientContents, receivedProgress, receivedContents, ___m_cookingHandler.AccessCookingTime);
+            if (OC2Config.PreserveCookingProgress)
+            {
+                __result = CalculateCombinedProgress(recipientProgress, recipientContents, receivedProgress, receivedContents, ___m_cookingHandler.AccessCookingTime);
+            }
         }
     }
 }

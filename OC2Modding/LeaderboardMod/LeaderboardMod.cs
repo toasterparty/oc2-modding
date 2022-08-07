@@ -1,5 +1,4 @@
-﻿using BepInEx.Configuration;
-using HarmonyLib;
+﻿using HarmonyLib;
 using System;
 using System.Collections;
 using System.Reflection;
@@ -11,34 +10,21 @@ namespace OC2Modding
 {
     public class LeaderboardMod
     {
-        private static ConfigEntry<bool> configDisplayLeaderboardScores;
-
         public static void Awake()
         {
-            /* Setup Configuration */
-            configDisplayLeaderboardScores = OC2Modding.configFile.Bind(
-                "QualityOfLife", // Config Category
-                "DisplayLeaderboardScores", // Config key name
-                true, // Default Config value
-                "Set to true to show the top 5 leaderboard scores when previewing a level" // Friendly description
-            );
-
-            if (!configDisplayLeaderboardScores.Value)
-            {
-                return;
-            }
-
-            Harmony.CreateAndPatchAll(typeof(LeaderboardMod));
-
             playerCountSwitchButton1 = new LogicalKeycodeButton(KeyCode.Alpha1, ControlPadInput.Button.Invalid);
             playerCountSwitchButton2 = new LogicalKeycodeButton(KeyCode.Alpha2, ControlPadInput.Button.Invalid);
             playerCountSwitchButton3 = new LogicalKeycodeButton(KeyCode.Alpha3, ControlPadInput.Button.Invalid);
             playerCountSwitchButton4 = new LogicalKeycodeButton(KeyCode.Alpha4, ControlPadInput.Button.Invalid);
             playerCountSwitchButtonCancel = new LogicalKeycodeButton(KeyCode.Alpha0, ControlPadInput.Button.Invalid);
+
+            Harmony.CreateAndPatchAll(typeof(LeaderboardMod));
         }
 
         public static void Update()
         {
+            if (!OC2Config.DisplayLeaderboardScores) return;
+
             int? original = numPlayersOverride;
             if (playerCountSwitchButton1.IsDown())
             {
@@ -248,12 +234,14 @@ namespace OC2Modding
             }
         }
 
-        [HarmonyPostfix]
         [HarmonyPatch(typeof(WorldMapKitchenLevelIconUI), "SetUserScores")]
+        [HarmonyPostfix]
         public static void WorldMapSetUserScoresPatch(
             WorldMapKitchenLevelIconUI __instance
             )
         {
+            if (!OC2Config.DisplayLeaderboardScores) return;
+
             var m_userScoreUis = field_m_userScoreUis.GetValue(__instance) as Array;
             var existingUserScoreContainer = RearrangeLevelPreviewLayout(__instance.gameObject);
             if (existingUserScoreContainer == null)

@@ -1,4 +1,3 @@
-using BepInEx.Configuration;
 using HarmonyLib;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,23 +7,9 @@ namespace OC2Modding
 {
     public static class AlwaysServeOldestOrder
     {
-        public static ConfigEntry<bool> configAlwaysServeOldestOrder;
 
         public static void Awake()
         {
-            /* Setup Configuration */
-            configAlwaysServeOldestOrder = OC2Modding.configFile.Bind(
-                "GameModifications", // Config Category
-                "AlwaysServeOldestOrder", // Config key name
-                false, // Default Config value
-                "When an order expires in the base game, it tries to 'help' the player(s) by making it so that the next dish server of that type goes to highest scoring ticket, rather than the one which would let the player(s) dig out of a broken tip combo. Set this to true to make the game always serve the oldest ticket." // Friendly description
-            );
-
-            if (!configAlwaysServeOldestOrder.Value)
-            {
-                return;
-            }
-
             Harmony.CreateAndPatchAll(typeof(AlwaysServeOldestOrder));
         }
 
@@ -47,7 +32,13 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void FindBestOrderForRecipe(ref AssembledDefinitionNode _order, ref PlatingStepData _plateType, ref OrderID o_orderID, ref float _timePropRemainingPercentage, ref bool __result, ref List<ServerOrderData> ___m_activeOrders)
         {
-            if(!__result) {
+            if (!OC2Config.AlwaysServeOldestOrder)
+            {
+                return;
+            }
+
+            if (!__result)
+            {
                 return; // we won't do any better if no orders matched
             }
 
@@ -56,7 +47,7 @@ namespace OC2Modding
             for (int i = ___m_activeOrders.Count - 1; i >= 0; i--)
             {
                 ServerOrderData order = ___m_activeOrders[i];
-                if(Matches(order.RecipeListEntry.m_order, _order, _plateType))
+                if (Matches(order.RecipeListEntry.m_order, _order, _plateType))
                 {
                     o_orderID = order.ID;
                     _timePropRemainingPercentage = Mathf.Clamp01(order.Remaining / order.Lifetime);

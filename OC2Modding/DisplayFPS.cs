@@ -1,4 +1,3 @@
-using BepInEx.Configuration;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,26 +5,11 @@ namespace OC2Modding
 {
     public static class DisplayFPS
     {
-        private static ConfigEntry<bool> configDisplayFPS;
         private static MyOnScreenDebugDisplayFPS onScreenDebugDisplayFPS;
         private static MyFPSCounter fPSCounter = null;
 
         public static void Awake()
         {
-            /* Setup Configuration */
-            configDisplayFPS = OC2Modding.configFile.Bind(
-                "QualityOfLife", // Config Category
-                "DisplayLeaderboardScores", // Config key name
-                true, // Default Config value
-                "Set to true to show FPS when HOME is pressed (hide with END)" // Friendly description
-            );
-
-            if (!configDisplayFPS.Value)
-            {
-                return;
-            }
-
-            /* Setup */
             onScreenDebugDisplayFPS = new MyOnScreenDebugDisplayFPS();
             onScreenDebugDisplayFPS.Awake();
         }
@@ -34,16 +18,15 @@ namespace OC2Modding
         {
             onScreenDebugDisplayFPS.Update();
 
-            if (Input.GetKeyDown(KeyCode.Home) && fPSCounter == null)
-            {
-                fPSCounter = new MyFPSCounter(); // TODO: Move to different corner
-                onScreenDebugDisplayFPS.AddDisplay(fPSCounter);
-            }
-            else if (Input.GetKeyDown(KeyCode.End) && fPSCounter != null)
+            if ((!OC2Config.DisplayFPS || Input.GetKeyDown(KeyCode.End)) && fPSCounter != null)
             {
                 onScreenDebugDisplayFPS.RemoveDisplay(fPSCounter);
                 fPSCounter.OnDestroy();
                 fPSCounter = null;
+            } else if (Input.GetKeyDown(KeyCode.Home) && fPSCounter == null)
+            {
+                fPSCounter = new MyFPSCounter(); // TODO: Move to different corner
+                onScreenDebugDisplayFPS.AddDisplay(fPSCounter);
             }
         }
 

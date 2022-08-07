@@ -21,35 +21,35 @@ namespace OC2Modding
 
             modsDisplay.m_Text = $"OC2 Modding v{PluginInfo.PLUGIN_VERSION}";
 
-            if (TimerAlwaysStarts.configTimerAlwaysStarts.Value)
+            if (OC2Config.TimerAlwaysStarts)
             {
                 modsDisplay.m_Text += "\nTimer Always Starts";
             }
-            if (PreserveCookProgress.configPreserveCookingProgress.Value)
+            if (OC2Config.PreserveCookingProgress)
             {
                 modsDisplay.m_Text += "\nPreserve Cooking Progress";
             }
-            if (CustomOrderLifetime.configCustomOrderLifetime.Value != 100.0)
+            if (OC2Config.CustomOrderLifetime != 100.0)
             {
-                modsDisplay.m_Text += $"\n{(int)CustomOrderLifetime.configCustomOrderLifetime.Value}s Order Lifetime";
+                modsDisplay.m_Text += $"\n{(int)OC2Config.CustomOrderLifetime}s Order Lifetime";
             }
-            if (AlwaysServeOldestOrder.configAlwaysServeOldestOrder.Value)
+            if (OC2Config.AlwaysServeOldestOrder)
             {
                 modsDisplay.m_Text += "\nAlways Serve Oldest Order";
             }
-            if (FixBugs.configFixDoubleServing.Value)
+            if (OC2Config.FixDoubleServing)
             {
                 modsDisplay.m_Text += "\nDouble Servering Bugfix";
             }
-            if (FixBugs.configFixSinkBug.Value)
+            if (OC2Config.FixSinkBug)
             {
                 modsDisplay.m_Text += "\nSink Bugfix";
             }
-            if (FixBugs.configFixEmptyBurnerThrow.Value)
+            if (OC2Config.FixEmptyBurnerThrow)
             {
                 modsDisplay.m_Text += "\nEmpty Burner/Mixer Throw Bugfix";
             }
-            if (FixBugs.configFixControlStickThrowBug.Value)
+            if (OC2Config.FixControlStickThrowBug)
             {
                 modsDisplay.m_Text += "\nControl Stick Throw Cooldown Bugfix";
             }
