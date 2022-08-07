@@ -15,7 +15,17 @@ namespace OC2Modding
         {
             if (OC2Config.SkipTutorialPopups)
             {
-                __result = false; // TODO: only if local only (or make the server not wait for host to skip)
+                __result = false;
+            }
+        }
+
+        [HarmonyPatch(typeof(TutorialPopupController), nameof(TutorialPopupController.RegisterDismissCallback))]
+        [HarmonyPostfix]
+        private static void RegisterDismissCallback(ref CallbackVoid m_dismissedCallback)
+        {
+            if (OC2Config.SkipTutorialPopups)
+            {
+                m_dismissedCallback();
             }
         }
     }
