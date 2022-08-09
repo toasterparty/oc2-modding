@@ -6,6 +6,8 @@ namespace OC2Modding
 {
     public static class OC2Config
     {
+        public const bool CHEATS_ALLOWED = true;
+
         /* Globally Accessible Config Values */
         public static bool DisableAllMods;
         public static bool DisplayLeaderboardScores;
@@ -24,6 +26,7 @@ namespace OC2Modding
         public static bool RevealAllLevels;
         public static bool PurchaseAllLevels;
         public static bool SkipTutorial;
+        public static bool CheatsEnabled = false;
 
         public static void Awake()
         {
@@ -83,6 +86,17 @@ namespace OC2Modding
                 "Set to true to remove the requirement for purchasing levels before playing them" // Friendly description
             );
             PurchaseAllLevels = configPurchaseAllLevels.Value;
+
+            if (CHEATS_ALLOWED)
+            {
+                ConfigEntry<bool> configCheatsEnabled = configFile.Bind(
+                    "GameModifications", // Config Category
+                    "CheatsEnabled", // Config key name
+                    false, // Default Config value
+                    "Enables some not very fun cheats for debug purposes" // Friendly description
+                );
+                CheatsEnabled = configCheatsEnabled.Value;
+            }
 
             ConfigEntry<bool> configDisplayLeaderboardScores = configFile.Bind(
                 "QualityOfLife", // Config Category

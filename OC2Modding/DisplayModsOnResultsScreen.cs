@@ -21,6 +21,10 @@ namespace OC2Modding
 
             modsDisplay.m_Text = $"OC2 Modding v{PluginInfo.PLUGIN_VERSION}";
 
+            if (OC2Config.CheatsEnabled)
+            {
+                modsDisplay.m_Text += "\n!!! CHEATS ENABLED !!!";
+            }
             if (OC2Config.TimerAlwaysStarts)
             {
                 modsDisplay.m_Text += "\nTimer Always Starts";
