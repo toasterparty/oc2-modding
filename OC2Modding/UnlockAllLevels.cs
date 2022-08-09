@@ -9,6 +9,11 @@ namespace OC2Modding
             Harmony.CreateAndPatchAll(typeof(UnlockAllLevels));
         }
 
+        public static bool IsLevelCompleted(int levelId)
+        {
+            return GameUtils.GetGameSession().Progress.SaveData.GetLevelProgress(levelId).Completed;
+        }
+
         [HarmonyPatch(typeof(SaveSlotElement), nameof(SaveSlotElement.ServerLoadCampaign))]
         [HarmonyPrefix]
         private static void ServerLoadCampaign()
@@ -45,6 +50,11 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void IsLevelUnlocked(ref int _levelIndex, ref bool __result)
         {
+            if (OC2Config.LevelUnlockRequirements.ContainsKey(_levelIndex))
+            {
+                __result = IsLevelCompleted(OC2Config.LevelUnlockRequirements[_levelIndex]);
+            }
+
             if (OC2Config.RevealAllLevels || (OC2Config.SkipTutorial && _levelIndex == 1))
             {
                 __result = true;

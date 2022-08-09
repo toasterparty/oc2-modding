@@ -1,4 +1,5 @@
 using System.IO;
+using System.Collections.Generic;
 using BepInEx;
 using BepInEx.Configuration;
 
@@ -28,9 +29,18 @@ namespace OC2Modding
         public static bool SkipTutorial;
         public static bool CheatsEnabled = false;
 
+        // <UnlockerLevelId, LockedLevelId>
+        public static Dictionary<int, int> LevelUnlockRequirements;
+
         public static void Awake()
         {
             InitCfg();
+
+            LevelUnlockRequirements = new Dictionary<int, int>();
+            // LevelUnlockRequirements.Add(37,1);
+            // LevelUnlockRequirements.Add(38,2);
+            // LevelUnlockRequirements.Add(39,3);
+            // LevelUnlockRequirements.Add(40,4);
         }
 
         /* Create OC2Modding.cfg if it doesn't exist and populate it 
