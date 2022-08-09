@@ -21,14 +21,14 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.GetLevelProgress))]
         [HarmonyPostfix]
-        private static void GetLevelProgress(ref GameProgress.GameProgressData.LevelProgress __result)
+        private static void GetLevelProgress(ref int _id, ref GameProgress.GameProgressData.LevelProgress __result)
         {
-            if (OC2Config.PurchaseAllLevels)
+            if (OC2Config.PurchaseAllLevels || (OC2Config.SkipTutorial && _id == 1))
             {
                 __result.Purchased = true;
             }
 
-            if (OC2Config.RevealAllLevels)
+            if (OC2Config.RevealAllLevels || (OC2Config.SkipTutorial && _id == 1))
             {
                 __result.Revealed = true;
                 __result.NGPEnabled = true;
@@ -38,9 +38,9 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.IsLevelUnlocked))]
         [HarmonyPostfix]
-        private static void IsLevelUnlocked(ref bool __result)
+        private static void IsLevelUnlocked(ref int _levelIndex, ref bool __result)
         {
-            if (OC2Config.RevealAllLevels)
+            if (OC2Config.RevealAllLevels || (OC2Config.SkipTutorial && _levelIndex == 1))
             {
                 __result = true;
             }
