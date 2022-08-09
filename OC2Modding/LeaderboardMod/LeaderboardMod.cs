@@ -101,7 +101,6 @@ namespace OC2Modding
                     (field_name.GetValue(ui) as T17Text).text = "";
                     (field_score.GetValue(ui) as T17Text).text = "";
                     (field_container.GetValue(ui) as GameObject).SetActive(levelScores == null || levelScores.LevelIsSupported);
-
                 }
                 if (i == 5)
                 {

@@ -21,11 +21,11 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(TutorialPopupController), nameof(TutorialPopupController.RegisterDismissCallback))]
         [HarmonyPostfix]
-        private static void RegisterDismissCallback(ref CallbackVoid m_dismissedCallback)
+        private static void RegisterDismissCallback(ref CallbackVoid ___m_dismissedCallback)
         {
             if (OC2Config.SkipTutorialPopups)
             {
-                m_dismissedCallback();
+                ___m_dismissedCallback();
             }
         }
     }
