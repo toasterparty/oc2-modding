@@ -34,6 +34,11 @@ namespace OC2Modding
                 __result.NGPEnabled = true;
                 __result.ObjectivesCompleted = true;
             }
+
+            if (OC2Config.SkipTutorial && _id == 0)
+            {
+                __result.Completed = true;
+            }
         }
 
         [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.IsLevelUnlocked))]
