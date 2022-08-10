@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Collections.Generic;
 using BepInEx;
@@ -34,18 +33,22 @@ namespace OC2Modding
 
         // <UnlockerLevelId, LockedLevelId>
         public static Dictionary<int, int> LevelUnlockRequirements;
+        public static Dictionary<int, int> LevelPurchaseRequirements;
 
         public static void Awake()
         {
+            /* Initialize Memory */
+            LevelUnlockRequirements = new Dictionary<int, int>();
+            LevelPurchaseRequirements = new Dictionary<int, int>();
+
+            /* Initialize Standalone Config */
             InitCfg();
 
-            LevelUnlockRequirements = new Dictionary<int, int>();
-
+            /* Initialize API Config */
             if (JsonConfigPath == "")
             {
                 InitJson("OC2Modding.json");
             }
-            
             if (JsonConfigPath != "")
             {
                 InitJson(JsonConfigPath);
@@ -252,11 +255,29 @@ namespace OC2Modding
                         LevelUnlockRequirements = tempDict;
                     }
                 }
-                catch (Exception e)
+                catch
                 {
-                    OC2Modding.Log.LogWarning($"Failed to parse key 'LevelUnlockRequirements': {e}");
+                    OC2Modding.Log.LogWarning($"Failed to parse key 'LevelUnlockRequirements'");
                 }
 
+                try
+                {
+                    Dictionary<int, int> tempDict = new Dictionary<int, int>();
+                    if (config.HasKey("LevelPurchaseRequirements"))
+                    {
+                        foreach (KeyValuePair<string, SimpleJSON.JSONNode> kvp in config["LevelPurchaseRequirements"].AsObject)
+                        {
+                            tempDict.Add(int.Parse(kvp.Key), kvp.Value);
+                        }
+
+                        LevelPurchaseRequirements.Clear();
+                        LevelPurchaseRequirements = tempDict;
+                    }
+                }
+                catch
+                {
+                    OC2Modding.Log.LogWarning($"Failed to parse key 'LevelPurchaseRequirements'");
+                }
             }
             catch {}
         }

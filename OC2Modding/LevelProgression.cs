@@ -1,4 +1,5 @@
 using HarmonyLib;
+using System.Collections.Generic;
 
 namespace OC2Modding
 {
@@ -11,7 +12,7 @@ namespace OC2Modding
 
         public static bool IsLevelCompleted(int levelId)
         {
-            return GameUtils.GetGameSession().Progress.SaveData.GetLevelProgress(levelId).Completed;
+            return GameUtils.GetGameSession().Progress.SaveData.GetLevelProgress(levelId).ScoreStars > 0;
         }
 
         [HarmonyPatch(typeof(SaveSlotElement), nameof(SaveSlotElement.ServerLoadCampaign))]
@@ -57,9 +58,19 @@ namespace OC2Modding
                 __result = IsLevelCompleted(OC2Config.LevelUnlockRequirements[_levelIndex]);
             }
 
-            if (OC2Config.RevealAllLevels || (OC2Config.SkipTutorial && _levelIndex == 1))
+            if (OC2Config.RevealAllLevels)
             {
                 __result = true;
+            }
+        }
+
+        [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.FillOut))]
+        [HarmonyPrefix]
+        private static void FillOut(ref SceneDirectoryData _sceneDirectory, ref GameProgress.GameProgressData.LevelProgress[] ___Levels)
+        {
+            foreach (KeyValuePair<int, int> kvp in OC2Config.LevelPurchaseRequirements)
+            {
+                _sceneDirectory.Scenes[kvp.Key].StarCost = kvp.Value;
             }
         }
     }
