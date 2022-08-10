@@ -28,6 +28,11 @@ namespace OC2Modding
                 fPSCounter = new MyFPSCounter(); // TODO: Move to different corner
                 onScreenDebugDisplayFPS.AddDisplay(fPSCounter);
             }
+
+            // if (Input.GetKeyDown(KeyCode.Insert))
+            // {
+            //     OC2Modding.Log.LogInfo($"We are in level={GameUtils.GetLevelID()}");
+            // }
         }
 
         public static void OnGUI()

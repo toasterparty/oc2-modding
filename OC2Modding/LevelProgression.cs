@@ -47,6 +47,12 @@ namespace OC2Modding
                 __result.ObjectivesCompleted = true;
                 __result.ScoreStars = 3;
             }
+
+            if (OC2Config.SkipTutorial && _id == 45) // Post-tutorial Onion King
+            {
+                __result.Completed = true;
+                __result.ObjectivesCompleted = true;
+            }
         }
 
         [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.IsLevelUnlocked))]
