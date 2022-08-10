@@ -22,7 +22,7 @@ namespace OC2Modding
             /* Inject Mods */
             FixBugs.Awake();
             UnlockAllChefs.Awake();
-            UnlockAllLevels.Awake();
+            LevelProgression.Awake();
             UnlockAllDLC.Awake();
             TimerAlwaysStarts.Awake();
             SkipTutorialPopups.Awake();

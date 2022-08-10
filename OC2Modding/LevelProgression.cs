@@ -2,11 +2,11 @@ using HarmonyLib;
 
 namespace OC2Modding
 {
-    public static class UnlockAllLevels
+    public static class LevelProgression
     {
         public static void Awake()
         {
-            Harmony.CreateAndPatchAll(typeof(UnlockAllLevels));
+            Harmony.CreateAndPatchAll(typeof(LevelProgression));
         }
 
         public static bool IsLevelCompleted(int levelId)
