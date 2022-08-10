@@ -28,12 +28,12 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void GetLevelProgress(ref int _id, ref GameProgress.GameProgressData.LevelProgress __result)
         {
-            if (OC2Config.PurchaseAllLevels || (OC2Config.SkipTutorial && _id == 1))
+            if (OC2Config.PurchaseAllLevels)
             {
                 __result.Purchased = true;
             }
 
-            if (OC2Config.RevealAllLevels || (OC2Config.SkipTutorial && _id == 1))
+            if (OC2Config.RevealAllLevels)
             {
                 __result.Revealed = true;
                 __result.NGPEnabled = true;
@@ -43,6 +43,8 @@ namespace OC2Modding
             if (OC2Config.SkipTutorial && _id == 0)
             {
                 __result.Completed = true;
+                __result.ObjectivesCompleted = true;
+                __result.ScoreStars = 3;
             }
         }
 
