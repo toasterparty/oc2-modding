@@ -34,6 +34,7 @@ namespace OC2Modding
         // <UnlockerLevelId, LockedLevelId>
         public static Dictionary<int, int> LevelUnlockRequirements;
         public static Dictionary<int, int> LevelPurchaseRequirements;
+        public static Dictionary<int, float> LeaderboardScoreScale = null;
 
         public static void Awake()
         {
@@ -262,9 +263,10 @@ namespace OC2Modding
 
                 try
                 {
-                    Dictionary<int, int> tempDict = new Dictionary<int, int>();
                     if (config.HasKey("LevelPurchaseRequirements"))
                     {
+                        Dictionary<int, int> tempDict = new Dictionary<int, int>();
+
                         foreach (KeyValuePair<string, SimpleJSON.JSONNode> kvp in config["LevelPurchaseRequirements"].AsObject)
                         {
                             tempDict.Add(int.Parse(kvp.Key), kvp.Value);
@@ -277,6 +279,35 @@ namespace OC2Modding
                 catch
                 {
                     OC2Modding.Log.LogWarning($"Failed to parse key 'LevelPurchaseRequirements'");
+                }
+
+                try
+                {
+                    if (config.HasKey("LeaderboardScoreScale"))
+                    {
+                        Dictionary<int, float> tempDict = new Dictionary<int, float>();
+
+                        tempDict[1] = config["LeaderboardScoreScale"]["OneStar"];
+                        tempDict[2] = config["LeaderboardScoreScale"]["TwoStars"];
+                        tempDict[3] = config["LeaderboardScoreScale"]["ThreeStars"];
+                        tempDict[4] = config["LeaderboardScoreScale"]["FourStars"];
+
+                        if (tempDict[1] > tempDict[2] || tempDict[1] > tempDict[3] || tempDict[1] > tempDict[4])
+                        {
+                            throw new System.Exception("");
+                        }
+
+                        if (LeaderboardScoreScale != null)
+                        {
+                            LeaderboardScoreScale.Clear();
+                        }
+
+                        LeaderboardScoreScale = tempDict;
+                    }
+                }
+                catch
+                {
+                    OC2Modding.Log.LogWarning($"Failed to parse key 'LeaderboardScoreScale'");
                 }
             }
             catch {}

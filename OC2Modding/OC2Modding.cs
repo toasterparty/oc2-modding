@@ -20,6 +20,8 @@ namespace OC2Modding
             if (OC2Config.DisableAllMods) return;
 
             /* Inject Mods */
+            OC2Helpers.Awake(); // This MUST go first
+
             FixBugs.Awake();
             UnlockAllChefs.Awake();
             LevelProgression.Awake();
