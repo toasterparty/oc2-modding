@@ -15,3 +15,7 @@ Sometimes the class you want to patch requires an additional `using` at the top 
 ## [Multiple Methods w/ One Patch](https://github.com/toasterparty/oc2-modding/blob/55dc329ebfd0d89b3352235c85f24e8daf855512/idea/DisplayLeaderboardScores.cs#L239..L254)
 
 Sometimes it's beneficial to bulk-patch multiple methods. You can do that by using `AccessTools`.
+
+## [Read/Write Private Class Data](https://github.com/toasterparty/oc2-modding/blob/9c748c8453682b6b2e120802755ca7a9705587eb/OC2Modding/LevelProgression.cs#L106..L119)
+
+Normally when patching, you only have access to public class data. Reflecting can be abused to circumvent this.
