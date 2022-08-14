@@ -17,6 +17,15 @@ namespace OC2Modding
             {
                 ___m_context.m_levelConfig.m_recipesBeforeTimerStarts = 0;
             }
+
+            if (OC2Config.Custom66TimerScale != 1.0f)
+            {
+                float time = ___m_context.m_levelConfig.GetRoundData().m_roundTimer;
+                time *= OC2Config.Custom66TimerScale;
+                time -= (time % 30);
+                time += 30;
+                ___m_context.m_levelConfig.GetRoundData().m_roundTimer = time;
+            }
         }
     }
 }
