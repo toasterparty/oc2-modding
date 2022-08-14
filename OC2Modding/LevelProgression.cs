@@ -89,8 +89,6 @@ namespace OC2Modding
 
             if (OC2Config.LeaderboardScoreScale != null)
             {
-                OC2Modding.Log.LogInfo($"Scaling.... {OC2Config.LeaderboardScoreScale}");
-
                 int levelId = 0;
                 foreach (SceneDirectoryData.SceneDirectoryEntry scene in _sceneDirectory.Scenes)
                 {
@@ -107,7 +105,7 @@ namespace OC2Modding
                         int worldRecordScore = OC2Helpers.getScoresFromLeaderboard(dlc, levelId, playerCount);
                         if (worldRecordScore <= 0)
                         {
-                            continue;
+                            continue; // No score exists online for this level
                         }
 
                         SceneDirectoryData.StarBoundaries starBoundariesOverride = new SceneDirectoryData.StarBoundaries();

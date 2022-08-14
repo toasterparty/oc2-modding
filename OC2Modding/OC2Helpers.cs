@@ -10,12 +10,14 @@ namespace OC2Modding
 {
     public static class OC2Helpers
     {
+        private static Dictionary<LeaderboardScoresKey, int> leaderboardScores;
+
         public static void Awake()
         {
-            downloadLeaderboardFile();
-            buildCache();
+            BuildLeaderboardScores();
 
             Harmony.CreateAndPatchAll(typeof(CurrentDLC.DLCMenu));
+            Harmony.CreateAndPatchAll(typeof(CurrentDLC.CampaignMenu));
         }
 
         public static int DLCFromWorld(SceneDirectoryData.World world)
@@ -71,110 +73,45 @@ namespace OC2Modding
             return ClientUserSystem.m_Users.Count;
         }
 
-        /* Helpers for the helpers start here */
-
-        [HarmonyPatch]
-        private static class CurrentDLC
+        public static int getScoresFromLeaderboard(int dlcID, int levelId, int playerCount)
         {
-            public static int m_DLCID = 0;
+            DlcAndLevel dlcAndLevel = getLevelName(dlcID, levelId);
 
-            public static string DLCToString(int dlc)
-            {
-                switch (dlc)
-                {
-                    case -1: return "Story";
-                    case 2: return "Surf 'n' Turf";
-                    case 3: return "Seasonal";
-                    case 5: return "Campfire Cook Off";
-                    case 7: return "Night of the Hangry Horde";
-                    case 8: return "Carnival of Chaos";
-                    default:
-                        {
-                            OC2Modding.Log.LogError($"Unexpected DLC ID #{dlc}");
-                            return "";
-                        }
-                }
-            }
+            bool timerLevel = isLevelTimerLevel(dlcAndLevel.dlc, dlcAndLevel.level);
 
-            public static class CampaignMenu
-            {
-                private static IEnumerable<MethodBase> TargetMethods()
-                {
-                    yield return AccessTools.Method(typeof(FrontendCampaignTabOptions), nameof(FrontendCampaignTabOptions.OnContinueGameClicked));
-                    yield return AccessTools.Method(typeof(FrontendCampaignTabOptions), nameof(FrontendCampaignTabOptions.OnNewGameClicked));
-                    yield return AccessTools.Method(typeof(FrontendCampaignTabOptions), nameof(FrontendCampaignTabOptions.OnLoadGameClicked));
-                }
-
-                [HarmonyPrefix]
-                private static void LoadCampaign()
-                {
-                    m_DLCID = -1;
-                    OC2Modding.Log.LogInfo($"DLC set to {DLCToString(m_DLCID)}");
-                }
-            }
-
-            public static class DLCMenu
-            {
-                private static IEnumerable<MethodBase> TargetMethods()
-                {
-                    yield return AccessTools.Method(typeof(FrontendDLCMenu), nameof(FrontendDLCMenu.OnContinueGameButtonPressed));
-                    yield return AccessTools.Method(typeof(FrontendDLCMenu), nameof(FrontendDLCMenu.OnNewGameButtonPressed));
-                    yield return AccessTools.Method(typeof(FrontendDLCMenu), nameof(FrontendDLCMenu.OnLoadGameButtonPressed));
-                }
-
-                [HarmonyPrefix]
-                private static void LoadDLC(ref DLCFrontendData dlcData)
-                {
-                    m_DLCID = dlcData.m_DLCID;
-                    OC2Modding.Log.LogInfo($"DLC set to {m_DLCID}:{DLCToString(m_DLCID)}");
-                }
-            }
-        }
-
-        private struct LeaderboardScoresKey
-        {
-            public int DLCID;
-            public int levelId;
-            public int playerCount;
-        }
-        private static Dictionary<LeaderboardScoresKey, int> leaderboardScores = null;
-        private static IEnumerable<string> lines = null;
-
-        private static void downloadLeaderboardFile()
-        {
-            Process downloadProcess = new Process();
-
-            try
-            {
-                downloadProcess.StartInfo.UseShellExecute = false;
-                downloadProcess.StartInfo.FileName = ".\\curl\\curl.exe";
-                downloadProcess.StartInfo.Arguments = "https://overcooked.greeny.dev/assets/data/data.csv --output leaderboard_scores.csv";
-                downloadProcess.StartInfo.CreateNoWindow = true;
-                downloadProcess.Start();
-            }
-            catch (Exception e)
-            {
-                OC2Modding.Log.LogError($"Failed to download leaderboard-scores.csv: {e.ToString()}");
-            }
-        }
-
-        public static int getScoresFromLeaderboard(int DLCID, int levelId, int playerCount)
-        {
-            LeaderboardScoresKey key;
-            key.DLCID = DLCID;
-            key.levelId = levelId;
-            key.playerCount = playerCount;
-
-            if (leaderboardScores == null)
-            {
-                leaderboardScores = new Dictionary<LeaderboardScoresKey, int>();
-            }
+            LeaderboardScoresKey key = new LeaderboardScoresKey();
+            key.game = (timerLevel && OC2Config.TimerAlwaysStarts) ? "All You Can Eat" : "Overcooked 2";
+            key.DLCID = dlcID;
+            key.level = dlcAndLevel.level;
+            key.playerCount = (uint)playerCount;
 
             if (leaderboardScores.ContainsKey(key))
-            {
+            {                
                 return leaderboardScores[key];
             }
 
+            OC2Modding.Log.LogWarning($"{key.game}: {dlcAndLevel.dlc} {dlcAndLevel.level} ({key.playerCount} Player) does not have any scores submitted");
+            return 0;
+        }
+
+        /* Helpers for the helpers start here */
+
+        private struct LeaderboardScoresKey
+        {
+            public string game;
+            public int DLCID;
+            public string level;
+            public uint playerCount;
+        }
+
+        private class DlcAndLevel
+        {
+            public string dlc;
+            public string level;
+        }
+
+        private static DlcAndLevel getLevelName(int DLCID, int levelId)
+        {
             string dlc = CurrentDLC.DLCToString(DLCID);
 
             string level = "";
@@ -226,7 +163,7 @@ namespace OC2Modding
                 }
                 else
                 {
-                    return 0; // Horde Levels
+                    level = ""; // Horde Levels
                 }
             }
             else if (dlc == "Seasonal")
@@ -248,7 +185,7 @@ namespace OC2Modding
 
                     if (level == "1-2" || level == "1-4")
                     {
-                        return 0; // Horde Levels
+                        level = ""; // Horde Levels
                     }
                 }
                 else if (levelId >= 17 && levelId <= 21)
@@ -272,113 +209,295 @@ namespace OC2Modding
                 }
             }
 
-            if (dlc == "" || level == "" || playerCount < 1 || playerCount > 4)
-            {
-                OC2Modding.Log.LogWarning($"Failed to parse level for leaderboard display: dlc={DLCID}, levelId={levelId}, playerCount={playerCount}");
-                OC2Modding.Log.LogWarning($"\tdlc={dlc}, level={level}");
-                return 0;
-            }
-
-            List<int> result = getScoresFromLeaderboard("Overcooked 2", dlc, level, playerCount, 1);
-            if (result.Count == 0)
-            {
-                return 0;
-            }
-
-            leaderboardScores[key] = result[0];
-            return result[0];
+            DlcAndLevel result = new DlcAndLevel();
+            result.dlc = dlc;
+            result.level = level;
+            return result;
         }
 
-        private static List<int> getScoresFromLeaderboard(string game, string dlc, string level, int playerCount, uint numScores)
+        private static void BuildLeaderboardScores()
         {
-            List<int> scores = new List<int>();
+            leaderboardScores = new Dictionary<LeaderboardScoresKey, int>();
 
+            downloadLeaderboardFile();
+
+            IEnumerable<string> lines;
             try
             {
-                if (lines == null)
-                {
-                    lines = File.ReadAllLines("leaderboard_scores.csv");
-                }
-
-                bool firstLine = true;
-                foreach (string line in lines)
-                {
-                    if (firstLine)
-                    {
-                        firstLine = false;
-                        continue;
-                    }
-
-                    try
-                    {
-                        if (scores.Count >= numScores)
-                        {
-                            break; // we found all the scores we need
-                        }
-
-                        string sanitaryLine = line.Replace("Sun’s Out,", "Sun's Out");
-                        
-                        int commaCount = 0;
-                        int score = 0;
-                        bool inTeamName = false;
-                        
-                        for (int i = 0; i < sanitaryLine.Length-1; i++)
-                        {
-                            if(sanitaryLine[i] == '"' && commaCount == 5 && !inTeamName)
-                            {
-                                inTeamName = true;
-                            }
-                            else if (sanitaryLine[i] == '"' && inTeamName)
-                            {
-                                var substrings = sanitaryLine.Substring(i+2).Split(',');
-                                score = Int32.Parse(substrings[0]);
-                            }
-                            else if (sanitaryLine[i] == ',')
-                            {
-                                commaCount++;
-                            }
-                        }
-
-                        string[] values = sanitaryLine.Split(',');
-                        if (UInt32.Parse(values[3]) != playerCount || values[2].Replace("\"", "") != level || values[0].Replace("\"", "") != game || values[1].Replace("\"", "") != dlc)
-                        {
-                            continue; // not the level (or player count) we are looking for
-                        }
-
-                        int place = Int32.Parse(values[4]);
-                        if (place > numScores)
-                        {
-                            continue; // The score isn't good enough to return
-                        }
-
-                        if (score == 0)
-                        {
-                            score = Int32.Parse(values[6]);
-                        }
-
-                        scores.Add(score);
-                    }
-                    catch (Exception e)
-                    {
-                        OC2Modding.Log.LogWarning($"Failed to parse line:\n'{line}'\n{e}");
-                    }
-                }
+                lines = File.ReadAllLines("leaderboard_scores.csv");
             }
             catch (Exception e)
             {
                 OC2Modding.Log.LogError($"Failed to lookup scores in leaderboard-scores.csv:\n{e}");
-                return scores;
+                return;
             }
 
-            if (numScores > 0 && scores.Count == 0)
+            bool firstLine = true;
+            foreach (string line in lines)
             {
-                OC2Modding.Log.LogWarning($"Didn't find {dlc} {level} ({playerCount} Player) in leaderboard-scores.csv");
+                if (firstLine)
+                {
+                    firstLine = false;
+                    continue;
+                }
+
+                try
+                {
+                    string sanitaryLine = line.Replace("Sun’s Out,", "Sun's Out");
+                    string[] values = sanitaryLine.Split(',');
+
+                    int place = Int32.Parse(values[4]);
+                    if (place != 1)
+                    {
+                        continue; // The score isn't good enough to return
+                    }
+
+                    string game = values[0].Replace("\"", "");
+                    if (game != "Overcooked 2" && game != "All You Can Eat")
+                    {
+                        continue; // We don't care about OC1
+                    }
+
+                    string dlc = values[1].Replace("\"", "");
+                    int dlcId = CurrentDLC.DLCFromString(dlc);
+                    if (dlcId == -2)
+                    {
+                        continue; // We don't care about AYCE Exclusive DLC
+                    }
+
+                    int commaCount = 0;
+                    int score = 0;
+                    for (int i = sanitaryLine.Length - 1; i >= 0; i--)
+                    {
+                        if (sanitaryLine[i] == ',')
+                        {
+                            commaCount++;
+                        }
+
+                        if (commaCount == 2) {
+                            var substrings = sanitaryLine.Substring(i+1).Split(',');
+                            score = Int32.Parse(substrings[0]);
+                            break;
+                        }
+                    }
+
+                    if (score == 0)
+                    {
+                        OC2Modding.Log.LogWarning($"Failed to parse score from line:\n\t{line}");
+                    }
+
+                    string level = values[2].Replace("\"", "");
+                    uint playerCount = UInt32.Parse(values[3]);
+
+                    LeaderboardScoresKey key = new LeaderboardScoresKey();
+                    key.game = game;
+                    key.DLCID = dlcId;
+                    key.level = level;
+                    key.playerCount = playerCount;
+
+                    leaderboardScores[key] = score;
+                }
+                catch (Exception e)
+                {
+                    OC2Modding.Log.LogWarning($"Failed to parse line:\n'{line}'\n{e}");
+                }
+            }
+        }
+
+        [HarmonyPatch]
+        private static class CurrentDLC
+        {
+            public static int m_DLCID = 0;
+
+            public static string DLCToString(int dlc)
+            {
+                switch (dlc)
+                {
+                    case -1: return "Story";
+                    case 2: return "Surf 'n' Turf";
+                    case 3: return "Seasonal";
+                    case 5: return "Campfire Cook Off";
+                    case 7: return "Night of the Hangry Horde";
+                    case 8: return "Carnival of Chaos";
+                    default:
+                        {
+                            OC2Modding.Log.LogError($"Unexpected DLC ID #{dlc}");
+                            return "";
+                        }
+                }
             }
 
-            scores.Sort();
-            scores.Reverse();
+            public static int DLCFromString(string dlc)
+            {
+                switch (dlc)
+                {
+                    case "Story"                    : return -1;
+                    case "Story 2"                  : return -1;
+                    case "Surf 'n' Turf"            : return  2;
+                    case "Seasonal"                 : return  3;
+                    case "Christmas"                : return  3;
+                    case "Chinese New Year"         : return  3;
+                    case "Winter Wonderland"        : return  3;
+                    case "Moon Harvest"             : return  3;
+                    case "Spring Festival"          : return  3;
+                    case "Sun's Out Buns Out"       : return  3;
+                    case "Campfire Cook Off"        : return  5;
+                    case "Night of the Hangry Horde": return  7;
+                    case "Carnival of Chaos"        : return  8;
+                    default:
+                        {
+                            // OC2Modding.Log.LogWarning($"Unexpected DLC '{dlc}'");
+                            return -2;
+                        }
+                }
+            }
 
-            return scores;
+            public static class CampaignMenu
+            {
+                private static IEnumerable<MethodBase> TargetMethods()
+                {
+                    yield return AccessTools.Method(typeof(FrontendCampaignTabOptions), nameof(FrontendCampaignTabOptions.OnContinueGameClicked));
+                    yield return AccessTools.Method(typeof(FrontendCampaignTabOptions), nameof(FrontendCampaignTabOptions.OnNewGameClicked));
+                    yield return AccessTools.Method(typeof(FrontendCampaignTabOptions), nameof(FrontendCampaignTabOptions.OnLoadGameClicked));
+                }
+
+                [HarmonyPrefix]
+                private static void LoadCampaign()
+                {
+                    m_DLCID = -1;
+                    OC2Modding.Log.LogInfo($"DLC set to {DLCToString(m_DLCID)}");
+                }
+            }
+
+            public static class DLCMenu
+            {
+                private static IEnumerable<MethodBase> TargetMethods()
+                {
+                    yield return AccessTools.Method(typeof(FrontendDLCMenu), nameof(FrontendDLCMenu.OnContinueGameButtonPressed));
+                    yield return AccessTools.Method(typeof(FrontendDLCMenu), nameof(FrontendDLCMenu.OnNewGameButtonPressed));
+                    yield return AccessTools.Method(typeof(FrontendDLCMenu), nameof(FrontendDLCMenu.OnLoadGameButtonPressed));
+                }
+
+                [HarmonyPrefix]
+                private static void LoadDLC(ref DLCFrontendData dlcData)
+                {
+                    m_DLCID = dlcData.m_DLCID;
+                    OC2Modding.Log.LogInfo($"DLC set to {m_DLCID}:{DLCToString(m_DLCID)}");
+                }
+            }
+        }
+
+        private static void downloadLeaderboardFile()
+        {
+            Process downloadProcess = new Process();
+
+            try
+            {
+                downloadProcess.StartInfo.UseShellExecute = false;
+                downloadProcess.StartInfo.FileName = ".\\curl\\curl.exe";
+                downloadProcess.StartInfo.Arguments = "https://overcooked.greeny.dev/assets/data/data.csv --output leaderboard_scores.csv";
+                downloadProcess.StartInfo.CreateNoWindow = true;
+                downloadProcess.Start();
+            }
+            catch (Exception e)
+            {
+                OC2Modding.Log.LogError($"Failed to download leaderboard-scores.csv: {e.ToString()}");
+            }
+        }
+
+        private static bool isLevelTimerLevel(string dlc, string level)
+        {
+            string[] levels = new string[] {};
+            if(dlc == "Story")
+            {
+                levels = new string [] {
+                    "1-1",
+                    "1-2",
+                    "1-5",
+                    "2-6",
+                    "5-4",
+                    "6-1",
+                };
+            }
+            else if (dlc == "Christmas")
+            {
+               levels = new string [] {
+                    "1-1",
+                    "1-2",
+                };
+            }
+            else if (dlc == "Chinese New Year")
+            {
+               levels = new string [] {
+                    "1-1",
+                    "1-2",
+                };
+            }
+            else if (dlc == "Winter Wonderland")
+            {
+               levels = new string [] {
+                    "1-1",
+                    "1-3",
+                    "1-5",
+                };
+            }
+            else if (dlc == "Spring Festival")
+            {
+               levels = new string [] {
+                    "1-1",
+                    "1-2",
+                };
+            }
+            else if (dlc == "Sun's Out Buns Out")
+            {
+               levels = new string [] {
+                    "1-1",
+                    "1-2",
+                    "1-3",
+                };
+            }
+            else if (dlc == "Moon Harvest")
+            {
+               levels = new string [] {
+                    "1-3",
+                };
+            }
+            else if (dlc == "Surf 'n' Turf")
+            {
+               levels = new string [] {
+                    "1-1",
+                    "2-1",
+                };
+            } 
+            else if (dlc == "Campfire Cook Off")
+            {
+                levels = new string [] {
+                    "1-1",
+                    "1-3",
+                    "2-1",
+                    "3-2",
+                };
+            } 
+            else if (dlc == "Night of the Hangry Horde")
+            {
+               levels = new string [] {
+                    "1-1",
+                    "1-2",
+                    "2-2",
+                };
+            } 
+            else if (dlc == "Carnival of Chaos")
+            {
+               levels = new string [] {
+                    "1-1",
+                    "1-2",
+                    "1-4",
+                    "2-1",
+                    "2-2",
+                };
+            }
+
+            return levels.Contains(level);
         }
 
         private static string ToStringHelper(int levelId)
@@ -402,26 +521,6 @@ namespace OC2Modding
             }
 
             return $"{world + 1}-{x + 1}";
-        }
-
-        private static void buildCache()
-        {
-            for (int playerCount = 1; playerCount <= 4; playerCount++)
-            {
-                foreach (int DLCID in new int[] { -1, 2, 3, 5, 7, 8})
-                {
-                    for (int i = 0; i < 100; i++)
-                    {
-                        int result = getScoresFromLeaderboard(DLCID, i, playerCount);
-                        if (result == 0)
-                        {
-                            break;
-                        }
-                    }
-                }   
-            }
-
-            lines = null;
         }
     }
 }
