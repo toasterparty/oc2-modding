@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Collections.Generic;
 using BepInEx;
@@ -36,6 +37,7 @@ namespace OC2Modding
         public static Dictionary<int, int> LevelUnlockRequirements;
         public static Dictionary<int, int> LevelPurchaseRequirements;
         public static Dictionary<int, float> LeaderboardScoreScale = null;
+        public static Dictionary<string, Dictionary<int, int>> CustomLevelOrder = null;
 
         public static void Awake()
         {
@@ -310,6 +312,30 @@ namespace OC2Modding
                 catch
                 {
                     OC2Modding.Log.LogWarning($"Failed to parse key 'LeaderboardScoreScale'");
+                }
+
+                try
+                {
+                    if (config.HasKey("CustomLevelOrder"))
+                    {
+                        Dictionary<string, Dictionary<int, int>> tempDict = new Dictionary<string, Dictionary<int, int>>();
+
+                        if (config["CustomLevelOrder"].HasKey("Story"))
+                        {
+                            Dictionary<int, int> tempDictDlc = new Dictionary<int, int>();
+                            foreach (KeyValuePair<string, SimpleJSON.JSONNode> kvp in config["CustomLevelOrder"].AsObject["Story"].AsObject)
+                            {
+                                tempDictDlc.Add(int.Parse(kvp.Key), kvp.Value);
+                            }
+                            tempDict.Add("Story", tempDictDlc);
+                        }
+
+                        CustomLevelOrder = tempDict;
+                    }
+                }
+                catch
+                {
+                    OC2Modding.Log.LogWarning($"Failed to parse key 'CustomLevelOrder'");
                 }
             }
             catch {}

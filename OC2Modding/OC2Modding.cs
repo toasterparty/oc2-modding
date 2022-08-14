@@ -34,6 +34,7 @@ namespace OC2Modding
             CustomOrderLifetime.Awake();
             AlwaysServeOldestOrder.Awake();
             Cheats.Awake();
+            CustomLevelOrder.Awake();
 
             DisplayModsOnResultsScreen.Awake(); // This MUST go last
         }
