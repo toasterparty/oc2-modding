@@ -103,9 +103,11 @@ namespace OC2Modding
                         int playerCount = variant.PlayerCount;
 
                         int worldRecordScore = OC2Helpers.getScoresFromLeaderboard(dlc, levelId, playerCount);
+                        var prop = variant.GetType().GetField("m_PCStarBoundaries", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                         if (worldRecordScore <= 0)
                         {
-                            continue; // No score exists online for this level
+                            /* Fallback to 4-star score as WR where none is submitted */
+                            worldRecordScore = ((SceneDirectoryData.StarBoundaries)prop.GetValue(variant)).m_FourStarScore;
                         }
 
                         SceneDirectoryData.StarBoundaries starBoundariesOverride = new SceneDirectoryData.StarBoundaries();
@@ -114,7 +116,6 @@ namespace OC2Modding
                         starBoundariesOverride.m_TwoStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[2]);
                         starBoundariesOverride.m_OneStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[1]);
 
-                        var prop = variant.GetType().GetField("m_PCStarBoundaries", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                         prop.SetValue(variant, starBoundariesOverride);
                     }
                     levelId++;
