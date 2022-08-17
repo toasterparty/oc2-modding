@@ -12,7 +12,7 @@
  * 
  * The MIT License (MIT)
  * 
- * Copyright (c) 2012-2019 Markus Göbel (Bunny83)
+ * Copyright (c) 2012-2022 Markus Göbel (Bunny83)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -208,6 +208,7 @@ namespace SimpleJSON
         {
             return aNode;
         }
+        public virtual void Clear() { }
 
         public virtual JSONNode Clone()
         {
@@ -314,13 +315,28 @@ namespace SimpleJSON
             get
             {
                 long val = 0;
-                if (long.TryParse(Value, out val))
+                if (long.TryParse(Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out val))
                     return val;
                 return 0L;
             }
             set
             {
-                Value = value.ToString();
+                Value = value.ToString(CultureInfo.InvariantCulture);
+            }
+        }
+
+        public virtual ulong AsULong
+        {
+            get
+            {
+                ulong val = 0;
+                if (ulong.TryParse(Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out val))
+                    return val;
+                return 0;
+            }
+            set
+            {
+                Value = value.ToString(CultureInfo.InvariantCulture);
             }
         }
 
@@ -347,7 +363,7 @@ namespace SimpleJSON
 
         public static implicit operator JSONNode(string s)
         {
-            return new JSONString(s);
+            return (s == null) ? (JSONNode)JSONNull.CreateOrGet() : new JSONString(s);
         }
         public static implicit operator string(JSONNode d)
         {
@@ -384,12 +400,23 @@ namespace SimpleJSON
         public static implicit operator JSONNode(long n)
         {
             if (longAsString)
-                return new JSONString(n.ToString());
+                return new JSONString(n.ToString(CultureInfo.InvariantCulture));
             return new JSONNumber(n);
         }
         public static implicit operator long(JSONNode d)
         {
             return (d == null) ? 0L : d.AsLong;
+        }
+
+        public static implicit operator JSONNode(ulong n)
+        {
+            if (longAsString)
+                return new JSONString(n.ToString(CultureInfo.InvariantCulture));
+            return new JSONNumber(n);
+        }
+        public static implicit operator ulong(JSONNode d)
+        {
+            return (d == null) ? 0 : d.AsULong;
         }
 
         public static implicit operator JSONNode(bool b)
@@ -496,11 +523,14 @@ namespace SimpleJSON
         {
             if (quoted)
                 return token;
-            string tmp = token.ToLower();
-            if (tmp == "false" || tmp == "true")
-                return tmp == "true";
-            if (tmp == "null")
-                return JSONNull.CreateOrGet();
+            if (token.Length <= 5)
+            {
+                string tmp = token.ToLower();
+                if (tmp == "false" || tmp == "true")
+                    return tmp == "true";
+                if (tmp == "null")
+                    return JSONNull.CreateOrGet();
+            }
             double val;
             if (double.TryParse(token, NumberStyles.Float, CultureInfo.InvariantCulture, out val))
                 return val;
@@ -517,6 +547,7 @@ namespace SimpleJSON
             string TokenName = "";
             bool QuoteMode = false;
             bool TokenIsQuoted = false;
+            bool HasNewlineChar = false;
             while (i < aJSON.Length)
             {
                 switch (aJSON[i])
@@ -535,6 +566,7 @@ namespace SimpleJSON
                         TokenName = "";
                         Token.Length = 0;
                         ctx = stack.Peek();
+                        HasNewlineChar = false;
                         break;
 
                     case '[':
@@ -552,6 +584,7 @@ namespace SimpleJSON
                         TokenName = "";
                         Token.Length = 0;
                         ctx = stack.Peek();
+                        HasNewlineChar = false;
                         break;
 
                     case '}':
@@ -568,6 +601,8 @@ namespace SimpleJSON
                         stack.Pop();
                         if (Token.Length > 0 || TokenIsQuoted)
                             ctx.Add(TokenName, ParseElement(Token.ToString(), TokenIsQuoted));
+                        if (ctx != null)
+                            ctx.Inline = !HasNewlineChar;
                         TokenIsQuoted = false;
                         TokenName = "";
                         Token.Length = 0;
@@ -607,6 +642,7 @@ namespace SimpleJSON
 
                     case '\r':
                     case '\n':
+                        HasNewlineChar = true;
                         break;
 
                     case ' ':
@@ -752,11 +788,16 @@ namespace SimpleJSON
             return aNode;
         }
 
+        public override void Clear()
+        {
+            m_List.Clear();
+        }
+
         public override JSONNode Clone()
         {
             var node = new JSONArray();
             node.m_List.Capacity = m_List.Capacity;
-            foreach(var n in m_List)
+            foreach (var n in m_List)
             {
                 if (n != null)
                     node.Add(n.Clone());
@@ -909,6 +950,11 @@ namespace SimpleJSON
             }
         }
 
+        public override void Clear()
+        {
+            m_Dict.Clear();
+        }
+
         public override JSONNode Clone()
         {
             var node = new JSONObject();
@@ -1019,6 +1065,10 @@ namespace SimpleJSON
         {
             return m_Data.GetHashCode();
         }
+        public override void Clear()
+        {
+            m_Data = "";
+        }
     }
     // End of JSONString
 
@@ -1049,6 +1099,11 @@ namespace SimpleJSON
         public override long AsLong
         {
             get { return (long)m_Data; }
+            set { m_Data = value; }
+        }
+        public override ulong AsULong
+        {
+            get { return (ulong)m_Data; }
             set { m_Data = value; }
         }
 
@@ -1096,6 +1151,10 @@ namespace SimpleJSON
         public override int GetHashCode()
         {
             return m_Data.GetHashCode();
+        }
+        public override void Clear()
+        {
+            m_Data = 0;
         }
     }
     // End of JSONNumber
@@ -1154,6 +1213,10 @@ namespace SimpleJSON
         public override int GetHashCode()
         {
             return m_Data.GetHashCode();
+        }
+        public override void Clear()
+        {
+            m_Data = false;
         }
     }
     // End of JSONBool
@@ -1314,7 +1377,26 @@ namespace SimpleJSON
             set
             {
                 if (longAsString)
-                    Set(new JSONString(value.ToString()));
+                    Set(new JSONString(value.ToString(CultureInfo.InvariantCulture)));
+                else
+                    Set(new JSONNumber(value));
+            }
+        }
+
+        public override ulong AsULong
+        {
+            get
+            {
+                if (longAsString)
+                    Set(new JSONString("0"));
+                else
+                    Set(new JSONNumber(0.0));
+                return 0L;
+            }
+            set
+            {
+                if (longAsString)
+                    Set(new JSONString(value.ToString(CultureInfo.InvariantCulture)));
                 else
                     Set(new JSONNumber(value));
             }
