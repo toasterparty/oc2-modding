@@ -94,6 +94,11 @@ namespace OC2Modding
             return 0;
         }
 
+        public static string DLCFromDLCID(int dlcId)
+        {
+            return CurrentDLC.DLCToString(dlcId);
+        }
+
         /* Helpers for the helpers start here */
 
         private struct LeaderboardScoresKey

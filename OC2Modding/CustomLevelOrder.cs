@@ -32,7 +32,7 @@ namespace OC2Modding
                 return;
             }
 
-            Dictionary<int,int> levelOrder = OC2Config.CustomLevelOrder["Story"];
+            Dictionary<int, int> levelOrder = OC2Config.CustomLevelOrder["Story"];
 
             SceneDirectoryData.SceneDirectoryEntry[] originalScenes = (SceneDirectoryData.SceneDirectoryEntry[])___m_sceneDirectory.Scenes.Clone();
 
@@ -53,8 +53,6 @@ namespace OC2Modding
             }
 
             __result = ___m_sceneDirectory;
-
-            OC2Modding.Log.LogInfo("Patched Scene Directory");
         }
     }
 }
