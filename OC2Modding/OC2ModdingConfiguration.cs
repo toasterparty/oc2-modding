@@ -39,6 +39,10 @@ namespace OC2Modding
         public static bool DisableBellows = false;
         public static bool PlatesStartDirty = false;
         public static int MaxTipCombo = 4;
+        public static bool DisableDash = false;
+        public static bool DisableThrow = false;
+        public static bool DisableCatch = false;
+        public static bool DisableInteract = false;
 
         // <UnlockerLevelId, LockedLevelId>
         public static Dictionary<int, int> LevelUnlockRequirements;
@@ -265,6 +269,10 @@ namespace OC2Modding
                 try { if (config.HasKey("DisableBellows"           )) DisableBellows           = config["DisableBellows"           ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableBellows'"           ); }
                 try { if (config.HasKey("PlatesStartDirty"         )) PlatesStartDirty         = config["PlatesStartDirty"         ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'PlatesStartDirty'"         ); }
                 try { if (config.HasKey("MaxTipCombo"              )) MaxTipCombo              = config["MaxTipCombo"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'MaxTipCombo'"              ); }
+                try { if (config.HasKey("DisableDash"              )) DisableDash              = config["DisableDash"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableDash'"              ); }
+                try { if (config.HasKey("DisableThrow"             )) DisableThrow             = config["DisableThrow"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableThrow'"             ); }
+                try { if (config.HasKey("DisableCatch"             )) DisableCatch             = config["DisableCatch"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableCatch'"             ); }
+                try { if (config.HasKey("DisableInteract"          )) DisableInteract          = config["DisableInteract"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableInteract'"          ); }
 
                 try
                 {

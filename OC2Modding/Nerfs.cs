@@ -1,5 +1,6 @@
 using HarmonyLib;
 using UnityEngine;
+using Team17.Online.Multiplayer.Messaging;
 
 namespace OC2Modding
 {
@@ -25,7 +26,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool OnItemPlaced(ref GameObject _objectToPlace)
         {
-            OC2Modding.Log.LogInfo($"{_objectToPlace.name}");
+            // OC2Modding.Log.LogInfo($"{_objectToPlace.name}");
 
             if (finishedFirstPass)
             {
@@ -47,7 +48,8 @@ namespace OC2Modding
                     removedPlates++;
                     _objectToPlace.Destroy();
                     return false;
-                } else if (OC2Config.DisableOnePlate && removedPlates == 0)
+                }
+                else if (OC2Config.DisableOnePlate && removedPlates == 0)
                 {
                     removedPlates++;
                     _objectToPlace.Destroy();
@@ -116,6 +118,70 @@ namespace OC2Modding
             {
                 ___m_teamScore.TotalMultiplier = OC2Config.MaxTipCombo;
             }
+        }
+
+        // TODO: You can stop client players from doing these things by ignoring at OnChefEvent() as well
+        [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), nameof(ClientPlayerControlsImpl_Default.ApplyServerEvent))]
+        [HarmonyPrefix]
+        private static bool ApplyServerEvent(ref Serialisable serialisable)
+        {
+            InputEventMessage inputEventMessage = (InputEventMessage)serialisable;
+            InputEventMessage.InputEventType inputEventType = inputEventMessage.inputEventType;
+
+            switch (inputEventType)
+            {
+                case InputEventMessage.InputEventType.Dash:
+                case InputEventMessage.InputEventType.DashCollision:
+                    {
+                        return !OC2Config.DisableDash;
+                    }
+                case InputEventMessage.InputEventType.Catch:
+                    {
+                        return !OC2Config.DisableCatch;
+                    }
+
+                case InputEventMessage.InputEventType.BeginInteraction:
+                case InputEventMessage.InputEventType.EndInteraction:
+                    {
+                        // return !OC2Config.DisableInteract;
+                        break;
+                    }
+                case InputEventMessage.InputEventType.EndThrow:
+                    {
+                        return !OC2Config.DisableThrow;
+                    }
+                case InputEventMessage.InputEventType.Curse:
+                    {
+                        break;
+                    }
+                case InputEventMessage.InputEventType.TriggerInteraction: // What is this?
+                    {
+                        break;
+                    }
+                default:
+                    {
+                        break;
+                    }
+            }
+
+            return true;
+        }
+        
+        [HarmonyPatch(typeof(ServerThrowableItem), nameof(ServerThrowableItem.CanHandleThrow))]
+        [HarmonyPostfix]
+        private static void CanHandleThrow(ref bool __result)
+        {
+            if (OC2Config.DisableThrow)
+            {
+                __result = false;
+            }
+        }
+
+        [HarmonyPatch(typeof(ServerPilotMovement), "Update_Movement")]
+        [HarmonyPrefix]
+        private static bool Update_Movement()
+        {
+            return !OC2Config.DisableInteract;
         }
     }
 }
