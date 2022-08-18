@@ -17,6 +17,7 @@ namespace OC2Modding
             {
                 if (___m_pickupItemSpawner.m_itemPrefab.name == "DLC05_Wood")
                 {
+                    GameUtils.TriggerAudio(GameOneShotAudioTag.RecipeTimeOut, ___m_pickupItemSpawner.gameObject.layer);
                     __result = false;
                 }
             }
