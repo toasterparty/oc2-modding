@@ -5,40 +5,36 @@ namespace OC2Modding
 {
     public static class DespawnItems
     {
-        static bool inInitialAttachment = false;
+        static int removedPlates = 0;
+        static bool finishedFirstPass = false;
 
         public static void Awake()
         {
             Harmony.CreateAndPatchAll(typeof(DespawnItems));
         }
 
-        [HarmonyPatch(typeof(ServerAttachStation), "AttachInitialObjects")]
+        [HarmonyPatch(typeof(LoadingScreenFlow), nameof(LoadingScreenFlow.LoadScene))]
         [HarmonyPrefix]
-        private static void AttachInitialObjects_Prefix()
+        private static void LoadScene()
         {
-            inInitialAttachment = true;
-        }
-
-        [HarmonyPatch(typeof(ServerAttachStation), "AttachInitialObjects")]
-        [HarmonyPostfix]
-        private static void AttachInitialObjects_Postfix()
-        {
-            inInitialAttachment = false;
+            removedPlates = 0;
         }
 
         [HarmonyPatch(typeof(ServerAttachStation), "OnItemPlaced")]
         [HarmonyPrefix]
         private static bool OnItemPlaced(ref GameObject _objectToPlace)
         {
-            if (!inInitialAttachment)
-            {
-                return true;
-            }
-
-            OC2Modding.Log.LogInfo($"{_objectToPlace.name}");
+            // OC2Modding.Log.LogInfo($"{_objectToPlace.name}");
 
             if (OC2Config.DisableCoal && _objectToPlace.name == "utensil_coalbucket_01")
             {
+                _objectToPlace.Destroy();
+                return false;
+            }
+
+            if (OC2Config.PlatesStartDirty && _objectToPlace.name.StartsWith("equipment_plate_01"))
+            {
+                removedPlates++;
                 _objectToPlace.Destroy();
                 return false;
             }
@@ -62,6 +58,29 @@ namespace OC2Modding
             }
 
             return true;
+        }
+
+        [HarmonyPatch(typeof(ServerPlateReturnStation), nameof(ServerPlateReturnStation.UpdateSynchronising))]
+        [HarmonyPrefix]
+        private static void UpdateSynchronising(ref PlateReturnStation ___m_returnStation)
+        {
+            if (___m_returnStation.m_startingPlateNumber != 0)
+            {
+                return; // We already did this patch
+            }
+
+            if (___m_returnStation.name.Contains("rying"))
+            {
+                return; // This is the drying station for a sink
+            }
+
+            ___m_returnStation.m_startingPlateNumber = removedPlates;
+            if (OC2Config.DisableOnePlate)
+            {
+                ___m_returnStation.m_startingPlateNumber -= 1;
+            }
+
+            OC2Modding.Log.LogInfo($"Added {___m_returnStation.m_startingPlateNumber} plates to the serving window");
         }
     }
 }
