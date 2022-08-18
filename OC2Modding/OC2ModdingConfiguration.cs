@@ -38,6 +38,7 @@ namespace OC2Modding
         public static bool DisableFireExtinguisher = false;
         public static bool DisableBellows = false;
         public static bool PlatesStartDirty = false;
+        public static int MaxTipCombo = 4;
 
         // <UnlockerLevelId, LockedLevelId>
         public static Dictionary<int, int> LevelUnlockRequirements;
@@ -262,7 +263,8 @@ namespace OC2Modding
                 try { if (config.HasKey("DisableOnePlate"          )) DisableOnePlate          = config["DisableOnePlate"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableOnePlate'"          ); }
                 try { if (config.HasKey("DisableFireExtinguisher"  )) DisableFireExtinguisher  = config["DisableFireExtinguisher"  ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableFireExtinguisher'"  ); }
                 try { if (config.HasKey("DisableBellows"           )) DisableBellows           = config["DisableBellows"           ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableBellows'"           ); }
-                try { if (config.HasKey("PlatesStartDirty"           )) PlatesStartDirty           = config["PlatesStartDirty"           ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'PlatesStartDirty'"           ); }
+                try { if (config.HasKey("PlatesStartDirty"         )) PlatesStartDirty         = config["PlatesStartDirty"         ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'PlatesStartDirty'"         ); }
+                try { if (config.HasKey("MaxTipCombo"              )) MaxTipCombo              = config["MaxTipCombo"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'MaxTipCombo'"              ); }
 
                 try
                 {

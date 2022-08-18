@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace OC2Modding
 {
-    public static class DespawnItems
+    public static class Nerfs
     {
         static int removedPlates = 0;
         static bool finishedFirstPass = false;
 
         public static void Awake()
         {
-            Harmony.CreateAndPatchAll(typeof(DespawnItems));
+            Harmony.CreateAndPatchAll(typeof(Nerfs));
         }
 
         [HarmonyPatch(typeof(LoadingScreenFlow), nameof(LoadingScreenFlow.LoadScene))]
@@ -18,6 +18,7 @@ namespace OC2Modding
         private static void LoadScene()
         {
             removedPlates = 0;
+            finishedFirstPass = false;
         }
 
         [HarmonyPatch(typeof(ServerAttachStation), "OnItemPlaced")]
@@ -25,6 +26,11 @@ namespace OC2Modding
         private static bool OnItemPlaced(ref GameObject _objectToPlace)
         {
             // OC2Modding.Log.LogInfo($"{_objectToPlace.name}");
+
+            if (finishedFirstPass)
+            {
+                return true; // this is just regular gameplay
+            }
 
             if (OC2Config.DisableCoal && _objectToPlace.name == "utensil_coalbucket_01")
             {
@@ -39,8 +45,9 @@ namespace OC2Modding
                 return false;
             }
 
-            if (OC2Config.DisableOnePlate && _objectToPlace.name == "equipment_plate_01 (1)")
+            if (OC2Config.DisableOnePlate && _objectToPlace.name == "equipment_plate_01 (1)" && removedPlates == 0)
             {
+                removedPlates++;
                 _objectToPlace.Destroy();
                 return false;
             }
@@ -80,7 +87,31 @@ namespace OC2Modding
                 ___m_returnStation.m_startingPlateNumber -= 1;
             }
 
+            finishedFirstPass = true;
+
             OC2Modding.Log.LogInfo($"Added {___m_returnStation.m_startingPlateNumber} plates to the serving window");
+        }
+
+        [HarmonyPatch(typeof(ServerKitchenFlowControllerBase), "OnSuccessfulDelivery")]
+        [HarmonyPostfix]
+        private static void OnSuccessfulDelivery(ref ServerKitchenFlowControllerBase __instance)
+        {
+            var monitor = __instance.GetMonitorForTeam(0);
+            if (monitor.Score.TotalMultiplier > OC2Config.MaxTipCombo)
+            {
+                monitor.Score.TotalMultiplier = OC2Config.MaxTipCombo;
+            }
+        }
+
+        /* Edit the message sent to clients to also show the new limit */
+        [HarmonyPatch(typeof(KitchenFlowMessage), nameof(KitchenFlowMessage.SetScoreData))]
+        [HarmonyPostfix]
+        private static void SetScoreData(ref TeamMonitor.TeamScoreStats ___m_teamScore)
+        {
+            if (___m_teamScore.TotalMultiplier > OC2Config.MaxTipCombo)
+            {
+                ___m_teamScore.TotalMultiplier = OC2Config.MaxTipCombo;
+            }
         }
     }
 }
