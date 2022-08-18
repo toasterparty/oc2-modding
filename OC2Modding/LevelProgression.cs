@@ -86,7 +86,7 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.FillOut))]
         [HarmonyPrefix]
-        private static void FillOut(ref SceneDirectoryData _sceneDirectory, ref GameProgress.GameProgressData.LevelProgress[] ___Levels)
+        private static void FillOut(ref SceneDirectoryData _sceneDirectory)
         {
             foreach (KeyValuePair<int, int> kvp in OC2Config.LevelPurchaseRequirements)
             {

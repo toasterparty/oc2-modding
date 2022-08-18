@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using HarmonyLib;
 using Team17.Online;
+using UnityEngine;
 
 namespace OC2Modding
 {
@@ -97,6 +98,32 @@ namespace OC2Modding
         public static string DLCFromDLCID(int dlcId)
         {
             return CurrentDLC.DLCToString(dlcId);
+        }
+
+        public static int[] getDlcArray()
+        {
+            return new int[] { 2, 3, 5, 7, 8};
+        }
+
+        public static SceneDirectoryData.SceneDirectoryEntry[] getScenesFromDLC(int dlcId)
+        {
+            var m_CoopGameSessionPrefabs_prop = T17FrontendFlow.Instance.GetType().GetField("m_CoopGameSessionPrefabs", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            GameSession[] gameSessions = ((DLCSerializedData<GameSession>)m_CoopGameSessionPrefabs_prop.GetValue(T17FrontendFlow.Instance)).AllData;
+            gameSessions = gameSessions.AllRemoved_Predicate((GameSession x) => x == null);
+            GameSession gameSession = Array.Find<GameSession>(gameSessions, (GameSession x) => x.DLC == dlcId);
+            if (gameSession == null)
+            {
+                return null;
+            }
+
+            return gameSession.Progress.GetSceneDirectory().Scenes;
+        }
+
+        public static string getCustomSaveDirectory()
+        {
+            // TODO: override "GetSaveDirectory" with this
+            // TODO: add a GUID
+            return Application.persistentDataPath + "/OC2Modding/";
         }
 
         /* Helpers for the helpers start here */
