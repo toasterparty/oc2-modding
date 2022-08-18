@@ -28,7 +28,6 @@
             "dependsOn": ["Build", "Install"],
             "group": "build",
             "presentation": {
-                "revealProblems": "onProblem",
                 "close": true
             }
         },

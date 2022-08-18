@@ -36,6 +36,7 @@ namespace OC2Modding
             Cheats.Awake();
             CustomLevelOrder.Awake();
             IngredientCrates.Awake();
+            DespawnItems.Awake();
 
             DisplayModsOnResultsScreen.Awake(); // This MUST go last
         }
