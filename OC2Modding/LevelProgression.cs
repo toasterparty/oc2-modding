@@ -79,60 +79,11 @@ namespace OC2Modding
             }
         }
 
-        private static int scoreScaleHelper(int inScore, float scale)
-        {
-            float inScore_f = (float)inScore;
-            int scaledScore = (int)(inScore_f * scale);
-            int remainder = scaledScore % 50;
-            return scaledScore - remainder;
-        }
-
         [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.FillOut))]
         [HarmonyPrefix]
         private static void FillOut(ref SceneDirectoryData _sceneDirectory)
         {
-            if (OC2Helpers.GetCurrentDLCID() == -1 && OC2Config.LevelPurchaseRequirements != null) // Story only
-            {
-                foreach (KeyValuePair<int, int> kvp in OC2Config.LevelPurchaseRequirements)
-                {
-                    _sceneDirectory.Scenes[kvp.Key].StarCost = kvp.Value;
-                }
-            }
 
-            if (OC2Config.LeaderboardScoreScale != null)
-            {
-                int levelId = 0;
-                foreach (SceneDirectoryData.SceneDirectoryEntry scene in _sceneDirectory.Scenes)
-                {
-                    foreach (SceneDirectoryData.PerPlayerCountDirectoryEntry variant in scene.SceneVarients)
-                    {
-                        if (scene.World == SceneDirectoryData.World.Invalid)
-                        {
-                            continue;
-                        }
-
-                        int dlc = OC2Helpers.DLCFromWorld(scene.World);
-                        int playerCount = variant.PlayerCount;
-
-                        int worldRecordScore = OC2Helpers.getScoresFromLeaderboard(dlc, levelId, playerCount);
-                        var prop = variant.GetType().GetField("m_PCStarBoundaries", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                        if (worldRecordScore <= 0)
-                        {
-                            /* Fallback to 4-star score as WR where none is submitted */
-                            worldRecordScore = ((SceneDirectoryData.StarBoundaries)prop.GetValue(variant)).m_FourStarScore;
-                        }
-
-                        SceneDirectoryData.StarBoundaries starBoundariesOverride = new SceneDirectoryData.StarBoundaries();
-                        starBoundariesOverride.m_FourStarScore  = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[4]);
-                        starBoundariesOverride.m_ThreeStarScore = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[3]);
-                        starBoundariesOverride.m_TwoStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[2]);
-                        starBoundariesOverride.m_OneStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[1]);
-
-                        prop.SetValue(variant, starBoundariesOverride);
-                    }
-                    levelId++;
-                }
-            }
         }
     }
 }
