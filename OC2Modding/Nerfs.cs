@@ -25,7 +25,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool OnItemPlaced(ref GameObject _objectToPlace)
         {
-            // OC2Modding.Log.LogInfo($"{_objectToPlace.name}");
+            OC2Modding.Log.LogInfo($"{_objectToPlace.name}");
 
             if (finishedFirstPass)
             {
@@ -38,20 +38,23 @@ namespace OC2Modding
                 return false;
             }
 
-            if (OC2Config.PlatesStartDirty && _objectToPlace.name.StartsWith("equipment_plate_01"))
+            bool isPlate = _objectToPlace.name.StartsWith("equipment_plate_01") || _objectToPlace.name.StartsWith("Plate 1");
+
+            if (isPlate)
             {
-                removedPlates++;
-                _objectToPlace.Destroy();
-                return false;
+                if (OC2Config.PlatesStartDirty)
+                {
+                    removedPlates++;
+                    _objectToPlace.Destroy();
+                    return false;
+                } else if (OC2Config.DisableOnePlate && removedPlates == 0)
+                {
+                    removedPlates++;
+                    _objectToPlace.Destroy();
+                    return false;
+                }
             }
 
-            if (OC2Config.DisableOnePlate && _objectToPlace.name == "equipment_plate_01 (1)" && removedPlates == 0)
-            {
-                removedPlates++;
-                _objectToPlace.Destroy();
-                return false;
-            }
-            
             if (OC2Config.DisableFireExtinguisher && _objectToPlace.name == "utensil_fire_extinguisher_01")
             {
                 _objectToPlace.Destroy();
@@ -71,7 +74,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void UpdateSynchronising(ref PlateReturnStation ___m_returnStation)
         {
-            if (___m_returnStation.m_startingPlateNumber != 0)
+            if (___m_returnStation.m_startingPlateNumber != 0 || removedPlates == 0)
             {
                 return; // We already did this patch
             }
@@ -82,6 +85,7 @@ namespace OC2Modding
             }
 
             ___m_returnStation.m_startingPlateNumber = removedPlates;
+
             if (OC2Config.DisableOnePlate)
             {
                 ___m_returnStation.m_startingPlateNumber -= 1;
