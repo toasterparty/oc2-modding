@@ -35,6 +35,7 @@ namespace OC2Modding
             AlwaysServeOldestOrder.Awake();
             Cheats.Awake();
             CustomLevelOrder.Awake();
+            IngredientCrates.Awake();
 
             DisplayModsOnResultsScreen.Awake(); // This MUST go last
         }

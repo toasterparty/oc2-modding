@@ -78,12 +78,5 @@ namespace OC2Modding
                 __result = true;
             }
         }
-
-        [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.FillOut))]
-        [HarmonyPrefix]
-        private static void FillOut(ref SceneDirectoryData _sceneDirectory)
-        {
-
-        }
     }
 }

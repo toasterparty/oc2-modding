@@ -32,6 +32,7 @@ namespace OC2Modding
         public static bool PurchaseAllLevels;
         public static bool SkipTutorial;
         public static bool CheatsEnabled = false;
+        public static bool DisableWood = false;
 
         // <UnlockerLevelId, LockedLevelId>
         public static Dictionary<int, int> LevelUnlockRequirements;
@@ -251,6 +252,7 @@ namespace OC2Modding
                 try { if (config.HasKey("SkipTutorial"             )) SkipTutorial             = config["SkipTutorial"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SkipTutorial'"             ); }
                 try { if (config.HasKey("CheatsEnabled"            )) CheatsEnabled            = config["CheatsEnabled"            ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CheatsEnabled'"            ); }
                 try { if (config.HasKey("JsonConfigPath"           )) JsonConfigPath           = config["JsonConfigPath"           ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'JsonConfigPath'"           ); }
+                try { if (config.HasKey("DisableWood"              )) DisableWood              = config["DisableWood"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableWood'"              ); }
 
                 try
                 {

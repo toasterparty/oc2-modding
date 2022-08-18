@@ -9,7 +9,6 @@
             "command": "${workspaceFolder}/tools/build.bat",
             "group": "build",
             "presentation": {
-                "revealProblems": "onProblem",
                 "close": true
             }
         },
@@ -19,7 +18,6 @@
             "command": "${workspaceFolder}/dist/oc2-modding-install.bat nopause \\\"C:\\Other\\Games\\Steam\\steamapps\\common\\Overcooked! 2\\Overcooked2.exe\\\"",
             "dependsOn": ["Build"],
             "presentation": {
-                "revealProblems": "onProblem",
                 "close": true
             }
         },
