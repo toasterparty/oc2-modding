@@ -37,7 +37,13 @@ namespace OC2Modding
         public static Dictionary<int, int> LevelUnlockRequirements;
         public static Dictionary<int, int> LevelPurchaseRequirements;
         public static Dictionary<int, float> LeaderboardScoreScale = null;
-        public static Dictionary<string, Dictionary<int, int>> CustomLevelOrder = null;
+        public static Dictionary<string, Dictionary<int, DlcIdAndLevelId>> CustomLevelOrder = null;
+        
+        public struct DlcIdAndLevelId
+        {
+            public int Dlc;
+            public int LevelId;
+        }
 
         public static void Awake()
         {
@@ -318,14 +324,17 @@ namespace OC2Modding
                 {
                     if (config.HasKey("CustomLevelOrder"))
                     {
-                        Dictionary<string, Dictionary<int, int>> tempDict = new Dictionary<string, Dictionary<int, int>>();
+                        Dictionary<string, Dictionary<int, DlcIdAndLevelId>> tempDict = new Dictionary<string, Dictionary<int, DlcIdAndLevelId>>();
 
                         if (config["CustomLevelOrder"].HasKey("Story"))
                         {
-                            Dictionary<int, int> tempDictDlc = new Dictionary<int, int>();
+                            Dictionary<int, DlcIdAndLevelId> tempDictDlc = new Dictionary<int, DlcIdAndLevelId>();
                             foreach (KeyValuePair<string, SimpleJSON.JSONNode> kvp in config["CustomLevelOrder"].AsObject["Story"].AsObject)
                             {
-                                tempDictDlc.Add(int.Parse(kvp.Key), kvp.Value);
+                                DlcIdAndLevelId dlcIdAndLevelId = new DlcIdAndLevelId();
+                                dlcIdAndLevelId.Dlc = OC2Helpers.DLCFromString(kvp.Value.AsObject["DLC"]);
+                                dlcIdAndLevelId.LevelId = kvp.Value.AsObject["LevelID"];
+                                tempDictDlc.Add(int.Parse(kvp.Key), dlcIdAndLevelId);
                             }
                             tempDict.Add("Story", tempDictDlc);
                         }

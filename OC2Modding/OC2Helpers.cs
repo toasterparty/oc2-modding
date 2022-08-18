@@ -102,18 +102,24 @@ namespace OC2Modding
 
         public static int[] getDlcArray()
         {
-            return new int[] { 2, 3, 5, 7, 8};
+            return new int[] { -1, 2, 3, 5, 7, 8};
         }
 
         public static SceneDirectoryData.SceneDirectoryEntry[] getScenesFromDLC(int dlcId)
         {
-            if (T17FrontendFlow.Instance == null)
+            if(!getDlcArray().Contains(dlcId))
             {
-                OC2Modding.Log.LogError("T17FrontendFlow.Instance was null"); // this is the bad thing that is happening
+                OC2Modding.Log.LogError($"Unexpected dlcId {dlcId}");
                 return null;
             }
 
-            var m_CoopGameSessionPrefabs_prop = T17FrontendFlow.Instance.GetType().GetField("m_CoopGameSessionPrefabs", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (T17FrontendFlow.Instance == null)
+            {
+                OC2Modding.Log.LogError("T17FrontendFlow.Instance was null");
+                return null;
+            }
+
+            FieldInfo m_CoopGameSessionPrefabs_prop = T17FrontendFlow.Instance.GetType().GetField("m_CoopGameSessionPrefabs", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (m_CoopGameSessionPrefabs_prop == null)
             {
                 OC2Modding.Log.LogError("m_CoopGameSessionPrefabs_prop was null");
@@ -133,8 +139,21 @@ namespace OC2Modding
                 return null;
             }
 
-            GameSession[] gameSessions = m_CoopGameSessionPrefabs.AllData;
+            if (m_CoopGameSessionPrefabs.AllData.Length == 0)
+            {
+                OC2Modding.Log.LogError("m_CoopGameSessionPrefabs.AllData was empty");
+                return null;
+            }
+
+            // GameSession[] gameSessions = (GameSession[])m_CoopGameSessionPrefabs.AllData.Clone(); // TODO: to clone or not to clone
+            GameSession[] gameSessions = (GameSession[])m_CoopGameSessionPrefabs.AllData;
             gameSessions = gameSessions.AllRemoved_Predicate((GameSession x) => x == null);
+            if (gameSessions == null)
+            {
+                OC2Modding.Log.LogError("m_CoopGameSessionPrefabs.AllData contained all null things");
+                return null;
+            }
+
             GameSession gameSession = Array.Find<GameSession>(gameSessions, (GameSession x) => x.DLC == dlcId);
             if (gameSession == null)
             {
@@ -142,10 +161,23 @@ namespace OC2Modding
                 return null;
             }
 
-            SceneDirectoryData sceneDirectory = gameSession.Progress.GetSceneDirectory();
+            GameProgress gameProgress = gameSession.gameObject.RequireComponentRecursive<GameProgress>();
+            if (gameProgress == null)
+            {
+                OC2Modding.Log.LogError($"gameProgress was null");
+                return null;
+            }
+
+            SceneDirectoryData sceneDirectory = gameProgress.GetSceneDirectory();
             if (sceneDirectory == null)
             {
                 OC2Modding.Log.LogError($"sceneDirectory was null");
+                return null;
+            }
+
+            if (sceneDirectory.Scenes.Length == 0)
+            {
+                OC2Modding.Log.LogError($"sceneDirectory.Scenes were null");
                 return null;
             }
 
