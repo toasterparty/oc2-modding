@@ -35,6 +35,8 @@ namespace OC2Modding
         public static bool DisableWood = false;
         public static bool DisableCoal = false;
         public static bool DisableOnePlate = false;
+        public static bool DisableFireExtinguisher = false;
+        public static bool DisableBellows = false;
 
         // <UnlockerLevelId, LockedLevelId>
         public static Dictionary<int, int> LevelUnlockRequirements;
@@ -257,6 +259,8 @@ namespace OC2Modding
                 try { if (config.HasKey("DisableWood"              )) DisableWood              = config["DisableWood"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableWood'"              ); }
                 try { if (config.HasKey("DisableCoal"              )) DisableCoal              = config["DisableCoal"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableCoal'"              ); }
                 try { if (config.HasKey("DisableOnePlate"          )) DisableOnePlate          = config["DisableOnePlate"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableOnePlate'"          ); }
+                try { if (config.HasKey("DisableFireExtinguisher"  )) DisableFireExtinguisher  = config["DisableFireExtinguisher"  ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableFireExtinguisher'"  ); }
+                try { if (config.HasKey("DisableBellows"           )) DisableBellows           = config["DisableBellows"           ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableBellows'"           ); }
 
                 try
                 {

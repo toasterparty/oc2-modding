@@ -48,6 +48,18 @@ namespace OC2Modding
                 _objectToPlace.Destroy();
                 return false;
             }
+            
+            if (OC2Config.DisableFireExtinguisher && _objectToPlace.name == "utensil_fire_extinguisher_01")
+            {
+                _objectToPlace.Destroy();
+                return false;
+            }
+
+            if (OC2Config.DisableBellows && _objectToPlace.name == "utensil_bellows_01")
+            {
+                _objectToPlace.Destroy();
+                return false;
+            }
 
             return true;
         }
