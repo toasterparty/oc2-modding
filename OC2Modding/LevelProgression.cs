@@ -41,24 +41,27 @@ namespace OC2Modding
                 __result.ObjectivesCompleted = true;
             }
 
-            if (OC2Config.SkipTutorial && _id == 0)
+            if (OC2Helpers.GetCurrentDLCID() == -1) // Story only
             {
-                __result.Completed = true;
-                __result.ObjectivesCompleted = true;
-                __result.ScoreStars = 3;
-            }
+                if (OC2Config.SkipTutorial && _id == 0)
+                {
+                    __result.Completed = true;
+                    __result.ObjectivesCompleted = true;
+                    __result.ScoreStars = 3;
+                }
 
-            if (OC2Config.SkipTutorial && _id == 45) // Post-tutorial Onion King
-            {
-                __result.Completed = true;
-                __result.ObjectivesCompleted = true;
-            }
+                if (OC2Config.SkipTutorial && _id == 45) // Post-tutorial Onion King
+                {
+                    __result.Completed = true;
+                    __result.ObjectivesCompleted = true;
+                }
 
-            // if (_id >= 45 && _id <= 51) // Onion King
-            // {
-            //     __result.Completed = true;
-            //     __result.ObjectivesCompleted = true;
-            // }
+                // if (_id >= 45 && _id <= 51) // Onion King
+                // {
+                //     __result.Completed = true;
+                //     __result.ObjectivesCompleted = true;
+                // }
+            }
         }
 
         [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.IsLevelUnlocked))]
@@ -88,9 +91,12 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void FillOut(ref SceneDirectoryData _sceneDirectory)
         {
-            foreach (KeyValuePair<int, int> kvp in OC2Config.LevelPurchaseRequirements)
+            if (OC2Helpers.GetCurrentDLCID() == -1 && OC2Config.LevelPurchaseRequirements != null) // Story only
             {
-                _sceneDirectory.Scenes[kvp.Key].StarCost = kvp.Value;
+                foreach (KeyValuePair<int, int> kvp in OC2Config.LevelPurchaseRequirements)
+                {
+                    _sceneDirectory.Scenes[kvp.Key].StarCost = kvp.Value;
+                }
             }
 
             if (OC2Config.LeaderboardScoreScale != null)

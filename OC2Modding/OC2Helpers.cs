@@ -107,16 +107,49 @@ namespace OC2Modding
 
         public static SceneDirectoryData.SceneDirectoryEntry[] getScenesFromDLC(int dlcId)
         {
+            if (T17FrontendFlow.Instance == null)
+            {
+                OC2Modding.Log.LogError("T17FrontendFlow.Instance was null"); // this is the bad thing that is happening
+                return null;
+            }
+
             var m_CoopGameSessionPrefabs_prop = T17FrontendFlow.Instance.GetType().GetField("m_CoopGameSessionPrefabs", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            GameSession[] gameSessions = ((DLCSerializedData<GameSession>)m_CoopGameSessionPrefabs_prop.GetValue(T17FrontendFlow.Instance)).AllData;
+            if (m_CoopGameSessionPrefabs_prop == null)
+            {
+                OC2Modding.Log.LogError("m_CoopGameSessionPrefabs_prop was null");
+                return null;
+            }
+
+            DLCSerializedData<GameSession> m_CoopGameSessionPrefabs = (DLCSerializedData<GameSession>)m_CoopGameSessionPrefabs_prop.GetValue(T17FrontendFlow.Instance);
+            if (m_CoopGameSessionPrefabs == null)
+            {
+                OC2Modding.Log.LogError("m_CoopGameSessionPrefabs was null");
+                return null;
+            }
+
+            if (m_CoopGameSessionPrefabs.AllData == null)
+            {
+                OC2Modding.Log.LogError("m_CoopGameSessionPrefabs.AllData was null");
+                return null;
+            }
+
+            GameSession[] gameSessions = m_CoopGameSessionPrefabs.AllData;
             gameSessions = gameSessions.AllRemoved_Predicate((GameSession x) => x == null);
             GameSession gameSession = Array.Find<GameSession>(gameSessions, (GameSession x) => x.DLC == dlcId);
             if (gameSession == null)
             {
+                OC2Modding.Log.LogError($"No game session matched DLC={dlcId}");
                 return null;
             }
 
-            return gameSession.Progress.GetSceneDirectory().Scenes;
+            SceneDirectoryData sceneDirectory = gameSession.Progress.GetSceneDirectory();
+            if (sceneDirectory == null)
+            {
+                OC2Modding.Log.LogError($"sceneDirectory was null");
+                return null;
+            }
+
+            return sceneDirectory.Scenes;
         }
 
         public static string getCustomSaveDirectory()
@@ -291,7 +324,7 @@ namespace OC2Modding
                     }
 
                     string dlc = values[1].Replace("\"", "");
-                    int dlcId = CurrentDLC.DLCFromString(dlc);
+                    int dlcId = DLCFromString(dlc);
                     if (dlcId == -2)
                     {
                         continue; // We don't care about AYCE Exclusive DLC
@@ -336,6 +369,31 @@ namespace OC2Modding
             }
         }
 
+        public static int DLCFromString(string dlc)
+        {
+            switch (dlc)
+            {
+                case "Story"                    : return -1;
+                case "Story 2"                  : return -1;
+                case "Surf 'n' Turf"            : return  2;
+                case "Seasonal"                 : return  3;
+                case "Christmas"                : return  3;
+                case "Chinese New Year"         : return  3;
+                case "Winter Wonderland"        : return  3;
+                case "Moon Harvest"             : return  3;
+                case "Spring Festival"          : return  3;
+                case "Sun's Out Buns Out"       : return  3;
+                case "Campfire Cook Off"        : return  5;
+                case "Night of the Hangry Horde": return  7;
+                case "Carnival of Chaos"        : return  8;
+                default:
+                    {
+                        // OC2Modding.Log.LogWarning($"Unexpected DLC '{dlc}'");
+                        return -2;
+                    }
+            }
+        }
+
         [HarmonyPatch]
         private static class CurrentDLC
         {
@@ -355,31 +413,6 @@ namespace OC2Modding
                         {
                             OC2Modding.Log.LogError($"Unexpected DLC ID #{dlc}");
                             return "";
-                        }
-                }
-            }
-
-            public static int DLCFromString(string dlc)
-            {
-                switch (dlc)
-                {
-                    case "Story"                    : return -1;
-                    case "Story 2"                  : return -1;
-                    case "Surf 'n' Turf"            : return  2;
-                    case "Seasonal"                 : return  3;
-                    case "Christmas"                : return  3;
-                    case "Chinese New Year"         : return  3;
-                    case "Winter Wonderland"        : return  3;
-                    case "Moon Harvest"             : return  3;
-                    case "Spring Festival"          : return  3;
-                    case "Sun's Out Buns Out"       : return  3;
-                    case "Campfire Cook Off"        : return  5;
-                    case "Night of the Hangry Horde": return  7;
-                    case "Carnival of Chaos"        : return  8;
-                    default:
-                        {
-                            // OC2Modding.Log.LogWarning($"Unexpected DLC '{dlc}'");
-                            return -2;
                         }
                 }
             }
