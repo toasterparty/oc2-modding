@@ -26,7 +26,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool OnItemPlaced(ref GameObject _objectToPlace)
         {
-            // OC2Modding.Log.LogInfo($"{_objectToPlace.name}");
+            OC2Modding.Log.LogInfo($"Placed '{_objectToPlace.name}'");
 
             if (finishedFirstPass)
             {
@@ -76,7 +76,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void UpdateSynchronising(ref PlateReturnStation ___m_returnStation)
         {
-            if (___m_returnStation.m_startingPlateNumber != 0 || removedPlates == 0)
+            if (___m_returnStation.m_startingPlateNumber != 0 || removedPlates == 0 || finishedFirstPass)
             {
                 return; // We already did this patch
             }
@@ -169,19 +169,55 @@ namespace OC2Modding
         
         [HarmonyPatch(typeof(ServerThrowableItem), nameof(ServerThrowableItem.CanHandleThrow))]
         [HarmonyPostfix]
-        private static void CanHandleThrow(ref bool __result)
+        private static void CanHandleThrow(ref bool __result, ref ServerThrowableItem __instance)
         {
             if (OC2Config.DisableThrow)
             {
+                GameUtils.TriggerAudio(GameOneShotAudioTag.RecipeTimeOut, __instance.gameObject.layer);
                 __result = false;
             }
         }
 
         [HarmonyPatch(typeof(ServerPilotMovement), "Update_Movement")]
         [HarmonyPrefix]
-        private static bool Update_Movement()
+        private static bool Update_Movement(ref ServerThrowableItem __instance)
         {
             return !OC2Config.DisableInteract;
+        }
+
+        [HarmonyPatch(typeof(PlayerControls), nameof(PlayerControls.ScanForCatch))]
+        [HarmonyPostfix]
+        private static void ScanForCatch(ref ICatchable __result, ref PlayerControls __instance)
+        {
+            if (__result != null && OC2Config.DisableCatch)
+            {
+                __result = null;
+            }
+        }
+
+        [HarmonyPatch(typeof(ServerPlayerControlsImpl_Default), nameof(ServerPlayerControlsImpl_Default.StartDash))]
+        [HarmonyPrefix]
+        private static bool StartDash()
+        {
+            return !OC2Config.DisableDash;
+        }
+
+        [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), "Update_Movement")]
+        [HarmonyPrefix]
+        private static void Update_Movement(ref float ___m_dashTimer, ref ServerPlayerControlsImpl_Default __instance)
+        {
+            if (___m_dashTimer > 0f && OC2Config.DisableDash)
+            {
+                ___m_dashTimer = 0f;
+                GameUtils.TriggerAudio(GameOneShotAudioTag.RecipeTimeOut, __instance.gameObject.layer);
+            }
+        }
+
+        [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), "DoDash")]
+        [HarmonyPrefix]
+        private static bool DoDash()
+        {
+            return !OC2Config.DisableDash;
         }
     }
 }
