@@ -39,7 +39,7 @@ namespace OC2Modding
                 return false;
             }
 
-            bool isPlate = _objectToPlace.name.StartsWith("equipment_plate_01") || _objectToPlace.name.StartsWith("Plate 1");
+            bool isPlate = _objectToPlace.name.StartsWith("equipment_plate_01") || _objectToPlace.name.StartsWith("Plate ");
 
             if (isPlate)
             {
@@ -218,6 +218,13 @@ namespace OC2Modding
         private static bool DoDash()
         {
             return !OC2Config.DisableDash;
+        }
+
+        [HarmonyPatch(typeof(ServerWashingStation), nameof(ServerWashable.UpdateSynchronising))]
+        [HarmonyPrefix]
+        private static void UpdateSynchronising(ref WashingStation ___m_washingStation)
+        {
+            ___m_washingStation.m_cleanPlateTime = 2.0f * OC2Config.WashTimeMultiplier;
         }
     }
 }

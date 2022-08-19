@@ -43,6 +43,7 @@ namespace OC2Modding
         public static bool DisableThrow = false;
         public static bool DisableCatch = false;
         public static bool DisableInteract = false;
+        public static float WashTimeMultiplier = 1.0f;
 
         // <UnlockerLevelId, LockedLevelId>
         public static Dictionary<int, int> LevelUnlockRequirements;
@@ -273,6 +274,7 @@ namespace OC2Modding
                 try { if (config.HasKey("DisableThrow"             )) DisableThrow             = config["DisableThrow"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableThrow'"             ); }
                 try { if (config.HasKey("DisableCatch"             )) DisableCatch             = config["DisableCatch"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableCatch'"             ); }
                 try { if (config.HasKey("DisableInteract"          )) DisableInteract          = config["DisableInteract"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableInteract'"          ); }
+                try { if (config.HasKey("WashTimeMultiplier"       )) WashTimeMultiplier       = config["WashTimeMultiplier"       ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'WashTimeMultiplier'"       ); }
 
                 try
                 {
