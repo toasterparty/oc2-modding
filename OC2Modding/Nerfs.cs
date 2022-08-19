@@ -226,5 +226,23 @@ namespace OC2Modding
         {
             ___m_washingStation.m_cleanPlateTime = 2.0f * OC2Config.WashTimeMultiplier;
         }
+
+        [HarmonyPatch(typeof(ServerCookingHandler), nameof(ServerCookingHandler.Cook))]
+        [HarmonyPostfix]
+        private static void Cook(ref float _cookingDeltatTime, ref bool __result, ref CookingStateMessage ___m_ServerData, ref ServerCookingHandler __instance)
+        {
+            float originalProgress = ___m_ServerData.m_cookingProgress;
+            CookingHandler cookingHandler = __instance.GetCookingHandler();
+
+            if (originalProgress < cookingHandler.m_cookingtime || originalProgress >= 2.0f*cookingHandler.m_cookingtime)
+            {
+                return; // It's not done yet
+            }
+
+            // Cook it a litile more to make it burn faster
+            float newProgress = originalProgress + _cookingDeltatTime*(OC2Config.BurnSpeedMultiplier - 1.0f);
+
+            __instance.SetCookingProgress(newProgress);
+        }
     }
 }
