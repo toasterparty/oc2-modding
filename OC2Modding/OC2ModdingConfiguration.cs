@@ -45,6 +45,7 @@ namespace OC2Modding
         public static bool DisableInteract = false;
         public static float WashTimeMultiplier = 1.0f;
         public static float BurnSpeedMultiplier = 1.0f;
+        public static int MaxOrdersOnScreenOffset = 0;
 
         // <UnlockerLevelId, LockedLevelId>
         public static Dictionary<int, int> LevelUnlockRequirements;
@@ -277,6 +278,7 @@ namespace OC2Modding
                 try { if (config.HasKey("DisableInteract"          )) DisableInteract          = config["DisableInteract"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableInteract'"          ); }
                 try { if (config.HasKey("WashTimeMultiplier"       )) WashTimeMultiplier       = config["WashTimeMultiplier"       ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'WashTimeMultiplier'"       ); }
                 try { if (config.HasKey("BurnSpeedMultiplier"      )) BurnSpeedMultiplier      = config["BurnSpeedMultiplier"      ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'BurnSpeedMultiplier'"      ); }
+                try { if (config.HasKey("MaxOrdersOnScreenOffset"  )) MaxOrdersOnScreenOffset  = config["MaxOrdersOnScreenOffset"  ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'MaxOrdersOnScreenOffset'"  ); }
 
                 try
                 {

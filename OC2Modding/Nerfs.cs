@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
 using Team17.Online.Multiplayer.Messaging;
+using OrderController;
 
 namespace OC2Modding
 {
@@ -234,15 +236,22 @@ namespace OC2Modding
             float originalProgress = ___m_ServerData.m_cookingProgress;
             CookingHandler cookingHandler = __instance.GetCookingHandler();
 
-            if (originalProgress < cookingHandler.m_cookingtime || originalProgress >= 2.0f*cookingHandler.m_cookingtime)
+            if (___m_ServerData.m_cookingState != CookingUIController.State.Completed || ___m_ServerData.m_cookingState != CookingUIController.State.OverDoing)
             {
-                return; // It's not done yet
+                return; // It's not done yet or it's already burnt
             }
 
             // Cook it a litile more to make it burn faster
             float newProgress = originalProgress + _cookingDeltatTime*(OC2Config.BurnSpeedMultiplier - 1.0f);
 
             __instance.SetCookingProgress(newProgress);
+        }
+
+        [HarmonyPatch(typeof(ServerOrderControllerBase), "IsFull")]
+        [HarmonyPostfix]
+        private static void IsFull(ref bool __result, ref List<ServerOrderData> ___m_activeOrders, ref int ___m_maxOrdersAllowed)
+        {
+            __result = ___m_activeOrders.Count >= ___m_maxOrdersAllowed + OC2Config.MaxOrdersOnScreenOffset;
         }
     }
 }
