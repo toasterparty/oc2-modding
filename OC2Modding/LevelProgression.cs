@@ -73,6 +73,11 @@ namespace OC2Modding
                 __result = IsLevelCompleted(OC2Config.LevelUnlockRequirements[_levelIndex]);
             }
 
+            if (OC2Config.LevelForceReveal.Contains(_levelIndex))
+            {
+                __result = true;
+            }
+
             if (OC2Config.RevealAllLevels)
             {
                 __result = true;

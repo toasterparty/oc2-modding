@@ -52,6 +52,7 @@ namespace OC2Modding
         // <UnlockerLevelId, LockedLevelId>
         public static Dictionary<int, int> LevelUnlockRequirements;
         public static Dictionary<int, int> LevelPurchaseRequirements;
+        public static List<int> LevelForceReveal;
         public static Dictionary<int, float> LeaderboardScoreScale = null;
         public static Dictionary<string, Dictionary<int, DlcIdAndLevelId>> CustomLevelOrder = null;
         
@@ -66,6 +67,7 @@ namespace OC2Modding
             /* Initialize Memory */
             LevelUnlockRequirements = new Dictionary<int, int>();
             LevelPurchaseRequirements = new Dictionary<int, int>();
+            LevelForceReveal = new List<int>();
 
             /* Initialize Standalone Config */
             InitCfg();
@@ -377,6 +379,26 @@ namespace OC2Modding
                 catch
                 {
                     OC2Modding.Log.LogWarning($"Failed to parse key 'CustomLevelOrder'");
+                }
+
+                try
+                {
+                    if (config.HasKey("LevelForceReveal"))
+                    {
+                        List<int> temp = new List<int>();
+
+                        foreach (int levelId in config["LevelForceReveal"].AsArray.Values)
+                        {
+                            temp.Add(levelId);
+                        }
+
+                        LevelForceReveal.Clear();
+                        LevelForceReveal = temp;
+                    }
+                }
+                catch
+                {
+                    OC2Modding.Log.LogWarning($"Failed to parse key 'LevelForceReveal'");
                 }
             }
             catch {}
