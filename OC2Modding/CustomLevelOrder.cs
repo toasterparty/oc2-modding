@@ -10,14 +10,6 @@ namespace OC2Modding
             Harmony.CreateAndPatchAll(typeof(CustomLevelOrder));
         }
 
-        [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.IsLevelUnlocked))]
-        [HarmonyPrefix]
-        private static bool IsLevelUnlocked(ref int _levelIndex, ref bool __result)
-        {
-            __result = true;
-            return false;
-        }
-
         private static Dictionary<OC2Config.DlcIdAndLevelId, SceneDirectoryData.SceneDirectoryEntry> replacementScenes = null;
 
         [HarmonyPatch(typeof(T17FrontendFlow), nameof(T17FrontendFlow.Awake))]
@@ -30,6 +22,11 @@ namespace OC2Modding
             }
 
             replacementScenes = new Dictionary<OC2Config.DlcIdAndLevelId, SceneDirectoryData.SceneDirectoryEntry>();
+
+            if (OC2Config.CustomLevelOrder == null)
+            {
+                return;
+            }
 
             if (!OC2Config.CustomLevelOrder.ContainsKey("Story"))
             {
@@ -120,6 +117,7 @@ namespace OC2Modding
                         newScene.LevelChainEnd = originalScene.LevelChainEnd;
                         newScene.IsHidden = originalScene.IsHidden;
                         newScene.StarCost = originalScene.StarCost;
+                        newScene.PreviousEntriesToUnlock = originalScene.PreviousEntriesToUnlock;
 
                         ___m_sceneDirectory.Scenes[levelId] = newScene;
                     }
