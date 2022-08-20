@@ -56,11 +56,11 @@ namespace OC2Modding
                     __result.ObjectivesCompleted = true;
                 }
 
-                // if (_id >= 45 && _id <= 51) // Onion King
-                // {
-                //     __result.Completed = true;
-                //     __result.ObjectivesCompleted = true;
-                // }
+                if (_id >= 45 && _id <= 51 && OC2Config.SkipAllOnionKing) // Onion King
+                {
+                    __result.Completed = true;
+                    __result.ObjectivesCompleted = true;
+                }
             }
         }
 

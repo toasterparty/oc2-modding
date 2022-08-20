@@ -184,7 +184,6 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool Update_Movement(ref ServerThrowableItem __instance)
         {
-            OC2Modding.Log.LogInfo($"Piloting '{__instance.gameObject.name}'");
             if (__instance.gameObject.name == "DLC10_Pushable_Object" && OC2Config.DisableWokDrag)
             {
                 return false;
