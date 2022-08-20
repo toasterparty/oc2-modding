@@ -19,3 +19,7 @@ Sometimes it's beneficial to bulk-patch multiple methods. You can do that by usi
 ## [Read/Write Private Class Data](https://github.com/toasterparty/oc2-modding/blob/9c748c8453682b6b2e120802755ca7a9705587eb/OC2Modding/LevelProgression.cs#L106..L119)
 
 Normally when patching, you only have access to public class data. Reflecting can be abused to circumvent this.
+
+## [Patch Method With Overloads](https://github.com/toasterparty/oc2-modding/blob/7d284ff5db821f27cd5ee3e0868e744629405539/OC2Modding/Nerfs.cs#L269)
+
+You can specify the argument types to hint at which method you want patched when multiple share the same name.

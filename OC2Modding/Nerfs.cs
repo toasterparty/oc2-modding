@@ -42,7 +42,14 @@ namespace OC2Modding
                 return false;
             }
 
-            bool isPlate = _objectToPlace.name.StartsWith("equipment_plate_01") || _objectToPlace.name.StartsWith("Plate ");
+            bool isPlate = 
+                _objectToPlace.name.StartsWith("equipment_plate_01") ||
+                _objectToPlace.name.StartsWith("Plate ") ||
+                _objectToPlace.name.StartsWith("equipment_mug_01") ||
+                _objectToPlace.name.StartsWith("DLC08_equipment_tray") ||
+                _objectToPlace.name.StartsWith("DLC11_equipment_glass_01") ||
+                _objectToPlace.name.StartsWith("equipment_glass_01")
+                ;
 
             if (isPlate)
             {

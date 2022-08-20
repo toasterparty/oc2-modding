@@ -13,6 +13,7 @@ namespace OC2Modding
         private static string JsonConfigPath = "";
 
         /* Globally Accessible Config Values */
+        // QoL + Cheats
         public static bool DisableAllMods;
         public static bool DisplayLeaderboardScores;
         public static bool AlwaysServeOldestOrder;
@@ -32,6 +33,10 @@ namespace OC2Modding
         public static bool PurchaseAllLevels;
         public static bool SkipTutorial;
         public static bool CheatsEnabled = false;
+        public static bool SkipAllOnionKing = false;
+
+        // Items 19 + 8 kevin unlocks = 27 discrete items
+        // 27 + 6 emote wheels = 33
         public static bool DisableWood = false;
         public static bool DisableCoal = false;
         public static bool DisableOnePlate = false;
@@ -47,8 +52,17 @@ namespace OC2Modding
         public static float WashTimeMultiplier = 1.0f;
         public static float BurnSpeedMultiplier = 1.0f;
         public static int MaxOrdersOnScreenOffset = 0;
-        public static bool SkipAllOnionKing = false;
         public static float ChoppingTimeScale = 1.0f;
+        // Pick up plate stacks 1 at a time
+        // Lilly pad respawn time
+        // Backpack Make you Slower
+        // Remove Wok Ladle
+        // Double Respawn Time
+        // Soda/Condiment
+        // Squirt Gun Distance
+        // Wok fire doubletime
+        // Guitine Cooldown
+        // Annoying Timing Elements Twice as often
 
         // <UnlockerLevelId, LockedLevelId>
         public static Dictionary<int, int> LevelUnlockRequirements;
@@ -56,7 +70,7 @@ namespace OC2Modding
         public static List<int> LevelForceReveal;
         public static Dictionary<int, float> LeaderboardScoreScale = null;
         public static Dictionary<string, Dictionary<int, DlcIdAndLevelId>> CustomLevelOrder = null;
-        
+
         public struct DlcIdAndLevelId
         {
             public int Dlc;
