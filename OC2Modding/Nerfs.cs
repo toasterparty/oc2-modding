@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
@@ -168,7 +169,7 @@ namespace OC2Modding
 
             return true;
         }
-        
+
         [HarmonyPatch(typeof(ServerThrowableItem), nameof(ServerThrowableItem.CanHandleThrow))]
         [HarmonyPostfix]
         private static void CanHandleThrow(ref bool __result, ref ServerThrowableItem __instance)
@@ -188,7 +189,7 @@ namespace OC2Modding
             {
                 return false;
             }
-            
+
             if (__instance.gameObject.name == "MovingSection" && OC2Config.DisableControlStick)
             {
                 return false;
@@ -252,7 +253,7 @@ namespace OC2Modding
             }
 
             // Cook it a litile more to make it burn faster
-            float newProgress = originalProgress + _cookingDeltatTime*(OC2Config.BurnSpeedMultiplier - 1.0f);
+            float newProgress = originalProgress + _cookingDeltatTime * (OC2Config.BurnSpeedMultiplier - 1.0f);
 
             __instance.SetCookingProgress(newProgress);
         }
@@ -262,6 +263,14 @@ namespace OC2Modding
         private static void IsFull(ref bool __result, ref List<ServerOrderData> ___m_activeOrders, ref int ___m_maxOrdersAllowed)
         {
             __result = ___m_activeOrders.Count >= ___m_maxOrdersAllowed + OC2Config.MaxOrdersOnScreenOffset;
+        }
+
+        [HarmonyPatch(typeof(ServerWorkableItem), nameof(ServerWorkableItem.DoWork))]
+        [HarmonyPatch(new Type[] { typeof(ServerAttachStation), typeof(GameObject) })]
+        [HarmonyPrefix]
+        private static void DoWork(ref WorkableItem ___m_workable)
+        {
+            ___m_workable.m_stages = Math.Max((int)(8.0f*OC2Config.ChoppingTimeScale), 1);
         }
     }
 }
