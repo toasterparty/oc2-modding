@@ -279,5 +279,40 @@ namespace OC2Modding
         {
             ___m_workable.m_stages = Math.Max((int)(8.0f*OC2Config.ChoppingTimeScale), 1);
         }
+        
+        [HarmonyPatch(typeof(ServerEmoteWheel), "StartEmote")]
+        [HarmonyPrefix]
+        private static bool StartEmote(ref ServerEmoteWheel __instance, ref EmoteWheelMessage _message)
+        {
+            if (OC2Config.LockedEmotes.Contains(_message.m_emoteIdx))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPatch(typeof(ClientEmoteWheel), nameof(ClientEmoteWheel.StartEmote))]
+        [HarmonyPrefix]
+        private static bool StartEmoteClient(ref ClientEmoteWheel __instance, ref int _emoteIdx)
+        {
+            if (OC2Config.LockedEmotes.Contains(_emoteIdx))
+            {
+                return false;
+            }
+            return true;
+        }
+        
+        [HarmonyPatch(typeof(ClientEmoteWheel), nameof(ClientEmoteWheel.RequestEmoteStart))]
+        [HarmonyPrefix]
+        private static bool RequestEmoteStart(ref ClientEmoteWheel __instance, ref int _emoteIdx)
+        {
+            if (OC2Config.LockedEmotes.Contains(_emoteIdx))
+            {
+                GameUtils.TriggerAudio(GameOneShotAudioTag.RecipeTimeOut, __instance.gameObject.layer);
+                return false;
+            }
+            return true;
+        }
+        
     }
 }

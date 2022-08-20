@@ -70,6 +70,7 @@ namespace OC2Modding
         public static List<int> LevelForceReveal;
         public static Dictionary<int, float> LeaderboardScoreScale = null;
         public static Dictionary<string, Dictionary<int, DlcIdAndLevelId>> CustomLevelOrder = null;
+        public static List<int> LockedEmotes;
 
         public struct DlcIdAndLevelId
         {
@@ -83,6 +84,7 @@ namespace OC2Modding
             LevelUnlockRequirements = new Dictionary<int, int>();
             LevelPurchaseRequirements = new Dictionary<int, int>();
             LevelForceReveal = new List<int>();
+            LockedEmotes = new List<int>();
 
             /* Initialize Standalone Config */
             InitCfg();
@@ -415,6 +417,26 @@ namespace OC2Modding
                 catch
                 {
                     OC2Modding.Log.LogWarning($"Failed to parse key 'LevelForceReveal'");
+                }
+                
+                try
+                {
+                    if (config.HasKey("LockedEmotes"))
+                    {
+                        List<int> temp = new List<int>();
+
+                        foreach (int levelId in config["LockedEmotes"].AsArray.Values)
+                        {
+                            temp.Add(levelId);
+                        }
+
+                        LockedEmotes.Clear();
+                        LockedEmotes = temp;
+                    }
+                }
+                catch
+                {
+                    OC2Modding.Log.LogWarning($"Failed to parse key 'LockedEmotes'");
                 }
             }
             catch {}
