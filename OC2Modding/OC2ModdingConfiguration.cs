@@ -53,9 +53,9 @@ namespace OC2Modding
         public static float BurnSpeedMultiplier = 1.0f;
         public static int MaxOrdersOnScreenOffset = 0;
         public static float ChoppingTimeScale = 1.0f;
+        public static float BackpackMovementScale = 1.0f;
         // Pick up plate stacks 1 at a time
         // Lilly pad respawn time
-        // Backpack Make you Slower
         // Remove Wok Ladle
         // Double Respawn Time
         // Soda/Condiment
@@ -302,7 +302,8 @@ namespace OC2Modding
                 try { if (config.HasKey("BurnSpeedMultiplier"      )) BurnSpeedMultiplier      = config["BurnSpeedMultiplier"      ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'BurnSpeedMultiplier'"      ); }
                 try { if (config.HasKey("MaxOrdersOnScreenOffset"  )) MaxOrdersOnScreenOffset  = config["MaxOrdersOnScreenOffset"  ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'MaxOrdersOnScreenOffset'"  ); }
                 try { if (config.HasKey("SkipAllOnionKing"         )) SkipAllOnionKing         = config["SkipAllOnionKing"         ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SkipAllOnionKing'"         ); }
-                try { if (config.HasKey("ChoppingTimeScale"       )) ChoppingTimeScale       = config["ChoppingTimeScale"       ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ChoppingTimeScale'"       ); }
+                try { if (config.HasKey("ChoppingTimeScale"        )) ChoppingTimeScale        = config["ChoppingTimeScale"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ChoppingTimeScale'"        ); }
+                try { if (config.HasKey("BackpackMovementScale"    )) BackpackMovementScale    = config["BackpackMovementScale"    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'BackpackMovementScale'"    ); }
 
                 try
                 {

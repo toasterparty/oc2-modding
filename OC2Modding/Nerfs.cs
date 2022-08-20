@@ -11,6 +11,7 @@ namespace OC2Modding
     {
         static int removedPlates = 0;
         static bool finishedFirstPass = false;
+        static List<int> PlayersWearingBackpacks = new List<int>();
 
         public static void Awake()
         {
@@ -23,6 +24,7 @@ namespace OC2Modding
         {
             removedPlates = 0;
             finishedFirstPass = false;
+            PlayersWearingBackpacks.Clear();
         }
 
         [HarmonyPatch(typeof(ServerAttachStation), "OnItemPlaced")]
@@ -130,7 +132,6 @@ namespace OC2Modding
             }
         }
 
-        // TODO: You can stop client players from doing these things by ignoring at OnChefEvent() as well
         [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), nameof(ClientPlayerControlsImpl_Default.ApplyServerEvent))]
         [HarmonyPrefix]
         private static bool ApplyServerEvent(ref Serialisable serialisable)
@@ -149,24 +150,9 @@ namespace OC2Modding
                     {
                         return !OC2Config.DisableCatch;
                     }
-
-                case InputEventMessage.InputEventType.BeginInteraction:
-                case InputEventMessage.InputEventType.EndInteraction:
-                    {
-                        // return !OC2Config.DisableInteract;
-                        break;
-                    }
                 case InputEventMessage.InputEventType.EndThrow:
                     {
                         return !OC2Config.DisableThrow;
-                    }
-                case InputEventMessage.InputEventType.Curse:
-                    {
-                        break;
-                    }
-                case InputEventMessage.InputEventType.TriggerInteraction: // What is this?
-                    {
-                        break;
                     }
                 default:
                     {
@@ -314,5 +300,42 @@ namespace OC2Modding
             return true;
         }
         
+        [HarmonyPatch(typeof(ServerBackpack), nameof(ServerBackpack.HandlePickup))]
+        [HarmonyPostfix]
+        private static void CanHandlePickup(ref ICarrier _carrier)
+        {
+            if (OC2Config.BackpackMovementScale == 1.0f)
+            {
+                return;
+            }
+
+            string name = _carrier.AccessGameObject().name;
+            try
+            {
+                int playerNum = Int32.Parse($"{name[name.Length-1]}");
+                PlayersWearingBackpacks.Add(playerNum);
+                OC2Modding.Log.LogInfo($"Player #{playerNum} picked up a backpack");
+            }
+            catch {}
+        }
+
+        [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), "Update_Movement")]
+        [HarmonyPrefix]
+        private static void Update_Movement(ref PlayerControls ___m_controls, ref PlayerIDProvider ___m_controlsPlayer)
+        {
+            if (___m_controls.MovementScale != 1.0f && ___m_controls.MovementScale != 0.0f)
+            {
+                return;
+            }
+
+            PlayerInputLookup.Player id = ___m_controlsPlayer.GetID();
+            int playerNum = ((int)id) + 1;
+
+            if((OC2Helpers.GetCurrentPlayerCount() == 1 && PlayersWearingBackpacks.Count > 0) || PlayersWearingBackpacks.Contains(playerNum))
+            {
+                OC2Modding.Log.LogInfo($"Player #{playerNum}'s speed set to {OC2Config.BackpackMovementScale}");
+                ___m_controls.SetMovementScale(OC2Config.BackpackMovementScale);
+            }
+        }
     }
 }
