@@ -42,7 +42,8 @@ namespace OC2Modding
         public static bool DisableDash = false;
         public static bool DisableThrow = false;
         public static bool DisableCatch = false;
-        public static bool DisableInteract = false;
+        public static bool DisableControlStick = false;
+        public static bool DisableWokDrag = false;
         public static float WashTimeMultiplier = 1.0f;
         public static float BurnSpeedMultiplier = 1.0f;
         public static int MaxOrdersOnScreenOffset = 0;
@@ -275,7 +276,8 @@ namespace OC2Modding
                 try { if (config.HasKey("DisableDash"              )) DisableDash              = config["DisableDash"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableDash'"              ); }
                 try { if (config.HasKey("DisableThrow"             )) DisableThrow             = config["DisableThrow"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableThrow'"             ); }
                 try { if (config.HasKey("DisableCatch"             )) DisableCatch             = config["DisableCatch"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableCatch'"             ); }
-                try { if (config.HasKey("DisableInteract"          )) DisableInteract          = config["DisableInteract"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableInteract'"          ); }
+                try { if (config.HasKey("DisableControlStick"      )) DisableControlStick      = config["DisableControlStick"      ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableControlStick'"      ); }
+                try { if (config.HasKey("DisableWokDrag"           )) DisableWokDrag           = config["DisableWokDrag"           ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableWokDrag'"           ); }
                 try { if (config.HasKey("WashTimeMultiplier"       )) WashTimeMultiplier       = config["WashTimeMultiplier"       ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'WashTimeMultiplier'"       ); }
                 try { if (config.HasKey("BurnSpeedMultiplier"      )) BurnSpeedMultiplier      = config["BurnSpeedMultiplier"      ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'BurnSpeedMultiplier'"      ); }
                 try { if (config.HasKey("MaxOrdersOnScreenOffset"  )) MaxOrdersOnScreenOffset  = config["MaxOrdersOnScreenOffset"  ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'MaxOrdersOnScreenOffset'"  ); }

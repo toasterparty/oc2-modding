@@ -184,7 +184,18 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool Update_Movement(ref ServerThrowableItem __instance)
         {
-            return !OC2Config.DisableInteract;
+            OC2Modding.Log.LogInfo($"Piloting '{__instance.gameObject.name}'");
+            if (__instance.gameObject.name == "DLC10_Pushable_Object" && OC2Config.DisableWokDrag)
+            {
+                return false;
+            }
+            
+            if (__instance.gameObject.name == "MovingSection" && OC2Config.DisableControlStick)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         [HarmonyPatch(typeof(PlayerControls), nameof(PlayerControls.ScanForCatch))]
