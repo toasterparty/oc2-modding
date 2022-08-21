@@ -44,7 +44,7 @@ namespace OC2Modding
                 return false;
             }
 
-            bool isPlate = 
+            bool isPlate =
                 _objectToPlace.name.StartsWith("equipment_plate_01") ||
                 _objectToPlace.name.StartsWith("Plate ") ||
                 _objectToPlace.name.StartsWith("equipment_mug_01") ||
@@ -263,9 +263,9 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void DoWork(ref WorkableItem ___m_workable)
         {
-            ___m_workable.m_stages = Math.Max((int)(8.0f*OC2Config.ChoppingTimeScale), 1);
+            ___m_workable.m_stages = Math.Max((int)(8.0f * OC2Config.ChoppingTimeScale), 1);
         }
-        
+
         [HarmonyPatch(typeof(ServerEmoteWheel), "StartEmote")]
         [HarmonyPrefix]
         private static bool StartEmote(ref ServerEmoteWheel __instance, ref EmoteWheelMessage _message)
@@ -287,7 +287,7 @@ namespace OC2Modding
             }
             return true;
         }
-        
+
         [HarmonyPatch(typeof(ClientEmoteWheel), nameof(ClientEmoteWheel.RequestEmoteStart))]
         [HarmonyPrefix]
         private static bool RequestEmoteStart(ref ClientEmoteWheel __instance, ref int _emoteIdx)
@@ -299,7 +299,7 @@ namespace OC2Modding
             }
             return true;
         }
-        
+
         [HarmonyPatch(typeof(ServerBackpack), nameof(ServerBackpack.HandlePickup))]
         [HarmonyPostfix]
         private static void CanHandlePickup(ref ICarrier _carrier)
@@ -312,11 +312,11 @@ namespace OC2Modding
             string name = _carrier.AccessGameObject().name;
             try
             {
-                int playerNum = Int32.Parse($"{name[name.Length-1]}");
+                int playerNum = Int32.Parse($"{name[name.Length - 1]}");
                 PlayersWearingBackpacks.Add(playerNum);
                 OC2Modding.Log.LogInfo($"Player #{playerNum} picked up a backpack");
             }
-            catch {}
+            catch { }
         }
 
         [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), "Update_Movement")]
@@ -331,13 +331,13 @@ namespace OC2Modding
             PlayerInputLookup.Player id = ___m_controlsPlayer.GetID();
             int playerNum = ((int)id) + 1;
 
-            if((OC2Helpers.GetCurrentPlayerCount() == 1 && PlayersWearingBackpacks.Count > 0) || PlayersWearingBackpacks.Contains(playerNum))
+            if ((OC2Helpers.GetCurrentPlayerCount() == 1 && PlayersWearingBackpacks.Count > 0) || PlayersWearingBackpacks.Contains(playerNum))
             {
                 OC2Modding.Log.LogInfo($"Player #{playerNum}'s speed set to {OC2Config.BackpackMovementScale}");
                 ___m_controls.SetMovementScale(OC2Config.BackpackMovementScale);
             }
         }
-        
+
         // [HarmonyPatch(typeof(ServerPlayerRespawnManager), "KillOrRespawn")]
         // [HarmonyPrefix]
         // private static void KillOrRespawn(ref GameObject _gameObject)
@@ -359,5 +359,43 @@ namespace OC2Modding
             ___m_PlayerRespawnBehaviour.m_respawnTime = OC2Config.RespawnTime;
         }
 
+        private static double previousDrinkTime = 0;
+        [HarmonyPatch(typeof(ServerInteractable), nameof(ServerInteractable.CanInteract))]
+        [HarmonyPostfix]
+        private static void CanInteract(ref ServerInteractable __instance, ref bool __result)
+        {
+            if (OC2Config.CarnivalDispenserRefactoryTime <= 0.001f)
+            {
+                return; // This patch would have no effect
+            }
+
+            if (!__result)
+            {
+                return; // It's already not interactable
+            }
+
+            OC2Modding.Log.LogInfo($"Can Interact With '{__instance.gameObject.name}'?");
+
+            if (
+                __instance.gameObject.name != "p_dlc08_button_Drinks" &&
+                __instance.gameObject.name != "p_dlc08_button_Condiments" &&
+                __instance.gameObject.name != "Switch" // TODO: this is for SoBo drinks, it probably conflicts with a lot of other things
+            )
+            {
+                return; // It's not an interactable we care about
+            }
+
+            float checkTime = Time.time;
+            if (checkTime > previousDrinkTime && checkTime - previousDrinkTime > OC2Config.CarnivalDispenserRefactoryTime)
+            {
+                // It has been beyond the cooldown time
+                previousDrinkTime = checkTime;
+                return;
+            }
+
+            // Reject the button push
+            GameUtils.TriggerAudio(GameOneShotAudioTag.RecipeTimeOut, __instance.gameObject.layer);
+            __result = false;
+        }
     }
 }
