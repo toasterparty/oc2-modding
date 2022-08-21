@@ -11,6 +11,7 @@ namespace OC2Modding
         public const bool CHEATS_ALLOWED = true;
 
         private static string JsonConfigPath = "";
+        public static string SaveFolderName = "";
 
         /* Globally Accessible Config Values */
         // QoL + Cheats
@@ -284,6 +285,7 @@ namespace OC2Modding
                 try { if (config.HasKey("PurchaseAllLevels"              )) PurchaseAllLevels              = config["PurchaseAllLevels"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'PurchaseAllLevels'"              ); }
                 try { if (config.HasKey("SkipTutorial"                   )) SkipTutorial                   = config["SkipTutorial"                   ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SkipTutorial'"                   ); }
                 try { if (config.HasKey("CheatsEnabled"                  )) CheatsEnabled                  = config["CheatsEnabled"                  ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CheatsEnabled'"                  ); }
+                try { if (config.HasKey("SaveFolderName"                 )) SaveFolderName                 = config["SaveFolderName"                 ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SaveFolderName'"                 ); }
                 try { if (config.HasKey("JsonConfigPath"                 )) JsonConfigPath                 = config["JsonConfigPath"                 ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'JsonConfigPath'"                 ); }
                 try { if (config.HasKey("DisableWood"                    )) DisableWood                    = config["DisableWood"                    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableWood'"                    ); }
                 try { if (config.HasKey("DisableCoal"                    )) DisableCoal                    = config["DisableCoal"                    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableCoal'"                    ); }

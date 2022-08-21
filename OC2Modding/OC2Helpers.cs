@@ -187,8 +187,8 @@ namespace OC2Modding
         public static string getCustomSaveDirectory()
         {
             // TODO: override "GetSaveDirectory" with this
-            // TODO: add a GUID
-            return Application.persistentDataPath + "/OC2Modding/";
+            string saveFolderName = OC2Config.SaveFolderName == "" ? "_default" : OC2Config.SaveFolderName;
+            return Application.persistentDataPath + "/OC2Modding/" + saveFolderName + "/";
         }
 
         /* Helpers for the helpers start here */

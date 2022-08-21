@@ -23,6 +23,7 @@ namespace OC2Modding
             OC2Helpers.Awake(); // This MUST go first
 
             FixBugs.Awake();
+            CustomSaveDirectory.Awake();
             UnlockAllChefs.Awake();
             LevelProgression.Awake();
             UnlockAllDLC.Awake();
@@ -38,7 +39,7 @@ namespace OC2Modding
             IngredientCrates.Awake();
             Nerfs.Awake();
 
-            DisplayModsOnResultsScreen.Awake(); // This MUST go last
+            DisplayModsOnResultsScreen.Awake();
         }
 
         private void Update()
