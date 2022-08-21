@@ -337,5 +337,27 @@ namespace OC2Modding
                 ___m_controls.SetMovementScale(OC2Config.BackpackMovementScale);
             }
         }
+        
+        // [HarmonyPatch(typeof(ServerPlayerRespawnManager), "KillOrRespawn")]
+        // [HarmonyPrefix]
+        // private static void KillOrRespawn(ref GameObject _gameObject)
+        // {
+        //     OC2Modding.Log.LogInfo($"Respawning {_gameObject.gameObject.name}...");
+        // }
+
+        [HarmonyPatch(typeof(ServerPlayerRespawnBehaviour), nameof(ServerPlayerRespawnBehaviour.StartSynchronising))]
+        [HarmonyPostfix]
+        private static void StartSynchronising(ref PlayerRespawnBehaviour ___m_PlayerRespawnBehaviour)
+        {
+            ___m_PlayerRespawnBehaviour.m_respawnTime = OC2Config.RespawnTime;
+        }
+
+        [HarmonyPatch(typeof(ClientPlayerRespawnBehaviour), nameof(ClientPlayerRespawnBehaviour.StartSynchronising))]
+        [HarmonyPostfix]
+        private static void StartSynchronisingClient(ref PlayerRespawnBehaviour ___m_PlayerRespawnBehaviour)
+        {
+            ___m_PlayerRespawnBehaviour.m_respawnTime = OC2Config.RespawnTime;
+        }
+
     }
 }

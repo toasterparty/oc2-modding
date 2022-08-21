@@ -54,10 +54,9 @@ namespace OC2Modding
         public static int MaxOrdersOnScreenOffset = 0;
         public static float ChoppingTimeScale = 1.0f;
         public static float BackpackMovementScale = 1.0f;
+        public static float RespawnTime = 5.0f;
         // Pick up plate stacks 1 at a time
-        // Lilly pad respawn time
         // Remove Wok Ladle
-        // Double Respawn Time
         // Soda/Condiment
         // Squirt Gun Distance
         // Wok fire doubletime
@@ -304,6 +303,7 @@ namespace OC2Modding
                 try { if (config.HasKey("SkipAllOnionKing"         )) SkipAllOnionKing         = config["SkipAllOnionKing"         ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SkipAllOnionKing'"         ); }
                 try { if (config.HasKey("ChoppingTimeScale"        )) ChoppingTimeScale        = config["ChoppingTimeScale"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ChoppingTimeScale'"        ); }
                 try { if (config.HasKey("BackpackMovementScale"    )) BackpackMovementScale    = config["BackpackMovementScale"    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'BackpackMovementScale'"    ); }
+                try { if (config.HasKey("RespawnTime"              )) RespawnTime              = config["RespawnTime"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'RespawnTime'"              ); }
 
                 try
                 {
