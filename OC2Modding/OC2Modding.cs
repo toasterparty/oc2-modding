@@ -38,6 +38,7 @@ namespace OC2Modding
             CustomLevelOrder.Awake();
             IngredientCrates.Awake();
             Nerfs.Awake();
+            GameLog.Awake();
 
             DisplayModsOnResultsScreen.Awake();
         }
@@ -56,6 +57,7 @@ namespace OC2Modding
             if (OC2Config.DisableAllMods) return;
             DisplayFPS.OnGUI();
             DisplayModsOnResultsScreen.OnGUI();
+            GameLog.OnGUI();
         }
     }
 }
