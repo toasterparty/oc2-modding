@@ -374,7 +374,7 @@ namespace OC2Modding
                 return; // It's already not interactable
             }
 
-            OC2Modding.Log.LogInfo($"Can Interact With '{__instance.gameObject.name}'?");
+            // OC2Modding.Log.LogInfo($"Can Interact With '{__instance.gameObject.name}'?");
 
             if (
                 __instance.gameObject.name != "p_dlc08_button_Drinks" &&
