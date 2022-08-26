@@ -263,7 +263,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void DoWork(ref WorkableItem ___m_workable)
         {
-            ___m_workable.m_stages = Math.Max((int)(8.0f * OC2Config.ChoppingTimeScale), 1);
+            ___m_workable.m_stages = Math.Max((int)(8.0f * OC2Config.ChoppingTimeScale), 2);
         }
 
         [HarmonyPatch(typeof(ServerEmoteWheel), "StartEmote")]
