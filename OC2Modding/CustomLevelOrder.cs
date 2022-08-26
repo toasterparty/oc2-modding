@@ -86,7 +86,7 @@ namespace OC2Modding
             }
 
             bool isCustomLevelOrder = OC2Config.CustomLevelOrder != null && currentDlc == -1 && OC2Config.CustomLevelOrder.ContainsKey("Story");
-            if (isCustomLevelOrder) // TOOD: no reason not to allow other levels
+            if (isCustomLevelOrder) // TODO: no reason not to allow other levels
             {
                 if (replacementScenes == null)
                 {

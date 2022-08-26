@@ -186,7 +186,6 @@ namespace OC2Modding
 
         public static string getCustomSaveDirectory()
         {
-            // TODO: override "GetSaveDirectory" with this
             string saveFolderName = OC2Config.SaveFolderName == "" ? "_default" : OC2Config.SaveFolderName;
             return Application.persistentDataPath + "/OC2Modding/" + saveFolderName + "/";
         }

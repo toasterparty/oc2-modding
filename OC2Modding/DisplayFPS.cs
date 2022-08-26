@@ -25,7 +25,7 @@ namespace OC2Modding
                 fPSCounter = null;
             } else if (Input.GetKeyDown(KeyCode.Home) && fPSCounter == null)
             {
-                fPSCounter = new MyFPSCounter(); // TODO: Move to different corner
+                fPSCounter = new MyFPSCounter();
                 onScreenDebugDisplayFPS.AddDisplay(fPSCounter);
             }
 

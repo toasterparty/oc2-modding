@@ -190,7 +190,6 @@ namespace OC2Modding
             return scores;
         }
 
-        // TODO: this should be it's own file
         [HarmonyPatch]
         private static class CurrentDLC
         {
