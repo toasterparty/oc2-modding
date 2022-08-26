@@ -65,7 +65,7 @@ namespace OC2Modding
             GameProgress.GameProgressData.LevelProgress levelProgress = _saveData.GetLevelProgress(_levelIndex);
             bool first_completion = levelProgress == null || levelProgress.LevelId == -1;
 
-            if (!first_completion && levelProgress.Completed)
+            if ((!first_completion && levelProgress.Completed) || LevelProgression.IsLevelCompleted(_levelIndex))
             {
                 return; // already completed
             }

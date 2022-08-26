@@ -170,6 +170,21 @@ namespace OC2Modding
                 }
             }
 
+            if (OC2Config.ImpossibleTutorial)
+            {
+                foreach (SceneDirectoryData.PerPlayerCountDirectoryEntry variant in ___m_sceneDirectory.Scenes[0].SceneVarients)
+                {
+                    var prop = variant.GetType().GetField("m_PCStarBoundaries", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    SceneDirectoryData.StarBoundaries starBoundariesOverride = new SceneDirectoryData.StarBoundaries();
+                    starBoundariesOverride.m_FourStarScore  = 9999;
+                    starBoundariesOverride.m_ThreeStarScore = 9998;
+                    starBoundariesOverride.m_TwoStarScore   = 9997;
+                    starBoundariesOverride.m_OneStarScore   = 9996;
+
+                    prop.SetValue(variant, starBoundariesOverride);
+                }
+            }
+
             __result = ___m_sceneDirectory;
         }
     }
