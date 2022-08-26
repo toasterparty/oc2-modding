@@ -98,6 +98,227 @@ namespace OC2Modding
             {
                 InitJson(JsonConfigPath);
             }
+            if (SaveFolderName != "")
+            {
+                InitJson(OC2Helpers.getCustomSaveDirectory() + "/OC2Modding.json");
+            }
+
+            FlushConfig();
+        }
+
+        public static void FlushConfig()
+        {
+            string save_dir = OC2Helpers.getCustomSaveDirectory();
+            if(!Directory.Exists(save_dir))
+            {
+                Directory.CreateDirectory(save_dir);
+            }
+            string filepath = save_dir + "/OC2Modding.json";
+            string text = SerializeConfig();
+            File.WriteAllText(filepath, text);
+        }
+
+        // Forgive me, for I have spaghetti code
+        private static string SerializeConfig()
+        {
+            string data = "{";
+            data += $"\"DisplayLeaderboardScores\":{DisplayLeaderboardScores},";
+            data += $"\"AlwaysServeOldestOrder\":{AlwaysServeOldestOrder},";
+            data += $"\"CustomOrderLifetime\":{CustomOrderLifetime},";
+            data += $"\"Custom66TimerScale\":{Custom66TimerScale},";
+            data += $"\"DisplayFPS\":{DisplayFPS},";
+            data += $"\"FixDoubleServing\":{FixDoubleServing},";
+            data += $"\"FixSinkBug\":{FixSinkBug},";
+            data += $"\"FixControlStickThrowBug\":{FixControlStickThrowBug},";
+            data += $"\"FixEmptyBurnerThrow\":{FixEmptyBurnerThrow},";
+            data += $"\"PreserveCookingProgress\":{PreserveCookingProgress},";
+            data += $"\"SkipTutorialPopups\":{SkipTutorialPopups},";
+            data += $"\"TimerAlwaysStarts\":{TimerAlwaysStarts},";
+            data += $"\"UnlockAllChefs\":{UnlockAllChefs},";
+            data += $"\"UnlockAllDLC\":{UnlockAllDLC},";
+            data += $"\"RevealAllLevels\":{RevealAllLevels},";
+            data += $"\"PurchaseAllLevels\":{PurchaseAllLevels},";
+            data += $"\"SkipTutorial\":{SkipTutorial},";
+            data += $"\"CheatsEnabled\":{CheatsEnabled},";
+            data += $"\"SkipAllOnionKing\":{SkipAllOnionKing},";
+            data += $"\"DisableWood\":{DisableWood},";
+            data += $"\"DisableCoal\":{DisableCoal},";
+            data += $"\"DisableOnePlate\":{DisableOnePlate},";
+            data += $"\"DisableFireExtinguisher\":{DisableFireExtinguisher},";
+            data += $"\"DisableBellows\":{DisableBellows},";
+            data += $"\"PlatesStartDirty\":{PlatesStartDirty},";
+            data += $"\"MaxTipCombo\":{MaxTipCombo},";
+            data += $"\"DisableDash\":{DisableDash},";
+            data += $"\"DisableThrow\":{DisableThrow},";
+            data += $"\"DisableCatch\":{DisableCatch},";
+            data += $"\"DisableControlStick\":{DisableControlStick},";
+            data += $"\"DisableWokDrag\":{DisableWokDrag},";
+            data += $"\"WashTimeMultiplier\":{WashTimeMultiplier},";
+            data += $"\"BurnSpeedMultiplier\":{BurnSpeedMultiplier},";
+            data += $"\"MaxOrdersOnScreenOffset\":{MaxOrdersOnScreenOffset},";
+            data += $"\"ChoppingTimeScale\":{ChoppingTimeScale},";
+            data += $"\"BackpackMovementScale\":{BackpackMovementScale},";
+            data += $"\"RespawnTime\":{RespawnTime},";
+            data += $"\"CarnivalDispenserRefactoryTime\":{CarnivalDispenserRefactoryTime},";
+
+            data += $"\"LevelUnlockRequirements\":{{";
+            bool first = true;
+            foreach (KeyValuePair<int, int> kvp in LevelUnlockRequirements)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    data += ",";
+                }
+                data += $"\"{kvp.Key}\":{kvp.Value}";
+            }
+            data += "},";
+
+            data += $"\"LevelPurchaseRequirements\":{{";
+            first = true;
+            foreach (KeyValuePair<int, int> kvp in LevelPurchaseRequirements)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    data += ",";
+                }
+                data += $"\"{kvp.Key}\":{kvp.Value}";
+            }
+            data += "},";
+
+            data += $"\"LevelForceReveal\":[";
+            first = true;
+            foreach (int value in LevelForceReveal)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    data += ",";
+                }
+                data += $"{value}";
+            }
+            data += "],";
+
+            // TODO: this isn't working
+            data += $"\"LeaderboardScoreScale\":{{";
+            first = true;
+            foreach (KeyValuePair<int, float> kvp in LeaderboardScoreScale)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    data += ",";
+                }
+
+                string key;
+                switch (kvp.Key)
+                {
+                    case 1:
+                    {
+                        key = "OneStar";
+                        break;
+                    }
+                    case 2:
+                    {
+                        key = "TwoStars";
+                        break;
+                    }
+                    case 3:
+                    {
+                        key = "ThreeStars";
+                        break;
+                    }
+                    case 4:
+                    {
+                        key = "FourStars";
+                        break;
+                    }
+                    default:
+                    {
+                        key = "something went terrible wrong";
+                        break;
+                    }
+                }
+
+                data += $"\"{key}\":{kvp.Value.ToString("F4")}";
+            }
+            data += "},";
+
+            data += $"\"LockedEmotes\":[";
+            first = true;
+            foreach (int value in LockedEmotes)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    data += ",";
+                }
+                data += $"{value}";
+            }
+            data += "],";
+
+            data += $"\"CustomLevelOrder\":{{";
+            first = true;
+            foreach (KeyValuePair<string, Dictionary<int, DlcIdAndLevelId>> kvp in CustomLevelOrder)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    data += ",";
+                }
+                data += $"\"{kvp.Key}\":";
+                data += "{";
+
+                bool first2 = true;
+                foreach (KeyValuePair<int, DlcIdAndLevelId> kvp2 in kvp.Value)
+                {
+                    if (first2)
+                    {
+                        first2 = false;
+                    }
+                    else
+                    {
+                        data += ",";
+                    }
+
+                    string DLC = OC2Helpers.DLCFromDLCID(kvp2.Value.Dlc);
+                    int LevelID = kvp2.Value.LevelId;
+                    data += $"\"{kvp2.Key}\":";
+                    data += "{";
+                    data += $"\"DLC\":\"{DLC}\",";
+                    data += $"\"LevelID\":{LevelID}";
+                    data += "}";
+                }
+
+                data += "}";
+            }
+            data += "}";
+
+            data += "}";
+
+            data = data.Replace("True", "true");
+            data = data.Replace("False", "false");
+
+            return data;
         }
 
         /* Create OC2Modding.cfg if it doesn't exist and populate it 
