@@ -209,7 +209,6 @@ namespace OC2Modding
             }
             data += "],";
 
-            // TODO: this isn't working
             data += $"\"LeaderboardScoreScale\":{{";
             first = true;
             foreach (KeyValuePair<int, float> kvp in LeaderboardScoreScale)

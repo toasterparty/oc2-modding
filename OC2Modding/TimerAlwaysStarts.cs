@@ -18,7 +18,7 @@ namespace OC2Modding
                 ___m_context.m_levelConfig.m_recipesBeforeTimerStarts = 0;
             }
 
-            if (OC2Config.Custom66TimerScale != 1.0f)
+            if (OC2Config.Custom66TimerScale != 1.0f && ___m_context.m_levelConfig.name.StartsWith("s_dynamic_stage_04"))
             {
                 float time = ___m_context.m_levelConfig.GetRoundData().m_roundTimer;
                 time *= OC2Config.Custom66TimerScale;
