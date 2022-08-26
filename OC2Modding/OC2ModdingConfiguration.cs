@@ -109,7 +109,7 @@ namespace OC2Modding
         public static void FlushConfig()
         {
             string save_dir = OC2Helpers.getCustomSaveDirectory();
-            if(!Directory.Exists(save_dir))
+            if (!Directory.Exists(save_dir))
             {
                 Directory.CreateDirectory(save_dir);
             }
@@ -209,52 +209,98 @@ namespace OC2Modding
             }
             data += "],";
 
-            data += $"\"LeaderboardScoreScale\":{{";
-            first = true;
-            foreach (KeyValuePair<int, float> kvp in LeaderboardScoreScale)
+            if (LeaderboardScoreScale != null)
             {
-                if (first)
+                data += $"\"LeaderboardScoreScale\":{{";
+                first = true;
+                foreach (KeyValuePair<int, float> kvp in LeaderboardScoreScale)
                 {
-                    first = false;
-                }
-                else
-                {
-                    data += ",";
-                }
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        data += ",";
+                    }
 
-                string key;
-                switch (kvp.Key)
-                {
-                    case 1:
+                    string key;
+                    switch (kvp.Key)
                     {
-                        key = "OneStar";
-                        break;
+                        case 1:
+                            {
+                                key = "OneStar";
+                                break;
+                            }
+                        case 2:
+                            {
+                                key = "TwoStars";
+                                break;
+                            }
+                        case 3:
+                            {
+                                key = "ThreeStars";
+                                break;
+                            }
+                        case 4:
+                            {
+                                key = "FourStars";
+                                break;
+                            }
+                        default:
+                            {
+                                key = "something went terrible wrong";
+                                break;
+                            }
                     }
-                    case 2:
-                    {
-                        key = "TwoStars";
-                        break;
-                    }
-                    case 3:
-                    {
-                        key = "ThreeStars";
-                        break;
-                    }
-                    case 4:
-                    {
-                        key = "FourStars";
-                        break;
-                    }
-                    default:
-                    {
-                        key = "something went terrible wrong";
-                        break;
-                    }
-                }
 
-                data += $"\"{key}\":{kvp.Value.ToString("F4")}";
+                    data += $"\"{key}\":{kvp.Value.ToString("F4")}";
+                }
+                data += "},";
             }
-            data += "},";
+
+            if (CustomLevelOrder != null)
+            {
+                data += $"\"CustomLevelOrder\":{{";
+                first = true;
+                foreach (KeyValuePair<string, Dictionary<int, DlcIdAndLevelId>> kvp in CustomLevelOrder)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        data += ",";
+                    }
+                    data += $"\"{kvp.Key}\":";
+                    data += "{";
+
+                    bool first2 = true;
+                    foreach (KeyValuePair<int, DlcIdAndLevelId> kvp2 in kvp.Value)
+                    {
+                        if (first2)
+                        {
+                            first2 = false;
+                        }
+                        else
+                        {
+                            data += ",";
+                        }
+
+                        string DLC = OC2Helpers.DLCFromDLCID(kvp2.Value.Dlc);
+                        int LevelID = kvp2.Value.LevelId;
+                        data += $"\"{kvp2.Key}\":";
+                        data += "{";
+                        data += $"\"DLC\":\"{DLC}\",";
+                        data += $"\"LevelID\":{LevelID}";
+                        data += "}";
+                    }
+
+                    data += "}";
+                }
+                data += "},";
+            }
 
             data += $"\"LockedEmotes\":[";
             first = true;
@@ -270,47 +316,7 @@ namespace OC2Modding
                 }
                 data += $"{value}";
             }
-            data += "],";
-
-            data += $"\"CustomLevelOrder\":{{";
-            first = true;
-            foreach (KeyValuePair<string, Dictionary<int, DlcIdAndLevelId>> kvp in CustomLevelOrder)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    data += ",";
-                }
-                data += $"\"{kvp.Key}\":";
-                data += "{";
-
-                bool first2 = true;
-                foreach (KeyValuePair<int, DlcIdAndLevelId> kvp2 in kvp.Value)
-                {
-                    if (first2)
-                    {
-                        first2 = false;
-                    }
-                    else
-                    {
-                        data += ",";
-                    }
-
-                    string DLC = OC2Helpers.DLCFromDLCID(kvp2.Value.Dlc);
-                    int LevelID = kvp2.Value.LevelId;
-                    data += $"\"{kvp2.Key}\":";
-                    data += "{";
-                    data += $"\"DLC\":\"{DLC}\",";
-                    data += $"\"LevelID\":{LevelID}";
-                    data += "}";
-                }
-
-                data += "}";
-            }
-            data += "}";
+            data += "]";
 
             data += "}";
 
@@ -473,10 +479,10 @@ namespace OC2Modding
             );
             FixEmptyBurnerThrow = configFixEmptyBurnerThrow.Value;
         }
-    
+
         private static void InitJson(string filename)
         {
-            try 
+            try
             {
                 string json;
                 using (StreamReader reader = new StreamReader(filename))
@@ -484,186 +490,199 @@ namespace OC2Modding
                     json = reader.ReadToEnd();
                 }
 
-                var config = SimpleJSON.JSON.Parse(json);
+                UpdateConfig(json);
+            }
+            catch
+            {
 
-                try { if (config.HasKey("DisableAllMods"                 )) DisableAllMods                 = config["DisableAllMods"                 ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableAllMods'"                 ); }
-                try { if (config.HasKey("DisplayLeaderboardScores"       )) DisplayLeaderboardScores       = config["DisplayLeaderboardScores"       ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisplayLeaderboardScores'"       ); }
-                try { if (config.HasKey("AlwaysServeOldestOrder"         )) AlwaysServeOldestOrder         = config["AlwaysServeOldestOrder"         ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'AlwaysServeOldestOrder'"         ); }
-                try { if (config.HasKey("CustomOrderLifetime"            )) CustomOrderLifetime            = config["CustomOrderLifetime"            ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CustomOrderLifetime'"            ); }
-                try { if (config.HasKey("Custom66TimerScale"             )) Custom66TimerScale             = config["Custom66TimerScale"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'Custom66TimerScale'"             ); }
-                try { if (config.HasKey("DisplayFPS"                     )) DisplayFPS                     = config["DisplayFPS"                     ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisplayFPS'"                     ); }
-                try { if (config.HasKey("FixDoubleServing"               )) FixDoubleServing               = config["FixDoubleServing"               ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'FixDoubleServing'"               ); }
-                try { if (config.HasKey("FixSinkBug"                     )) FixSinkBug                     = config["FixSinkBug"                     ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'FixSinkBug'"                     ); }
-                try { if (config.HasKey("FixControlStickThrowBug"        )) FixControlStickThrowBug        = config["FixControlStickThrowBug"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'FixControlStickThrowBug'"        ); }
-                try { if (config.HasKey("FixEmptyBurnerThrow"            )) FixEmptyBurnerThrow            = config["FixEmptyBurnerThrow"            ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'FixEmptyBurnerThrow'"            ); }
-                try { if (config.HasKey("PreserveCookingProgress"        )) PreserveCookingProgress        = config["PreserveCookingProgress"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'PreserveCookingProgress'"        ); }
-                try { if (config.HasKey("SkipTutorialPopups"             )) SkipTutorialPopups             = config["SkipTutorialPopups"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SkipTutorialPopups'"             ); }
-                try { if (config.HasKey("TimerAlwaysStarts"              )) TimerAlwaysStarts              = config["TimerAlwaysStarts"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'TimerAlwaysStarts'"              ); }
-                try { if (config.HasKey("UnlockAllChefs"                 )) UnlockAllChefs                 = config["UnlockAllChefs"                 ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'UnlockAllChefs'"                 ); }
-                try { if (config.HasKey("UnlockAllDLC"                   )) UnlockAllDLC                   = config["UnlockAllDLC"                   ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'UnlockAllDLC'"                   ); }
-                try { if (config.HasKey("RevealAllLevels"                )) RevealAllLevels                = config["RevealAllLevels"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'RevealAllLevels'"                ); }
-                try { if (config.HasKey("PurchaseAllLevels"              )) PurchaseAllLevels              = config["PurchaseAllLevels"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'PurchaseAllLevels'"              ); }
-                try { if (config.HasKey("SkipTutorial"                   )) SkipTutorial                   = config["SkipTutorial"                   ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SkipTutorial'"                   ); }
-                try { if (config.HasKey("CheatsEnabled"                  )) CheatsEnabled                  = config["CheatsEnabled"                  ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CheatsEnabled'"                  ); }
-                try { if (config.HasKey("SaveFolderName"                 )) SaveFolderName                 = config["SaveFolderName"                 ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SaveFolderName'"                 ); }
-                try { if (config.HasKey("JsonConfigPath"                 )) JsonConfigPath                 = config["JsonConfigPath"                 ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'JsonConfigPath'"                 ); }
-                try { if (config.HasKey("DisableWood"                    )) DisableWood                    = config["DisableWood"                    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableWood'"                    ); }
-                try { if (config.HasKey("DisableCoal"                    )) DisableCoal                    = config["DisableCoal"                    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableCoal'"                    ); }
-                try { if (config.HasKey("DisableOnePlate"                )) DisableOnePlate                = config["DisableOnePlate"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableOnePlate'"                ); }
-                try { if (config.HasKey("DisableFireExtinguisher"        )) DisableFireExtinguisher        = config["DisableFireExtinguisher"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableFireExtinguisher'"        ); }
-                try { if (config.HasKey("DisableBellows"                 )) DisableBellows                 = config["DisableBellows"                 ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableBellows'"                 ); }
-                try { if (config.HasKey("PlatesStartDirty"               )) PlatesStartDirty               = config["PlatesStartDirty"               ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'PlatesStartDirty'"               ); }
-                try { if (config.HasKey("MaxTipCombo"                    )) MaxTipCombo                    = config["MaxTipCombo"                    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'MaxTipCombo'"                    ); }
-                try { if (config.HasKey("DisableDash"                    )) DisableDash                    = config["DisableDash"                    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableDash'"                    ); }
-                try { if (config.HasKey("DisableThrow"                   )) DisableThrow                   = config["DisableThrow"                   ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableThrow'"                   ); }
-                try { if (config.HasKey("DisableCatch"                   )) DisableCatch                   = config["DisableCatch"                   ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableCatch'"                   ); }
-                try { if (config.HasKey("DisableControlStick"            )) DisableControlStick            = config["DisableControlStick"            ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableControlStick'"            ); }
-                try { if (config.HasKey("DisableWokDrag"                 )) DisableWokDrag                 = config["DisableWokDrag"                 ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableWokDrag'"                 ); }
-                try { if (config.HasKey("WashTimeMultiplier"             )) WashTimeMultiplier             = config["WashTimeMultiplier"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'WashTimeMultiplier'"             ); }
-                try { if (config.HasKey("BurnSpeedMultiplier"            )) BurnSpeedMultiplier            = config["BurnSpeedMultiplier"            ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'BurnSpeedMultiplier'"            ); }
-                try { if (config.HasKey("MaxOrdersOnScreenOffset"        )) MaxOrdersOnScreenOffset        = config["MaxOrdersOnScreenOffset"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'MaxOrdersOnScreenOffset'"        ); }
-                try { if (config.HasKey("SkipAllOnionKing"               )) SkipAllOnionKing               = config["SkipAllOnionKing"               ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SkipAllOnionKing'"               ); }
-                try { if (config.HasKey("ChoppingTimeScale"              )) ChoppingTimeScale              = config["ChoppingTimeScale"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ChoppingTimeScale'"              ); }
-                try { if (config.HasKey("BackpackMovementScale"          )) BackpackMovementScale          = config["BackpackMovementScale"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'BackpackMovementScale'"          ); }
-                try { if (config.HasKey("RespawnTime"                    )) RespawnTime                    = config["RespawnTime"                    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'RespawnTime'"                    ); }
-                try { if (config.HasKey("CarnivalDispenserRefactoryTime" )) CarnivalDispenserRefactoryTime = config["CarnivalDispenserRefactoryTime" ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CarnivalDispenserRefactoryTime'" ); }
+            }
+        }
 
-                try
+        public static void UpdateConfig(string text)
+        {
+            var config = SimpleJSON.JSON.Parse(text);
+
+            try { if (config.HasKey("DisableAllMods")) DisableAllMods = config["DisableAllMods"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableAllMods'"); }
+            try { if (config.HasKey("DisplayLeaderboardScores")) DisplayLeaderboardScores = config["DisplayLeaderboardScores"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisplayLeaderboardScores'"); }
+            try { if (config.HasKey("AlwaysServeOldestOrder")) AlwaysServeOldestOrder = config["AlwaysServeOldestOrder"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'AlwaysServeOldestOrder'"); }
+            try { if (config.HasKey("CustomOrderLifetime")) CustomOrderLifetime = config["CustomOrderLifetime"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CustomOrderLifetime'"); }
+            try { if (config.HasKey("Custom66TimerScale")) Custom66TimerScale = config["Custom66TimerScale"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'Custom66TimerScale'"); }
+            try { if (config.HasKey("DisplayFPS")) DisplayFPS = config["DisplayFPS"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisplayFPS'"); }
+            try { if (config.HasKey("FixDoubleServing")) FixDoubleServing = config["FixDoubleServing"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'FixDoubleServing'"); }
+            try { if (config.HasKey("FixSinkBug")) FixSinkBug = config["FixSinkBug"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'FixSinkBug'"); }
+            try { if (config.HasKey("FixControlStickThrowBug")) FixControlStickThrowBug = config["FixControlStickThrowBug"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'FixControlStickThrowBug'"); }
+            try { if (config.HasKey("FixEmptyBurnerThrow")) FixEmptyBurnerThrow = config["FixEmptyBurnerThrow"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'FixEmptyBurnerThrow'"); }
+            try { if (config.HasKey("PreserveCookingProgress")) PreserveCookingProgress = config["PreserveCookingProgress"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'PreserveCookingProgress'"); }
+            try { if (config.HasKey("SkipTutorialPopups")) SkipTutorialPopups = config["SkipTutorialPopups"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SkipTutorialPopups'"); }
+            try { if (config.HasKey("TimerAlwaysStarts")) TimerAlwaysStarts = config["TimerAlwaysStarts"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'TimerAlwaysStarts'"); }
+            try { if (config.HasKey("UnlockAllChefs")) UnlockAllChefs = config["UnlockAllChefs"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'UnlockAllChefs'"); }
+            try { if (config.HasKey("UnlockAllDLC")) UnlockAllDLC = config["UnlockAllDLC"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'UnlockAllDLC'"); }
+            try { if (config.HasKey("RevealAllLevels")) RevealAllLevels = config["RevealAllLevels"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'RevealAllLevels'"); }
+            try { if (config.HasKey("PurchaseAllLevels")) PurchaseAllLevels = config["PurchaseAllLevels"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'PurchaseAllLevels'"); }
+            try { if (config.HasKey("SkipTutorial")) SkipTutorial = config["SkipTutorial"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SkipTutorial'"); }
+            try { if (config.HasKey("CheatsEnabled")) CheatsEnabled = config["CheatsEnabled"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CheatsEnabled'"); }
+            try { if (config.HasKey("SaveFolderName")) SaveFolderName = config["SaveFolderName"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SaveFolderName'"); }
+            try { if (config.HasKey("JsonConfigPath")) JsonConfigPath = config["JsonConfigPath"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'JsonConfigPath'"); }
+            try { if (config.HasKey("DisableWood")) DisableWood = config["DisableWood"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableWood'"); }
+            try { if (config.HasKey("DisableCoal")) DisableCoal = config["DisableCoal"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableCoal'"); }
+            try { if (config.HasKey("DisableOnePlate")) DisableOnePlate = config["DisableOnePlate"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableOnePlate'"); }
+            try { if (config.HasKey("DisableFireExtinguisher")) DisableFireExtinguisher = config["DisableFireExtinguisher"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableFireExtinguisher'"); }
+            try { if (config.HasKey("DisableBellows")) DisableBellows = config["DisableBellows"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableBellows'"); }
+            try { if (config.HasKey("PlatesStartDirty")) PlatesStartDirty = config["PlatesStartDirty"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'PlatesStartDirty'"); }
+            try { if (config.HasKey("MaxTipCombo")) MaxTipCombo = config["MaxTipCombo"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'MaxTipCombo'"); }
+            try { if (config.HasKey("DisableDash")) DisableDash = config["DisableDash"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableDash'"); }
+            try { if (config.HasKey("DisableThrow")) DisableThrow = config["DisableThrow"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableThrow'"); }
+            try { if (config.HasKey("DisableCatch")) DisableCatch = config["DisableCatch"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableCatch'"); }
+            try { if (config.HasKey("DisableControlStick")) DisableControlStick = config["DisableControlStick"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableControlStick'"); }
+            try { if (config.HasKey("DisableWokDrag")) DisableWokDrag = config["DisableWokDrag"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableWokDrag'"); }
+            try { if (config.HasKey("WashTimeMultiplier")) WashTimeMultiplier = config["WashTimeMultiplier"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'WashTimeMultiplier'"); }
+            try { if (config.HasKey("BurnSpeedMultiplier")) BurnSpeedMultiplier = config["BurnSpeedMultiplier"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'BurnSpeedMultiplier'"); }
+            try { if (config.HasKey("MaxOrdersOnScreenOffset")) MaxOrdersOnScreenOffset = config["MaxOrdersOnScreenOffset"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'MaxOrdersOnScreenOffset'"); }
+            try { if (config.HasKey("SkipAllOnionKing")) SkipAllOnionKing = config["SkipAllOnionKing"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SkipAllOnionKing'"); }
+            try { if (config.HasKey("ChoppingTimeScale")) ChoppingTimeScale = config["ChoppingTimeScale"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ChoppingTimeScale'"); }
+            try { if (config.HasKey("BackpackMovementScale")) BackpackMovementScale = config["BackpackMovementScale"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'BackpackMovementScale'"); }
+            try { if (config.HasKey("RespawnTime")) RespawnTime = config["RespawnTime"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'RespawnTime'"); }
+            try { if (config.HasKey("CarnivalDispenserRefactoryTime")) CarnivalDispenserRefactoryTime = config["CarnivalDispenserRefactoryTime"]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CarnivalDispenserRefactoryTime'"); }
+
+            try
+            {
+                Dictionary<int, int> tempDict = new Dictionary<int, int>();
+                if (config.HasKey("LevelUnlockRequirements"))
                 {
-                    Dictionary<int, int> tempDict = new Dictionary<int, int>();
-                    if (config.HasKey("LevelUnlockRequirements"))
+                    foreach (KeyValuePair<string, SimpleJSON.JSONNode> kvp in config["LevelUnlockRequirements"].AsObject)
                     {
-                        foreach (KeyValuePair<string, SimpleJSON.JSONNode> kvp in config["LevelUnlockRequirements"].AsObject)
-                        {
-                            tempDict.Add(int.Parse(kvp.Key), kvp.Value);
-                        }
-
-                        LevelUnlockRequirements.Clear();
-                        LevelUnlockRequirements = tempDict;
+                        tempDict.Add(int.Parse(kvp.Key), kvp.Value);
                     }
-                }
-                catch
-                {
-                    OC2Modding.Log.LogWarning($"Failed to parse key 'LevelUnlockRequirements'");
-                }
 
-                try
-                {
-                    if (config.HasKey("LevelPurchaseRequirements"))
-                    {
-                        Dictionary<int, int> tempDict = new Dictionary<int, int>();
-
-                        foreach (KeyValuePair<string, SimpleJSON.JSONNode> kvp in config["LevelPurchaseRequirements"].AsObject)
-                        {
-                            tempDict.Add(int.Parse(kvp.Key), kvp.Value);
-                        }
-
-                        LevelPurchaseRequirements.Clear();
-                        LevelPurchaseRequirements = tempDict;
-                    }
-                }
-                catch
-                {
-                    OC2Modding.Log.LogWarning($"Failed to parse key 'LevelPurchaseRequirements'");
-                }
-
-                try
-                {
-                    if (config.HasKey("LeaderboardScoreScale"))
-                    {
-                        Dictionary<int, float> tempDict = new Dictionary<int, float>();
-
-                        tempDict[1] = config["LeaderboardScoreScale"]["OneStar"];
-                        tempDict[2] = config["LeaderboardScoreScale"]["TwoStars"];
-                        tempDict[3] = config["LeaderboardScoreScale"]["ThreeStars"];
-                        tempDict[4] = config["LeaderboardScoreScale"]["FourStars"];
-
-                        if (tempDict[1] > tempDict[2] || tempDict[1] > tempDict[3] || tempDict[1] > tempDict[4])
-                        {
-                            throw new System.Exception("");
-                        }
-
-                        if (LeaderboardScoreScale != null)
-                        {
-                            LeaderboardScoreScale.Clear();
-                        }
-
-                        LeaderboardScoreScale = tempDict;
-                    }
-                }
-                catch
-                {
-                    OC2Modding.Log.LogWarning($"Failed to parse key 'LeaderboardScoreScale'");
-                }
-
-                try
-                {
-                    if (config.HasKey("CustomLevelOrder"))
-                    {
-                        Dictionary<string, Dictionary<int, DlcIdAndLevelId>> tempDict = new Dictionary<string, Dictionary<int, DlcIdAndLevelId>>();
-
-                        if (config["CustomLevelOrder"].HasKey("Story"))
-                        {
-                            Dictionary<int, DlcIdAndLevelId> tempDictDlc = new Dictionary<int, DlcIdAndLevelId>();
-                            foreach (KeyValuePair<string, SimpleJSON.JSONNode> kvp in config["CustomLevelOrder"].AsObject["Story"].AsObject)
-                            {
-                                DlcIdAndLevelId dlcIdAndLevelId = new DlcIdAndLevelId();
-                                dlcIdAndLevelId.Dlc = OC2Helpers.DLCFromString(kvp.Value.AsObject["DLC"]);
-                                dlcIdAndLevelId.LevelId = kvp.Value.AsObject["LevelID"];
-                                tempDictDlc.Add(int.Parse(kvp.Key), dlcIdAndLevelId);
-                            }
-                            tempDict.Add("Story", tempDictDlc);
-                        }
-
-                        CustomLevelOrder = tempDict;
-                    }
-                }
-                catch
-                {
-                    OC2Modding.Log.LogWarning($"Failed to parse key 'CustomLevelOrder'");
-                }
-
-                try
-                {
-                    if (config.HasKey("LevelForceReveal"))
-                    {
-                        List<int> temp = new List<int>();
-
-                        foreach (int levelId in config["LevelForceReveal"].AsArray.Values)
-                        {
-                            temp.Add(levelId);
-                        }
-
-                        LevelForceReveal.Clear();
-                        LevelForceReveal = temp;
-                    }
-                }
-                catch
-                {
-                    OC2Modding.Log.LogWarning($"Failed to parse key 'LevelForceReveal'");
-                }
-                
-                try
-                {
-                    if (config.HasKey("LockedEmotes"))
-                    {
-                        List<int> temp = new List<int>();
-
-                        foreach (int levelId in config["LockedEmotes"].AsArray.Values)
-                        {
-                            temp.Add(levelId);
-                        }
-
-                        LockedEmotes.Clear();
-                        LockedEmotes = temp;
-                    }
-                }
-                catch
-                {
-                    OC2Modding.Log.LogWarning($"Failed to parse key 'LockedEmotes'");
+                    LevelUnlockRequirements.Clear();
+                    LevelUnlockRequirements = tempDict;
                 }
             }
-            catch {}
+            catch
+            {
+                OC2Modding.Log.LogWarning($"Failed to parse key 'LevelUnlockRequirements'");
+            }
+
+            try
+            {
+                if (config.HasKey("LevelPurchaseRequirements"))
+                {
+                    Dictionary<int, int> tempDict = new Dictionary<int, int>();
+
+                    foreach (KeyValuePair<string, SimpleJSON.JSONNode> kvp in config["LevelPurchaseRequirements"].AsObject)
+                    {
+                        tempDict.Add(int.Parse(kvp.Key), kvp.Value);
+                    }
+
+                    LevelPurchaseRequirements.Clear();
+                    LevelPurchaseRequirements = tempDict;
+                }
+            }
+            catch
+            {
+                OC2Modding.Log.LogWarning($"Failed to parse key 'LevelPurchaseRequirements'");
+            }
+
+            try
+            {
+                if (config.HasKey("LeaderboardScoreScale"))
+                {
+                    Dictionary<int, float> tempDict = new Dictionary<int, float>();
+
+                    tempDict[1] = config["LeaderboardScoreScale"]["OneStar"];
+                    tempDict[2] = config["LeaderboardScoreScale"]["TwoStars"];
+                    tempDict[3] = config["LeaderboardScoreScale"]["ThreeStars"];
+                    tempDict[4] = config["LeaderboardScoreScale"]["FourStars"];
+
+                    if (tempDict[1] > tempDict[2] || tempDict[1] > tempDict[3] || tempDict[1] > tempDict[4])
+                    {
+                        throw new System.Exception("");
+                    }
+
+                    if (LeaderboardScoreScale != null)
+                    {
+                        LeaderboardScoreScale.Clear();
+                    }
+
+                    LeaderboardScoreScale = tempDict;
+                }
+            }
+            catch
+            {
+                OC2Modding.Log.LogWarning($"Failed to parse key 'LeaderboardScoreScale'");
+            }
+
+            try
+            {
+                if (config.HasKey("CustomLevelOrder"))
+                {
+                    Dictionary<string, Dictionary<int, DlcIdAndLevelId>> tempDict = new Dictionary<string, Dictionary<int, DlcIdAndLevelId>>();
+
+                    if (config["CustomLevelOrder"].HasKey("Story"))
+                    {
+                        Dictionary<int, DlcIdAndLevelId> tempDictDlc = new Dictionary<int, DlcIdAndLevelId>();
+                        foreach (KeyValuePair<string, SimpleJSON.JSONNode> kvp in config["CustomLevelOrder"].AsObject["Story"].AsObject)
+                        {
+                            DlcIdAndLevelId dlcIdAndLevelId = new DlcIdAndLevelId();
+                            dlcIdAndLevelId.Dlc = OC2Helpers.DLCFromString(kvp.Value.AsObject["DLC"]);
+                            dlcIdAndLevelId.LevelId = kvp.Value.AsObject["LevelID"];
+                            tempDictDlc.Add(int.Parse(kvp.Key), dlcIdAndLevelId);
+                        }
+                        tempDict.Add("Story", tempDictDlc);
+                    }
+
+                    if (CustomLevelOrder != null)
+                    {
+                        CustomLevelOrder.Clear();
+                    }
+
+                    CustomLevelOrder = tempDict;
+                }
+            }
+            catch
+            {
+                OC2Modding.Log.LogWarning($"Failed to parse key 'CustomLevelOrder'");
+            }
+
+            try
+            {
+                if (config.HasKey("LevelForceReveal"))
+                {
+                    List<int> temp = new List<int>();
+
+                    foreach (int levelId in config["LevelForceReveal"].AsArray.Values)
+                    {
+                        temp.Add(levelId);
+                    }
+
+                    LevelForceReveal.Clear();
+                    LevelForceReveal = temp;
+                }
+            }
+            catch
+            {
+                OC2Modding.Log.LogWarning($"Failed to parse key 'LevelForceReveal'");
+            }
+
+            try
+            {
+                if (config.HasKey("LockedEmotes"))
+                {
+                    List<int> temp = new List<int>();
+
+                    foreach (int levelId in config["LockedEmotes"].AsArray.Values)
+                    {
+                        temp.Add(levelId);
+                    }
+
+                    LockedEmotes.Clear();
+                    LockedEmotes = temp;
+                }
+            }
+            catch
+            {
+                OC2Modding.Log.LogWarning($"Failed to parse key 'LockedEmotes'");
+            }
         }
     }
 }

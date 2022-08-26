@@ -11,7 +11,7 @@ namespace OC2Modding
 
         private static void run_completed_level_routines(int level_id)
         {
-            GameLog.LogMessage($"Completed Level {level_id} for the first time");
+            // GameLog.LogMessage($"Completed Level {level_id} for the first time");
         }
 
         [HarmonyPatch(typeof(GameProgress), "ApplyLevelProgress")]
