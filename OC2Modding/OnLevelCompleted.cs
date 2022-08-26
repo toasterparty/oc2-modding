@@ -9,9 +9,32 @@ namespace OC2Modding
             Harmony.CreateAndPatchAll(typeof(OnLevelCompleted));
         }
 
-        private static void run_completed_level_routines(int level_id)
+        private static void RunCompletedLevelRoutines(int level_id)
         {
-            // GameLog.LogMessage($"Completed Level {level_id} for the first time");
+            if (OC2Config.OnLevelCompleted.ContainsKey(level_id))
+            {
+                foreach (OC2Config.OnLevelCompletedEvent e in OC2Config.OnLevelCompleted[level_id])
+                {
+                    try
+                    {
+                        if (e.action == "SET_BOOL")
+                        {
+                            var tokens = e.payload.Split('=');
+                            string payload = $"{{\"{tokens[0]}\":{tokens[1]}}}";
+                            OC2Config.UpdateConfig(payload);
+                        }
+
+                        if (e.message != "")
+                        {
+                            GameLog.LogMessage(e.message);
+                        }
+                    }
+                    catch
+                    {
+                        OC2Modding.Log.LogError($"Failed to process post-complete event for level #{level_id}");
+                    }
+                }
+            }
         }
 
         [HarmonyPatch(typeof(GameProgress), "ApplyLevelProgress")]
@@ -36,7 +59,7 @@ namespace OC2Modding
                 return; // already completed
             }
 
-            run_completed_level_routines(_levelIndex);
+            RunCompletedLevelRoutines(_levelIndex);
         }
     }
 }
