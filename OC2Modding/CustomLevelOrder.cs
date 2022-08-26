@@ -45,8 +45,7 @@ namespace OC2Modding
                 int levelId = kvp.Value.LevelId;
                 if (levelId >= scenes.Length)
                 {
-                    // TODO: Out of range levelId=32
-                    OC2Modding.Log.LogError($"Out of range levelId={levelId}");
+                    OC2Modding.Log.LogError($"Out of range levelId={levelId}, dlc={OC2Helpers.DLCFromDLCID(kvp.Value.Dlc)}");
                     continue;
                 }
 
