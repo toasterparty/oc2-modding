@@ -39,6 +39,7 @@ namespace OC2Modding
             IngredientCrates.Awake();
             Nerfs.Awake();
             GameLog.Awake();
+            OnLevelCompleted.Awake();
 
             DisplayModsOnResultsScreen.Awake();
         }
