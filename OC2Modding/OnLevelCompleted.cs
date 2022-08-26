@@ -32,6 +32,20 @@ namespace OC2Modding
                         {
                             OC2Config.LockedEmotes.Add(Int32.Parse(e.payload));
                         }
+                        else if (e.action == "INC_TIP_COMBO")
+                        {
+                            if (OC2Config.MaxTipCombo < 4)
+                            {
+                                OC2Config.MaxTipCombo++;
+                            }
+                        }
+                        else if (e.action == "INC_ORDERS_ON_SCREEN")
+                        {
+                            if (OC2Config.MaxOrdersOnScreenOffset < 0)
+                            {
+                                OC2Config.MaxOrdersOnScreenOffset++;
+                            }
+                        }
 
                         if (e.message != "")
                         {
