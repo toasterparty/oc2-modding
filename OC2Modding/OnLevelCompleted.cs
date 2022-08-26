@@ -1,3 +1,4 @@
+using System;
 using HarmonyLib;
 
 namespace OC2Modding
@@ -17,11 +18,19 @@ namespace OC2Modding
                 {
                     try
                     {
-                        if (e.action == "SET_BOOL")
+                        if (e.action == "SET_VALUE")
                         {
                             var tokens = e.payload.Split('=');
                             string payload = $"{{\"{tokens[0]}\":{tokens[1]}}}";
                             OC2Config.UpdateConfig(payload);
+                        }
+                        else if (e.action == "UNLOCK_LEVEL")
+                        {
+                            OC2Config.LevelForceReveal.Add(Int32.Parse(e.payload));
+                        }
+                        else if (e.action == "UNLOCK_EMOTE")
+                        {
+                            OC2Config.LockedEmotes.Add(Int32.Parse(e.payload));
                         }
 
                         if (e.message != "")
@@ -34,6 +43,8 @@ namespace OC2Modding
                         OC2Modding.Log.LogError($"Failed to process post-complete event for level #{level_id}");
                     }
                 }
+
+                OC2Config.FlushConfig();
             }
         }
 
