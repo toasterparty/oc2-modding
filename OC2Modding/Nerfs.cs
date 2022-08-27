@@ -226,6 +226,22 @@ namespace OC2Modding
             return !OC2Config.DisableDash;
         }
 
+        [HarmonyPatch(typeof(ServerMapAvatarControls), "Update_Movement")]
+        [HarmonyPrefix]
+        private static void Update_Movement__Prefix(ref ILogicalButton ___m_dashButton, ref ILogicalButton __state)
+        {
+            __state = ___m_dashButton;
+            ___m_dashButton = null;
+        }
+
+        [HarmonyPatch(typeof(ServerMapAvatarControls), "Update_Movement")]
+        [HarmonyPostfix]
+        private static void Update_Movement_Postfix(ref ILogicalButton ___m_dashButton, ref ILogicalButton __state)
+        {
+            ___m_dashButton = __state; // Restore, just in case
+        }
+
+
         [HarmonyPatch(typeof(ServerWashingStation), nameof(ServerWashable.UpdateSynchronising))]
         [HarmonyPrefix]
         private static void UpdateSynchronising(ref WashingStation ___m_washingStation)
