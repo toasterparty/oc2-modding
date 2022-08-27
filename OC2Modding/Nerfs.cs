@@ -163,13 +163,36 @@ namespace OC2Modding
             return true;
         }
 
+        private static bool InReceiveThrowEvent = false;
+
+        [HarmonyPatch(typeof(ServerPlayerControlsImpl_Default), nameof(ServerPlayerControlsImpl_Default.ReceiveThrowEvent))]
+        [HarmonyPrefix]
+        private static void ReceiveThrowEventPrefix()
+        {
+            InReceiveThrowEvent = true;
+        }
+
+        [HarmonyPatch(typeof(ServerPlayerControlsImpl_Default), nameof(ServerPlayerControlsImpl_Default.ReceiveThrowEvent))]
+        [HarmonyPostfix]
+        private static void ReceiveThrowEventPostfix()
+        {
+            InReceiveThrowEvent = false;
+        }
+
         [HarmonyPatch(typeof(ServerThrowableItem), nameof(ServerThrowableItem.CanHandleThrow))]
         [HarmonyPostfix]
         private static void CanHandleThrow(ref bool __result)
         {
-            if (OC2Config.DisableThrow)
+            if (OC2Config.DisableThrow && __result)
             {
-                OC2Helpers.PlayErrorSfx();
+                if (InReceiveThrowEvent)
+                {
+                    // Only play sfx when in the handler for received throw events
+                    // this is needed because for some reason teleporters are the only other
+                    // scripting in the game which check this function
+                    OC2Helpers.PlayErrorSfx();
+                }
+                
                 __result = false;
             }
         }
