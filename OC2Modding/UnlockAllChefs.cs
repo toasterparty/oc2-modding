@@ -34,5 +34,17 @@ namespace OC2Modding
             __result = list.ToArray();
             return false; // Replace original function
         }
+
+        [HarmonyPatch(typeof(ScoreScreenOutroFlowroutine), "Run")]
+        [HarmonyPrefix]
+        private static void Run(ref ScoreScreenFlowroutineData ___m_flowroutineData)
+        {
+            if (!OC2Config.UnlockAllChefs)
+            {
+                return;
+            }
+
+            ___m_flowroutineData.m_unlocks = new GameProgress.UnlockData[] {};
+        }
     }
 }

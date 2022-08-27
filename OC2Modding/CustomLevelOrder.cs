@@ -170,7 +170,7 @@ namespace OC2Modding
                 }
             }
 
-            if (OC2Config.ImpossibleTutorial)
+            if (currentDlc == -1 && OC2Config.ImpossibleTutorial)
             {
                 foreach (SceneDirectoryData.PerPlayerCountDirectoryEntry variant in ___m_sceneDirectory.Scenes[0].SceneVarients)
                 {

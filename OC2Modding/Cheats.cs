@@ -6,6 +6,7 @@ namespace OC2Modding
     public static class Cheats
     {
         private static bool SkipLevel = false;
+        private static bool Printed = false;
 
         public static void Awake()
         {
@@ -51,7 +52,11 @@ namespace OC2Modding
             }
 
             flowController.SkipLevel(stars);
-            GameLog.LogMessage($"Auto-completed current level with {stars}-Star score");
+            if (!Printed)
+            {
+                Printed = true;
+                GameLog.LogMessage($"Auto-completed current level with {stars}-Star score");
+            }
         }
 
         [HarmonyPatch(typeof(LoadingScreenFlow), nameof(LoadingScreenFlow.LoadScene))]
@@ -59,6 +64,7 @@ namespace OC2Modding
         private static void LoadScene()
         {
             SkipLevel = false;
+            Printed = false;
         }
 
         [HarmonyPatch(typeof(ServerCampaignFlowController), "OnSuccessfulDelivery")]
