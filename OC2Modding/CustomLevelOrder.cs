@@ -80,6 +80,7 @@ namespace OC2Modding
 
                 foreach (KeyValuePair<int, int> kvp in OC2Config.LevelPurchaseRequirements)
                 {
+                    // OC2Modding.Log.LogInfo($"levelid={kvp.Key}'s star cost set to {kvp.Value}");
                     ___m_sceneDirectory.Scenes[kvp.Key].StarCost = kvp.Value;
                 }
             }
@@ -116,7 +117,15 @@ namespace OC2Modding
 
                         newScene.LevelChainEnd = originalScene.LevelChainEnd;
                         newScene.IsHidden = originalScene.IsHidden;
-                        newScene.StarCost = originalScene.StarCost;
+                        if (OC2Config.LevelPurchaseRequirements != null && OC2Config.LevelPurchaseRequirements.ContainsKey(levelId))
+                        {
+
+                            newScene.StarCost = OC2Config.LevelPurchaseRequirements[levelId];
+                        }
+                        else
+                        {
+                            newScene.StarCost = originalScene.StarCost;
+                        }
                         newScene.PreviousEntriesToUnlock = originalScene.PreviousEntriesToUnlock;
 
                         ___m_sceneDirectory.Scenes[levelId] = newScene;
@@ -187,5 +196,19 @@ namespace OC2Modding
 
             __result = ___m_sceneDirectory;
         }
+
+        /* Use to print level ID to screen on hover */
+        // [HarmonyPatch(typeof(ClientLevelPortalMapNode), "SetupUI")]
+        // [HarmonyPrefix]
+        // private static void SetupUI(ref LevelPortalMapNode ___m_baseLevelPortalMapNode)
+        // {
+        //     if (___m_baseLevelPortalMapNode.m_sceneProgress == null)
+        //     {
+        //         return;
+        //     }
+
+        //     int levelId = ___m_baseLevelPortalMapNode.m_sceneProgress.LevelId;
+        //     GameLog.LogMessage($"LevelID={levelId}");
+        // }
     }
 }
