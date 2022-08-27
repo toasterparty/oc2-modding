@@ -28,5 +28,16 @@ namespace OC2Modding
                 ___m_dismissedCallback();
             }
         }
+
+        [HarmonyPatch(typeof(ServerWorldMapInfoPopup), nameof(ServerWorldMapInfoPopup.PopupRoutine))]
+        [HarmonyPrefix]
+        private static void PopupRoutine(ref WorldMapInfoPopup ___m_popupInfo)
+        {
+            if (OC2Config.SkipTutorialPopups)
+            {
+                ___m_popupInfo.m_autoCancel = true;
+                ___m_popupInfo.m_autoCancelTime = 0.01f;
+            }
+        }
     }
 }
