@@ -49,7 +49,7 @@ namespace OC2Modding
                     continue;
                 }
 
-                replacementScenes.Add(kvp.Value, scenes[levelId]);
+                replacementScenes[kvp.Value] = scenes[levelId];
             }
         }
 

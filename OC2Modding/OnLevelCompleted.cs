@@ -26,11 +26,19 @@ namespace OC2Modding
                         }
                         else if (e.action == "UNLOCK_LEVEL")
                         {
-                            OC2Config.LevelForceReveal.Add(Int32.Parse(e.payload));
+                            int id = Int32.Parse(e.payload);
+                            if (!OC2Config.LevelForceReveal.Contains(id))
+                            {
+                                OC2Config.LevelForceReveal.Add(id);
+                            }
                         }
                         else if (e.action == "UNLOCK_EMOTE")
                         {
-                            OC2Config.LockedEmotes.Add(Int32.Parse(e.payload));
+                            int id = Int32.Parse(e.payload);
+                            if (OC2Config.LockedEmotes.Contains(id))
+                            {
+                                OC2Config.LockedEmotes.Remove(id);
+                            }
                         }
                         else if (e.action == "INC_TIP_COMBO")
                         {

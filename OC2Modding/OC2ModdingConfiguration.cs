@@ -39,8 +39,7 @@ namespace OC2Modding
         public static bool SkipAllOnionKing = false;
         public static bool ImpossibleTutorial = false;
 
-        // Items 19 + 8 kevin unlocks = 27 discrete items
-        // 27 + 6 emote wheels = 33
+        // Unlockable Items
         public static bool DisableWood = false;
         public static bool DisableCoal = false;
         public static bool DisableOnePlate = false;
@@ -64,10 +63,10 @@ namespace OC2Modding
         // Squirt Gun Distance
         // Guitine Cooldown
         // Custom Knockback Force (Bellows, Squirt Gun, Dashing, Throwing)
-        // ramp button action
-
-        // Wok fire doubletime
-        // Annoying Timing Elements Twice as often
+        // Powered Ramps
+        // Repair Hammer
+        // Calmer Unbread
+        // 6-6 Timer Advantage (progressive?) 
 
         // <UnlockerLevelId, LockedLevelId>
         public static Dictionary<int, int> LevelUnlockRequirements;
