@@ -61,10 +61,12 @@ namespace OC2Modding
         public static float RespawnTime = 5.0f;
         public static float CarnivalDispenserRefactoryTime = 0.0f;
         // Pick up plate stacks 1 at a time
-        // Remove Wok Ladle
         // Squirt Gun Distance
-        // Wok fire doubletime
         // Guitine Cooldown
+        // Custom Knockback Force (Bellows, Squirt Gun, Dashing, Throwing)
+        // ramp button action
+
+        // Wok fire doubletime
         // Annoying Timing Elements Twice as often
 
         // <UnlockerLevelId, LockedLevelId>

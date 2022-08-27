@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using HarmonyLib;
@@ -18,12 +16,15 @@ namespace OC2Modding
         private static GUIStyle textStyle = new GUIStyle();
         private static string scrollText = "";
         private static bool isHidden = true;
+        private static float lastUpdateTime = Time.time;
         private const int MAX_LOG_LINES = 20;
+        private const float HIDDEN_TIMEOUT_S = 15f;
 
         public static void Awake()
         {
             UpdateWindow();
             Harmony.CreateAndPatchAll(typeof(GameLog)); // TODO call update on game resolution changed
+            LogMessage($"OC2Modding v{PluginInfo.PLUGIN_VERSION} started");
         }
 
         public static void LogMessage(string logText)
@@ -33,6 +34,7 @@ namespace OC2Modding
                 logLines.RemoveAt(0);
             }
             logLines.Add(logText);
+            lastUpdateTime = Time.time;
             UpdateWindow();
         }
 
@@ -43,10 +45,13 @@ namespace OC2Modding
                 return; // Do not display if nothing is logged
             }
 
-            scrollViewVector = GUI.BeginScrollView(windowRect, scrollViewVector, scrollRect);
-            GUI.Box(textRect, "");
-            GUI.Box(textRect, scrollText, textStyle);
-            GUI.EndScrollView();
+            if (!isHidden || Time.time - lastUpdateTime < HIDDEN_TIMEOUT_S)
+            {
+                scrollViewVector = GUI.BeginScrollView(windowRect, scrollViewVector, scrollRect);
+                GUI.Box(textRect, "");
+                GUI.Box(textRect, scrollText, textStyle);
+                GUI.EndScrollView();
+            }
 
             if (GUI.Button(buttonRect, isHidden ? "Show" : "Hide"))
             {
@@ -57,6 +62,11 @@ namespace OC2Modding
 
         private static void UpdateWindow()
         {
+            if (!isHidden)
+            {
+                lastUpdateTime = 0;
+            }
+
             scrollText = "";
 
             if (isHidden)
