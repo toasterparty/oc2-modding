@@ -23,7 +23,37 @@ namespace OC2Modding
 
             if (OC2Config.CheatsEnabled)
             {
-                modsDisplay.m_Text += "\n!!! CHEATS ENABLED !!!";
+                modsDisplay.m_Text += "\nDebug Cheats Enabled";
+            }
+            if (
+                OC2Config.BurnSpeedMultiplier != 1.0f ||
+                OC2Config.CustomOrderLifetime != 100.0 ||
+                OC2Config.DisableWood ||
+                OC2Config.DisableCoal ||
+                OC2Config.DisableOnePlate ||
+                OC2Config.DisableFireExtinguisher ||
+                OC2Config.DisableBellows ||
+                OC2Config.PlatesStartDirty ||
+                OC2Config.MaxTipCombo != 4 ||
+                OC2Config.DisableDash ||
+                OC2Config.DisableThrow ||
+                OC2Config.DisableCatch ||
+                OC2Config.DisableControlStick ||
+                OC2Config.DisableWokDrag ||
+                OC2Config.WashTimeMultiplier != 1.0f ||
+                OC2Config.BurnSpeedMultiplier != 1.0f ||
+                OC2Config.MaxOrdersOnScreenOffset != 0 ||
+                OC2Config.ChoppingTimeScale != 1.0f ||
+                OC2Config.BackpackMovementScale != 1.0f ||
+                OC2Config.RespawnTime != 5.0f ||
+                OC2Config.CarnivalDispenserRefactoryTime != 0.0f
+            )
+            {
+                modsDisplay.m_Text += "\nRandomizer Nerfs";
+            }
+            if (OC2Config.LeaderboardScoreScale != null)
+            {
+                modsDisplay.m_Text += "\nCustom Star Scaling";
             }
             if (OC2Config.TimerAlwaysStarts)
             {
@@ -32,10 +62,6 @@ namespace OC2Modding
             if (OC2Config.PreserveCookingProgress)
             {
                 modsDisplay.m_Text += "\nPreserve Cooking Progress";
-            }
-            if (OC2Config.CustomOrderLifetime != 100.0)
-            {
-                modsDisplay.m_Text += $"\n{(int)OC2Config.CustomOrderLifetime}s Order Lifetime";
             }
             if (OC2Config.AlwaysServeOldestOrder)
             {
