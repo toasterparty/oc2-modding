@@ -10,12 +10,12 @@ namespace OC2Modding
             Harmony.CreateAndPatchAll(typeof(PreserveCookProgress));
         }
 
-        [HarmonyPatch(typeof(ServerCookingHandler), nameof(ServerCookingHandler.SetCookingProgress))]
-        [HarmonyPrefix]
-        private static bool SetCookingProgress(ref float _cookingProgress)
-        {
-            return !OC2Config.PreserveCookingProgress || _cookingProgress != 0f; // skip function if cooking containers being told to reset their cooking progress for no reason
-        }
+        // [HarmonyPatch(typeof(ServerCookingHandler), nameof(ServerCookingHandler.SetCookingProgress))]
+        // [HarmonyPrefix]
+        // private static bool SetCookingProgress(ref float _cookingProgress)
+        // {
+        //     return !OC2Config.PreserveCookingProgress || _cookingProgress != 0f; // skip function if cooking containers being told to reset their cooking progress for no reason
+        // }
 
         private static float CalculateCombinedProgress(float recipientProgress, int recipientContents, float receivedProgress, int receivedContents, float AccessCookingTime)
         {

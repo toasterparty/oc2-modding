@@ -234,21 +234,13 @@ namespace OC2Modding
         }
 
         [HarmonyPatch(typeof(ServerCookingHandler), nameof(ServerCookingHandler.Cook))]
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         private static void Cook(ref float _cookingDeltatTime, ref bool __result, ref CookingStateMessage ___m_ServerData, ref ServerCookingHandler __instance)
         {
-            float originalProgress = ___m_ServerData.m_cookingProgress;
-            CookingHandler cookingHandler = __instance.GetCookingHandler();
-
-            if (___m_ServerData.m_cookingState != CookingUIController.State.Completed || ___m_ServerData.m_cookingState != CookingUIController.State.OverDoing)
+            if (___m_ServerData.m_cookingState != CookingUIController.State.Idle && ___m_ServerData.m_cookingState != CookingUIController.State.Progressing)
             {
-                return; // It's not done yet or it's already burnt
+                _cookingDeltatTime *= OC2Config.BurnSpeedMultiplier;
             }
-
-            // Cook it a litile more to make it burn faster
-            float newProgress = originalProgress + _cookingDeltatTime * (OC2Config.BurnSpeedMultiplier - 1.0f);
-
-            __instance.SetCookingProgress(newProgress);
         }
 
         [HarmonyPatch(typeof(ServerOrderControllerBase), "IsFull")]

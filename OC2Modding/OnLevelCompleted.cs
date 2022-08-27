@@ -52,9 +52,9 @@ namespace OC2Modding
                             GameLog.LogMessage(e.message);
                         }
                     }
-                    catch
+                    catch (Exception _e)
                     {
-                        OC2Modding.Log.LogError($"Failed to process post-complete event for level #{level_id}");
+                        OC2Modding.Log.LogError($"Failed to process post-complete event for level #{level_id}: action={e.action}, payload={e.payload}, message={e.message}\n{_e}");
                     }
                 }
 
