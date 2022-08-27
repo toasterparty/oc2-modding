@@ -13,6 +13,7 @@ namespace OC2Modding
 
         private static string JsonConfigPath = "";
         public static string SaveFolderName = "";
+        public static bool JsonMode = false;
 
         /* Globally Accessible Config Values */
         // QoL + Cheats
@@ -120,6 +121,11 @@ namespace OC2Modding
 
         public static void FlushConfig()
         {
+            if (!JsonMode)
+            {
+                return;
+            }
+
             string save_dir = OC2Helpers.getCustomSaveDirectory();
             if (!Directory.Exists(save_dir))
             {
@@ -504,6 +510,7 @@ namespace OC2Modding
                     json = reader.ReadToEnd();
                 }
 
+                JsonMode = true;
                 UpdateConfig(json);
             }
             catch
@@ -752,20 +759,47 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void SaveNewGame()
         {
-            /* Initialize Standalone Config */
-            InitCfg();
-
-            /* Initialize API Config */
-            if (JsonConfigPath == "")
+            if (JsonMode)
             {
-                InitJson("OC2Modding.json");
-            }
-            if (JsonConfigPath != "")
-            {
-                InitJson(JsonConfigPath);
-            }
+                /* Initialize Standalone Config */
+                InitCfg();
 
-            FlushConfig();
+                /* Initialize API Config */
+                if (JsonConfigPath == "")
+                {
+                    InitJson("OC2Modding.json");
+                }
+                if (JsonConfigPath != "")
+                {
+                    InitJson(JsonConfigPath);
+                }
+
+                FlushConfig();
+            }
+        }
+
+        [HarmonyPatch(typeof(SelectSaveDialog), "Update")]
+        [HarmonyPrefix]
+        private static void UpdatePrefix(ref T17EventSystem ___m_eventSystem, ref SaveSlotElement[] ___m_saveElements)
+        {
+            // OC2Modding only allows a single save slot
+            if (JsonMode)
+            {
+                ___m_saveElements[1].gameObject.SetActive(false);
+                ___m_saveElements[2].gameObject.SetActive(false);
+            }
+        }
+
+        [HarmonyPatch(typeof(SelectSaveDialog), "Update")]
+        [HarmonyPostfix]
+        private static void UpdatePostfix(ref T17EventSystem ___m_eventSystem, ref SaveSlotElement[] ___m_saveElements)
+        {
+            // OC2Modding only allows a single save slot
+            if (JsonMode)
+            {
+                ___m_saveElements[1].gameObject.SetActive(false);
+                ___m_saveElements[2].gameObject.SetActive(false);
+            }
         }
     }
 }
