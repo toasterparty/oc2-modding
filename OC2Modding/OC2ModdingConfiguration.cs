@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using BepInEx;
 using BepInEx.Configuration;
+using HarmonyLib;
 
 namespace OC2Modding
 {
@@ -113,6 +114,8 @@ namespace OC2Modding
             }
 
             FlushConfig();
+
+            Harmony.CreateAndPatchAll(typeof(OC2Config));
         }
 
         public static void FlushConfig()
@@ -742,6 +745,27 @@ namespace OC2Modding
             {
                 OC2Modding.Log.LogWarning($"Failed to parse key 'OnLevelCompleted'\n:{e}");
             }
+        }
+
+        /* In the event that the player presses "New Game" try your hardest to reset the configuration */
+        [HarmonyPatch(typeof(SaveSlotElement), "SaveNewGame")]
+        [HarmonyPostfix]
+        private static void SaveNewGame()
+        {
+            /* Initialize Standalone Config */
+            InitCfg();
+
+            /* Initialize API Config */
+            if (JsonConfigPath == "")
+            {
+                InitJson("OC2Modding.json");
+            }
+            if (JsonConfigPath != "")
+            {
+                InitJson(JsonConfigPath);
+            }
+
+            FlushConfig();
         }
     }
 }
