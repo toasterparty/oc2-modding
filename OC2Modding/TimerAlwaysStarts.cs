@@ -19,15 +19,6 @@ namespace OC2Modding
             }
 
             // OC2Modding.Log.LogMessage($"{___m_context.m_levelConfig.name}");
-
-            if (OC2Config.Custom66TimerScale != 1.0f && ___m_context.m_levelConfig.name.StartsWith("s_dynamic_stage_04"))
-            {
-                float time = ___m_context.m_levelConfig.GetRoundData().m_roundTimer;
-                time *= OC2Config.Custom66TimerScale;
-                time -= (time % 30);
-                time += 30;
-                ___m_context.m_levelConfig.GetRoundData().m_roundTimer = time;
-            }
         }
     }
 }
