@@ -190,6 +190,25 @@ namespace OC2Modding
             return Application.persistentDataPath + "/OC2Modding/" + saveFolderName + "/";
         }
 
+        static float lastSoundTime = Time.time;
+        const float ERROR_SFX_COOLDOWN = 0.4f;
+        public static void PlayErrorSfx()
+        {
+            if (Time.time - lastSoundTime < ERROR_SFX_COOLDOWN)
+            {
+                return;
+            }
+
+            var session = GameUtils.GetGameSession();
+            if (session == null)
+            {
+                return;
+            }
+
+            lastSoundTime = Time.time;
+            GameUtils.TriggerAudio(GameOneShotAudioTag.RecipeTimeOut, session.gameObject.layer);
+        }
+
         /* Helpers for the helpers start here */
 
         private struct LeaderboardScoresKey

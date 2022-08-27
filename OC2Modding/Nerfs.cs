@@ -165,11 +165,11 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(ServerThrowableItem), nameof(ServerThrowableItem.CanHandleThrow))]
         [HarmonyPostfix]
-        private static void CanHandleThrow(ref bool __result, ref ServerThrowableItem __instance)
+        private static void CanHandleThrow(ref bool __result)
         {
             if (OC2Config.DisableThrow)
             {
-                GameUtils.TriggerAudio(GameOneShotAudioTag.RecipeTimeOut, __instance.gameObject.layer);
+                OC2Helpers.PlayErrorSfx();
                 __result = false;
             }
         }
@@ -210,12 +210,12 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), "Update_Movement")]
         [HarmonyPrefix]
-        private static void Update_Movement(ref float ___m_dashTimer, ref ServerPlayerControlsImpl_Default __instance)
+        private static void Update_Movement(ref float ___m_dashTimer)
         {
             if (___m_dashTimer > 0f && OC2Config.DisableDash)
             {
                 ___m_dashTimer = 0f;
-                GameUtils.TriggerAudio(GameOneShotAudioTag.RecipeTimeOut, __instance.gameObject.layer);
+                OC2Helpers.PlayErrorSfx();
             }
         }
 
@@ -298,11 +298,11 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(ClientEmoteWheel), nameof(ClientEmoteWheel.RequestEmoteStart))]
         [HarmonyPrefix]
-        private static bool RequestEmoteStart(ref ClientEmoteWheel __instance, ref int _emoteIdx)
+        private static bool RequestEmoteStart(ref int _emoteIdx)
         {
             if (OC2Config.LockedEmotes.Contains(_emoteIdx))
             {
-                GameUtils.TriggerAudio(GameOneShotAudioTag.RecipeTimeOut, __instance.gameObject.layer);
+                OC2Helpers.PlayErrorSfx();
                 return false;
             }
             return true;
@@ -402,7 +402,7 @@ namespace OC2Modding
             }
 
             // Reject the button push
-            GameUtils.TriggerAudio(GameOneShotAudioTag.RecipeTimeOut, __instance.gameObject.layer);
+            OC2Helpers.PlayErrorSfx();
             __result = false;
         }
     }
