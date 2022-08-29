@@ -17,7 +17,7 @@ namespace OC2Modding
         private static string scrollText = "";
         private static bool isHidden = true;
         private static float lastUpdateTime = Time.time;
-        private const int MAX_LOG_LINES = 20;
+        private const int MAX_LOG_LINES = 35;
         private const float HIDDEN_TIMEOUT_S = 15f;
 
         public static void Awake()
