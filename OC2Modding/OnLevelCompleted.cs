@@ -54,6 +54,11 @@ namespace OC2Modding
                                 OC2Config.MaxOrdersOnScreenOffset++;
                             }
                         }
+                        else if (e.action == "INC_STAR_COUNT")
+                        {
+                            int count = Int32.Parse(e.payload);
+                            OC2Config.StarOffset += count;
+                        }
 
                         if (e.message != "")
                         {
@@ -93,6 +98,13 @@ namespace OC2Modding
             }
 
             RunCompletedLevelRoutines(_levelIndex);
+        }
+
+        [HarmonyPatch(typeof(GameProgress), nameof(GameProgress.GetStarTotal))]
+        [HarmonyPrefix]
+        private static void GetStarTotal(ref int __result)
+        {
+            __result += OC2Config.StarOffset;
         }
     }
 }

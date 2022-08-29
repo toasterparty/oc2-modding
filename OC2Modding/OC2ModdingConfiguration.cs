@@ -59,12 +59,14 @@ namespace OC2Modding
         public static float BackpackMovementScale = 1.0f;
         public static float RespawnTime = 5.0f;
         public static float CarnivalDispenserRefactoryTime = 0.0f;
+        public static int StarOffset = 0;
         // Pick up plate stacks 1 at a time
         // Squirt Gun Distance
         // Guitine Cooldown
         // Custom Knockback Force (Bellows, Squirt Gun, Dashing, Throwing)
         // Powered Ramps
         // Repair Hammer
+        // Coin Bag
         // Calmer Unbread
         // 6-6 Timer Advantage (progressive?) 
 
@@ -180,6 +182,7 @@ namespace OC2Modding
             data += $"\"BackpackMovementScale\":{BackpackMovementScale},";
             data += $"\"RespawnTime\":{RespawnTime},";
             data += $"\"CarnivalDispenserRefactoryTime\":{CarnivalDispenserRefactoryTime},";
+            data += $"\"StarOffset\":{StarOffset},";
 
             data += $"\"LevelUnlockRequirements\":{{";
             bool first = true;
@@ -567,6 +570,7 @@ namespace OC2Modding
             try { if (config.HasKey("BackpackMovementScale"          )) BackpackMovementScale          = config["BackpackMovementScale"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'BackpackMovementScale'"          ); }
             try { if (config.HasKey("RespawnTime"                    )) RespawnTime                    = config["RespawnTime"                    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'RespawnTime'"                    ); }
             try { if (config.HasKey("CarnivalDispenserRefactoryTime" )) CarnivalDispenserRefactoryTime = config["CarnivalDispenserRefactoryTime" ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CarnivalDispenserRefactoryTime'" ); }
+            try { if (config.HasKey("StarOffset"                     )) StarOffset                     = config["StarOffset"                     ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'StarOffset'"                     ); }
             try { if (config.HasKey("ImpossibleTutorial"             )) ImpossibleTutorial             = config["ImpossibleTutorial"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ImpossibleTutorial'"             ); }
 
             try
