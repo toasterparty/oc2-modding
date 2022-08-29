@@ -101,7 +101,7 @@ namespace OC2Modding
         }
 
         [HarmonyPatch(typeof(GameProgress), nameof(GameProgress.GetStarTotal))]
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         private static void GetStarTotal(ref int __result)
         {
             __result += OC2Config.StarOffset;
