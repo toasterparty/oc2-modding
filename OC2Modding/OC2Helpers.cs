@@ -79,6 +79,10 @@ namespace OC2Modding
             DlcAndLevel dlcAndLevel = getLevelName(dlcID, levelId);
 
             bool timerLevel = isLevelTimerLevel(dlcAndLevel.dlc, dlcAndLevel.level);
+            // if (timerLevel)
+            // {
+            //     OC2Modding.Log.LogInfo($"{dlcAndLevel.dlc} {dlcAndLevel.level} is a timer level");
+            // }
 
             LeaderboardScoresKey key = new LeaderboardScoresKey();
             key.game = (timerLevel && OC2Config.TimerAlwaysStarts) ? "All You Can Eat" : "Overcooked 2";
@@ -88,6 +92,7 @@ namespace OC2Modding
 
             if (leaderboardScores.ContainsKey(key))
             {                
+                // OC2Modding.Log.LogInfo($"dlc={dlcID}, level={levelId}, ({playerCount}-Player) [{key.game}] WR is {leaderboardScores[key]}");
                 return leaderboardScores[key];
             }
 
@@ -322,6 +327,8 @@ namespace OC2Modding
                 {
                     dlc = "";
                 }
+
+                level = $"{dlc} {level}"; // seasonal needs additional identifiers
             }
 
             DlcAndLevel result = new DlcAndLevel();
@@ -402,6 +409,11 @@ namespace OC2Modding
                     }
 
                     string level = values[2].Replace("\"", "");
+                    if (dlcId == 3) // seasonal needs additional identifiers
+                    {
+                        level = $"{dlc} {level}";
+                    }
+
                     uint playerCount = UInt32.Parse(values[3]);
 
                     LeaderboardScoresKey key = new LeaderboardScoresKey();
@@ -409,6 +421,8 @@ namespace OC2Modding
                     key.DLCID = dlcId;
                     key.level = level;
                     key.playerCount = playerCount;
+
+                    // OC2Modding.Log.LogWarning($"Interpreted {key.game}|dlc={key.DLCID}|level={key.level}|score={score} ({key.playerCount}-Player) from:\n{line}\n");
 
                     leaderboardScores[key] = score;
                 }
@@ -612,6 +626,10 @@ namespace OC2Modding
                 };
             }
 
+            // get just the world/sublevel from any level specifier
+            var level_split = level.Split(' ');
+            level = level_split[level_split.Length-1];
+            
             return levels.Contains(level);
         }
 

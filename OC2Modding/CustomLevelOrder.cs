@@ -158,6 +158,7 @@ namespace OC2Modding
                             actualLevelId = levelId;
                         }
 
+                        // OC2Modding.Log.LogInfo($"\n\ndlc={dlc},actualLevelId={actualLevelId}");
                         int worldRecordScore = OC2Helpers.getScoresFromLeaderboard(dlc, actualLevelId, playerCount);
                         var prop = variant.GetType().GetField("m_PCStarBoundaries", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                         if (worldRecordScore <= 0)
@@ -172,6 +173,8 @@ namespace OC2Modding
                         starBoundariesOverride.m_ThreeStarScore = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[3]);
                         starBoundariesOverride.m_TwoStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[2]);
                         starBoundariesOverride.m_OneStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[1]);
+
+                        // OC2Modding.Log.LogInfo($"{starBoundariesOverride.m_OneStarScore} / {starBoundariesOverride.m_TwoStarScore} / {starBoundariesOverride.m_ThreeStarScore} / {starBoundariesOverride.m_FourStarScore}");
 
                         prop.SetValue(variant, starBoundariesOverride);
                     }
