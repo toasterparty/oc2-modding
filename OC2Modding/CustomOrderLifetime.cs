@@ -23,6 +23,23 @@ namespace OC2Modding
                 time += 30;
                 levelConfig.GetRoundData().m_roundTimer = time;
             }
+            else if (OC2Config.LevelTimerScale != 1.0f)
+            {
+                float beforeTime = levelConfig.GetRoundData().m_roundTimer;
+                float time = beforeTime*OC2Config.LevelTimerScale;
+                if ((time % 10) >= 5)
+                {
+                    time += 10 - (time % 10);
+                }
+                else
+                {
+                    time -= (time % 10);
+                }
+
+                levelConfig.GetRoundData().m_roundTimer = time;
+
+                OC2Modding.Log.LogInfo($"Scaled Level Time from {((int)beforeTime)/60}:{beforeTime%60} to {((int)time)/60}:{time%60}");
+            }
         }
     }
 }

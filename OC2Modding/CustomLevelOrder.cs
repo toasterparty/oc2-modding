@@ -55,10 +55,23 @@ namespace OC2Modding
 
         private static int scoreScaleHelper(int inScore, float scale)
         {
-            float inScore_f = (float)inScore;
-            int scaledScore = (int)(inScore_f * scale);
-            int remainder = scaledScore % 10;
-            return scaledScore - remainder;
+            float inScore_f = (float)inScore; // cast to float
+            float scaledScore_f = inScore_f * scale; // scale score by difficulty curve
+            scaledScore_f *= OC2Config.LevelTimerScale; // scale score by level access time
+            int scaledScore = (int)scaledScore_f; // cast back to int
+
+            // round up to nearest 10
+            if ((scaledScore % 10) >= 5)
+            {
+                scaledScore += 10 - (scaledScore % 10);
+            }
+            // round down to nearest 10
+            else
+            {
+                scaledScore -= (scaledScore % 10);
+            }
+
+            return scaledScore;
         }
 
         private static int lastDlc = 0;

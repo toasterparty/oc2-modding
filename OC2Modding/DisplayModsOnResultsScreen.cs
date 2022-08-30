@@ -55,6 +55,10 @@ namespace OC2Modding
             {
                 modsDisplay.m_Text += "\nCustom Star Scaling";
             }
+            if (OC2Config.LevelTimerScale != 1.0f)
+            {
+                modsDisplay.m_Text += "\nCustom Level Duration";
+            }
             if (OC2Config.TimerAlwaysStarts)
             {
                 modsDisplay.m_Text += "\nTimer Always Starts";

@@ -38,6 +38,7 @@ namespace OC2Modding
         public static bool CheatsEnabled = false;
         public static bool SkipAllOnionKing = false;
         public static bool ImpossibleTutorial = false;
+        public static float LevelTimerScale = 1.0f;
 
         // Unlockable Items
         public static bool DisableWood = false;
@@ -183,6 +184,10 @@ namespace OC2Modding
             data += $"\"RespawnTime\":{RespawnTime},";
             data += $"\"CarnivalDispenserRefactoryTime\":{CarnivalDispenserRefactoryTime},";
             data += $"\"StarOffset\":{StarOffset},";
+            data += $"\"DisableRampButton\":{DisableRampButton},";
+            data += $"\"LevelTimerScale\":{LevelTimerScale},";
+            data += $"\"ImpossibleTutorial\":{ImpossibleTutorial},";
+            
 
             data += $"\"LevelUnlockRequirements\":{{";
             bool first = true;
@@ -573,6 +578,7 @@ namespace OC2Modding
             try { if (config.HasKey("StarOffset"                     )) StarOffset                     = config["StarOffset"                     ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'StarOffset'"                     ); }
             try { if (config.HasKey("ImpossibleTutorial"             )) ImpossibleTutorial             = config["ImpossibleTutorial"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ImpossibleTutorial'"             ); }
             try { if (config.HasKey("DisableRampButton"              )) DisableRampButton              = config["DisableRampButton"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableRampButton'"              ); }
+            try { if (config.HasKey("LevelTimerScale"                )) LevelTimerScale                = config["LevelTimerScale"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'LevelTimerScale'"                ); }
 
             try
             {
