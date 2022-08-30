@@ -107,12 +107,12 @@ namespace OC2Modding
 
         public static int[] getDlcArray()
         {
-            return new int[] { -1, 2, 3, 5, 7, 8};
+            return new int[] { -1, 2, 3, 5, 7, 8 };
         }
 
         public static SceneDirectoryData.SceneDirectoryEntry[] getScenesFromDLC(int dlcId)
         {
-            if(!getDlcArray().Contains(dlcId))
+            if (!getDlcArray().Contains(dlcId))
             {
                 OC2Modding.Log.LogError($"Unexpected dlcId {dlcId}");
                 return null;
@@ -396,8 +396,9 @@ namespace OC2Modding
                             commaCount++;
                         }
 
-                        if (commaCount == 2) {
-                            var substrings = sanitaryLine.Substring(i+1).Split(',');
+                        if (commaCount == 2)
+                        {
+                            var substrings = sanitaryLine.Substring(i + 1).Split(',');
                             score = Int32.Parse(substrings[0]);
                             break;
                         }
@@ -536,10 +537,10 @@ namespace OC2Modding
 
         private static bool isLevelTimerLevel(string dlc, string level)
         {
-            string[] levels = new string[] {};
-            if(dlc == "Story")
+            string[] levels = new string[] { };
+            if (dlc == "Story")
             {
-                levels = new string [] {
+                levels = new string[] {
                     "1-1",
                     "1-2",
                     "1-5",
@@ -552,21 +553,21 @@ namespace OC2Modding
             }
             else if (dlc == "Christmas")
             {
-               levels = new string [] {
+                levels = new string[] {
                     "1-1",
                     "1-2",
                 };
             }
             else if (dlc == "Chinese New Year")
             {
-               levels = new string [] {
+                levels = new string[] {
                     "1-1",
                     "1-2",
                 };
             }
             else if (dlc == "Winter Wonderland")
             {
-               levels = new string [] {
+                levels = new string[] {
                     "1-1",
                     "1-3",
                     "1-5",
@@ -574,14 +575,14 @@ namespace OC2Modding
             }
             else if (dlc == "Spring Festival")
             {
-               levels = new string [] {
+                levels = new string[] {
                     "1-1",
                     "1-2",
                 };
             }
             else if (dlc == "Sun's Out Buns Out")
             {
-               levels = new string [] {
+                levels = new string[] {
                     "1-1",
                     "1-2",
                     "1-3",
@@ -589,20 +590,20 @@ namespace OC2Modding
             }
             else if (dlc == "Moon Harvest")
             {
-               levels = new string [] {
+                levels = new string[] {
                     "1-3",
                 };
             }
             else if (dlc == "Surf 'n' Turf")
             {
-               levels = new string [] {
+                levels = new string[] {
                     "1-1",
                     "2-1",
                 };
             } 
             else if (dlc == "Campfire Cook Off")
             {
-                levels = new string [] {
+                levels = new string[] {
                     "1-1",
                     "1-3",
                     "2-1",
@@ -611,7 +612,7 @@ namespace OC2Modding
             } 
             else if (dlc == "Night of the Hangry Horde")
             {
-               levels = new string [] {
+                levels = new string[] {
                     "1-1",
                     "1-2",
                     "2-2",
@@ -619,7 +620,7 @@ namespace OC2Modding
             } 
             else if (dlc == "Carnival of Chaos")
             {
-               levels = new string [] {
+                levels = new string[] {
                     "1-1",
                     "1-2",
                     "1-4",
@@ -630,7 +631,7 @@ namespace OC2Modding
 
             // get just the world/sublevel from any level specifier
             var level_split = level.Split(' ');
-            level = level_split[level_split.Length-1];
+            level = level_split[level_split.Length - 1];
             
             return levels.Contains(level);
         }
