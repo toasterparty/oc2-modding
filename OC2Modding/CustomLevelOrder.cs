@@ -85,6 +85,7 @@ namespace OC2Modding
                 }
             }
 
+            Dictionary<int, int> storyLevelIdToDlc = new Dictionary<int, int>();
             bool isCustomLevelOrder = OC2Config.CustomLevelOrder != null && currentDlc == -1 && OC2Config.CustomLevelOrder.ContainsKey("Story");
             if (isCustomLevelOrder) // TODO: no reason not to allow other levels
             {
@@ -95,7 +96,7 @@ namespace OC2Modding
                 else
                 {
                     OC2Modding.Log.LogInfo("Modifying Scene Directory to change level order...");
-                    
+
                     Dictionary<int, OC2Config.DlcIdAndLevelId> levelOrder = OC2Config.CustomLevelOrder["Story"];
                     SceneDirectoryData.SceneDirectoryEntry[] originalScenes = (SceneDirectoryData.SceneDirectoryEntry[])___m_sceneDirectory.Scenes.Clone();
 
@@ -129,6 +130,9 @@ namespace OC2Modding
                         newScene.PreviousEntriesToUnlock = originalScene.PreviousEntriesToUnlock;
 
                         ___m_sceneDirectory.Scenes[levelId] = newScene;
+
+                        // Helper for determining DLC when patching scores
+                        storyLevelIdToDlc.Add(levelId, newDlcAndLevel.Dlc);
                     }
                 }
             }
@@ -141,12 +145,16 @@ namespace OC2Modding
                 {
                     foreach (SceneDirectoryData.PerPlayerCountDirectoryEntry variant in scene.SceneVarients)
                     {
-                        if (scene.World == SceneDirectoryData.World.Invalid)
+                        int dlc;
+                        if (storyLevelIdToDlc.ContainsKey(levelId))
                         {
-                            continue;
+                            dlc = storyLevelIdToDlc[levelId]; // possibly another dlc due to shuffled level order
+                        }
+                        else
+                        {
+                            dlc = -1; // vanilla story level
                         }
 
-                        int dlc = OC2Helpers.DLCFromWorld(scene.World);
                         int playerCount = variant.PlayerCount;
                         int actualLevelId;
                         if (isCustomLevelOrder && OC2Config.CustomLevelOrder["Story"].ContainsKey(levelId))
@@ -158,7 +166,7 @@ namespace OC2Modding
                             actualLevelId = levelId;
                         }
 
-                        // OC2Modding.Log.LogInfo($"\n\ndlc={dlc},actualLevelId={actualLevelId}");
+                        // OC2Modding.Log.LogInfo($"\n\nstory_id={levelId}, dlc={dlc}, actualLevelId={actualLevelId}");
                         int worldRecordScore = OC2Helpers.getScoresFromLeaderboard(dlc, actualLevelId, playerCount);
                         var prop = variant.GetType().GetField("m_PCStarBoundaries", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                         if (worldRecordScore <= 0)
