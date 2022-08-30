@@ -57,7 +57,7 @@ namespace OC2Modding
         {
             float inScore_f = (float)inScore;
             int scaledScore = (int)(inScore_f * scale);
-            int remainder = scaledScore % 50;
+            int remainder = scaledScore % 10;
             return scaledScore - remainder;
         }
 
