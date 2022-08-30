@@ -428,5 +428,19 @@ namespace OC2Modding
             OC2Helpers.PlayErrorSfx();
             __result = false;
         }
+
+        [HarmonyPatch(typeof(WorldMapSwitch), nameof(WorldMapSwitch.CanBePressed))]
+        [HarmonyPostfix]
+        private static void CanBePressed(ref bool __result)
+        {
+            if (OC2Config.DisableRampButton && __result)
+            {
+                // Reject the button push
+                OC2Helpers.PlayErrorSfx();
+                __result = false;
+            }
+        }
+
+        // CanBePressed
     }
 }

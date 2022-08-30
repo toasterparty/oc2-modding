@@ -60,6 +60,7 @@ namespace OC2Modding
         public static float RespawnTime = 5.0f;
         public static float CarnivalDispenserRefactoryTime = 0.0f;
         public static int StarOffset = 0;
+        public static bool DisableRampButton = false;
         // Pick up plate stacks 1 at a time
         // Squirt Gun Distance
         // Guitine Cooldown
@@ -572,6 +573,7 @@ namespace OC2Modding
             try { if (config.HasKey("CarnivalDispenserRefactoryTime" )) CarnivalDispenserRefactoryTime = config["CarnivalDispenserRefactoryTime" ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CarnivalDispenserRefactoryTime'" ); }
             try { if (config.HasKey("StarOffset"                     )) StarOffset                     = config["StarOffset"                     ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'StarOffset'"                     ); }
             try { if (config.HasKey("ImpossibleTutorial"             )) ImpossibleTutorial             = config["ImpossibleTutorial"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ImpossibleTutorial'"             ); }
+            try { if (config.HasKey("DisableRampButton"              )) DisableRampButton              = config["DisableRampButton"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableRampButton'"              ); }
 
             try
             {
