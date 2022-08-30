@@ -69,7 +69,7 @@ namespace OC2Modding
                 }
             }
 
-            if (OC2Config.DisableFireExtinguisher && _objectToPlace.name == "utensil_fire_extinguisher_01")
+            if (OC2Config.DisableFireExtinguisher && (_objectToPlace.name.StartsWith("utensil_fire_extinguisher_") || _objectToPlace.name.StartsWith("DLC08_utensil_fire_extinguisher")))
             {
                 _objectToPlace.Destroy();
                 return false;
@@ -441,6 +441,26 @@ namespace OC2Modding
             }
         }
 
-        // CanBePressed
+        // [HarmonyPatch(typeof(ServerDirtyPlateStack), nameof(ServerDirtyPlateStack.OnSurfaceDeplacement))]
+        // [HarmonyPostfix]
+        // private static void OnSurfaceDeplacement(ref ServerDirtyPlateStack __instance, ref ServerStack ___m_stack, ref ServerAttachStation ___m_attachStation)
+        // {
+        //     OC2Modding.Log.LogInfo("OnSurfaceDeplacement");
+        //     // ___m_attachStation.AddItem(, Vector2.up);
+
+        //     GameObject gameObject = ___m_stack.RemoveFromStack();
+        //     ServerHandlePickupReferral serverHandlePickupReferral = gameObject.RequestComponent<ServerHandlePickupReferral>();
+        //     if (serverHandlePickupReferral != null && serverHandlePickupReferral.GetHandlePickupReferree() == __instance)
+        //     {
+        //         serverHandlePickupReferral.SetHandlePickupReferree(null);
+        //     }
+        //     ServerHandlePlacementReferral serverHandlePlacementReferral = gameObject.RequestComponent<ServerHandlePlacementReferral>();
+        //     if (serverHandlePlacementReferral != null && serverHandlePlacementReferral.GetHandlePlacementReferree() == __instance)
+        //     {
+        //         serverHandlePlacementReferral.SetHandlePlacementReferree(null);
+        //     }
+            
+        //     ___m_attachStation.AddItem(gameObject, Vector2.up);
+        // }
     }
 }

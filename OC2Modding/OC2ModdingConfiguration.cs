@@ -65,7 +65,6 @@ namespace OC2Modding
         // Squirt Gun Distance
         // Guitine Cooldown
         // Custom Knockback Force (Bellows, Squirt Gun, Dashing, Throwing)
-        // Powered Ramps
         // Repair Hammer
         // Coin Bag
         // Calmer Unbread
