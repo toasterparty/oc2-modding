@@ -92,7 +92,7 @@ namespace OC2Modding
 
             if (leaderboardScores.ContainsKey(key))
             {                
-                // OC2Modding.Log.LogInfo($"dlc={dlcID}, level={levelId}, ({playerCount}-Player) [{key.game}] WR is {leaderboardScores[key]}");
+                // OC2Modding.Log.LogInfo($"{dlcID}|{dlcAndLevel.level}, id={levelId}, ({playerCount}-Player) [{key.game}] WR is {leaderboardScores[key]}");
                 return leaderboardScores[key];
             }
 

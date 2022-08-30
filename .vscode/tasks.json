@@ -25,7 +25,7 @@
             "label": "Playtest",
             "type": "shell",
             "command": "start \\\"C:\\Other\\Games\\Steam\\steamapps\\common\\Overcooked! 2\\Overcooked2.exe\\\"",
-            "dependsOn": ["Build", "Install"],
+            "dependsOn": ["Install"],
             "group": "build",
             "presentation": {
                 "close": true
