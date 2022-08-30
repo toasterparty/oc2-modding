@@ -254,7 +254,10 @@ namespace OC2Modding
         private static void Update_Movement__Prefix(ref ILogicalButton ___m_dashButton, ref ILogicalButton __state)
         {
             __state = ___m_dashButton;
-            ___m_dashButton = null;
+            if (OC2Config.DisableDash)
+            {
+                ___m_dashButton = null;
+            }
         }
 
         [HarmonyPatch(typeof(ServerMapAvatarControls), "Update_Movement")]
