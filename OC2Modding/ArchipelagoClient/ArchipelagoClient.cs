@@ -1,16 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Threading;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
-using Archipelago.MultiClient.Net.Packets;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.Models;
-using Archipelago.MultiClient.Net.BounceFeatures;
-using Archipelago.MultiClient.Net.Converters;
-using Archipelago.MultiClient.Net.Exceptions;
+using UnityEngine;
 
 namespace OC2Modding
 {
@@ -79,18 +74,42 @@ namespace OC2Modding
             BonusStar = 36,
         };
 
+        private static float LastUpdateCheckTime = Time.time;
+
         public static void Update()
+        {
+            if (Time.time - LastUpdateCheckTime > 5)
+            {
+                LastUpdateCheckTime = Time.time;
+                ThreadPool.QueueUserWorkItem((o) => ConnectionAttempt());
+            }
+        }
+
+        private static void ConnectionAttempt()
         {
             if (IsConnected)
             {
                 return;
             }
 
-            var result = ArchipelagoClient.Connect("localhost", "toasterparty");
+            var result = Connect("localhost", "toasterparty");
+            LastUpdateCheckTime = Time.time;
             if (!result.Successful)
             {
+                LoginFailure failure = (LoginFailure)result;
+                OC2Modding.Log.LogWarning("Failed to Connect to the Archipelago Server");
+                foreach (string error in failure.Errors)
+                {
+                    OC2Modding.Log.LogWarning($"\t{error}");
+                }
+                foreach (ConnectionRefusedError error in failure.ErrorCodes)
+                {
+                    OC2Modding.Log.LogWarning($"\t{error}");
+                }
                 return;
             }
+
+            OC2Modding.Log.LogInfo("Successfully Connected to Archipelago Server");
         }
 
         private static Version CreateVersion()
@@ -184,11 +203,10 @@ namespace OC2Modding
 
         private static List<long> VisitedLocations = new List<long>();
 
-        public static void VisitLocation(long location) =>
-            Task.Factory.StartNew(() => {
-                    VisitLocationTask(location);
-                }
-            );
+        public static void VisitLocation(long location)
+        {
+            ThreadPool.QueueUserWorkItem((o) => VisitLocationTask(location));
+        }
 
         private static void VisitLocationTask(long location)
         {
