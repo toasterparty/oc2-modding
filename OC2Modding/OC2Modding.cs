@@ -52,6 +52,7 @@ namespace OC2Modding
             DisplayModsOnResultsScreen.Update();
             Cheats.Update();
             AutoCompleteLevel.Update();
+            ArchipelagoClient.Update();
         }
 
         private void OnGUI()

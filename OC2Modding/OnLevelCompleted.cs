@@ -12,6 +12,8 @@ namespace OC2Modding
 
         private static void RunCompletedLevelRoutines(int level_id)
         {
+            ArchipelagoClient.VisitLocation(level_id);
+
             if (OC2Config.OnLevelCompleted.ContainsKey(level_id))
             {
                 foreach (OC2Config.OnLevelCompletedEvent e in OC2Config.OnLevelCompleted[level_id])
