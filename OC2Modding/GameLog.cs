@@ -12,7 +12,18 @@ namespace OC2Modding
         private static Rect windowRect;
         private static Rect scrollRect;
         private static Rect textRect;
-        private static Rect buttonRect;
+        private static Rect hideShowbuttonRect;
+        private static Rect autoCompleteButtonRect;
+        private static string autoCompleteButtonText = "";
+        public enum AutoCompleteMode
+        {
+            AUTO_COMPLETE_DISABLED = 0,
+            AUTO_COMPLETE_ONE_STAR,
+            AUTO_COMPLETE_TWO_STAR,
+            AUTO_COMPLETE_THREE_STAR,
+            AUTO_COMPLETE_FOUR_STAR,
+        }
+        public static AutoCompleteMode autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_DISABLED;
         private static GUIStyle textStyle = new GUIStyle();
         private static string scrollText = "";
         private static bool isHidden = true;
@@ -53,9 +64,43 @@ namespace OC2Modding
                 GUI.EndScrollView();
             }
 
-            if (GUI.Button(buttonRect, isHidden ? "Show" : "Hide"))
+            if (GUI.Button(hideShowbuttonRect, isHidden ? "Show" : "Hide"))
             {
                 isHidden = isHidden ? false : true;
+                UpdateWindow();
+            }
+
+            if (!isHidden && GUI.Button(autoCompleteButtonRect, autoCompleteButtonText))
+            {
+                switch (autoCompleteMode)
+                {
+                    case AutoCompleteMode.AUTO_COMPLETE_DISABLED:
+                    {
+                        autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_ONE_STAR;
+                        break;
+                    }
+                    case AutoCompleteMode.AUTO_COMPLETE_ONE_STAR:
+                    {
+                        autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_TWO_STAR;
+                        break;
+                    }
+                    case AutoCompleteMode.AUTO_COMPLETE_TWO_STAR:
+                    {
+                        autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_THREE_STAR;
+                        break;
+                    }
+                    case AutoCompleteMode.AUTO_COMPLETE_THREE_STAR:
+                    {
+                        autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_DISABLED;
+                        break;
+                    }
+                    // case AutoCompleteMode.AUTO_COMPLETE_FOUR_STAR:
+                    // {
+                    //     autoCompleteButtonText = "Auto-Complete (4-Star)";
+                    //     break;
+                    // }
+                }
+
                 UpdateWindow();
             }
         }
@@ -135,7 +180,39 @@ namespace OC2Modding
             int buttonWidth = (int)((float)Screen.width*0.03f);
             int buttonHeight = (int)((float)Screen.height*0.03f);
 
-            buttonRect = new Rect((Screen.width / 2) + (width / 2) + (buttonWidth / 3), Screen.height*0.004f, buttonWidth, buttonHeight);
+            hideShowbuttonRect = new Rect((Screen.width / 2) + (width / 2) + (buttonWidth / 3), Screen.height*0.004f, buttonWidth, buttonHeight);
+
+            buttonWidth = (int)((float)Screen.width*0.12f);
+            buttonHeight = (int)((float)Screen.height*0.03f);
+            autoCompleteButtonRect = new Rect((Screen.width / 2) + (width / 2) + (buttonWidth / 2), Screen.height*0.010f, buttonWidth, buttonHeight);
+            switch (autoCompleteMode)
+            {
+                case AutoCompleteMode.AUTO_COMPLETE_DISABLED:
+                {
+                    autoCompleteButtonText = "Auto-Complete Disabled";
+                    break;
+                }
+                case AutoCompleteMode.AUTO_COMPLETE_ONE_STAR:
+                {
+                    autoCompleteButtonText = "Auto-Complete (1-Star)";
+                    break;
+                }
+                case AutoCompleteMode.AUTO_COMPLETE_TWO_STAR:
+                {
+                    autoCompleteButtonText = "Auto-Complete (2-Star)";
+                    break;
+                }
+                case AutoCompleteMode.AUTO_COMPLETE_THREE_STAR:
+                {
+                    autoCompleteButtonText = "Auto-Complete (3-Star)";
+                    break;
+                }
+                case AutoCompleteMode.AUTO_COMPLETE_FOUR_STAR:
+                {
+                    autoCompleteButtonText = "Auto-Complete (4-Star)";
+                    break;
+                }
+            }
         }
     }
 }

@@ -51,6 +51,7 @@ namespace OC2Modding
             DisplayFPS.Update();
             DisplayModsOnResultsScreen.Update();
             Cheats.Update();
+            AutoCompleteLevel.Update();
         }
 
         private void OnGUI()
