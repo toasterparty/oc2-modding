@@ -1,5 +1,5 @@
 */bin/*
 */obj/*
-dist/*.dll
 dist/curl/*
 dist/BepInEx*
+*/com.github.toasterparty.OC2Modding.dll
