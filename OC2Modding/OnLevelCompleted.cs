@@ -59,6 +59,17 @@ namespace OC2Modding
                             int count = Int32.Parse(e.payload);
                             OC2Config.StarOffset += count;
                         }
+                        else if (e.action == "INC_DASH")
+                        {
+                            if (OC2Config.DisableDash)
+                            {
+                                OC2Config.DisableDash = false;
+                            }
+                            else
+                            {
+                                OC2Config.WeakDash = false;
+                            }
+                        }
 
                         if (e.message != "")
                         {
