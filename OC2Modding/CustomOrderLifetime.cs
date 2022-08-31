@@ -1,4 +1,5 @@
 using HarmonyLib;
+using System.Collections.Generic;
 
 namespace OC2Modding
 {
@@ -9,10 +10,26 @@ namespace OC2Modding
             Harmony.CreateAndPatchAll(typeof(CustomOrderLifetime));
         }
 
+        private static int lastDlc = 0;
+        private static List<string> patchedLevels = new List<string>();
+
         [HarmonyPatch(typeof(GameSession), nameof(GameSession.GetGameModeServer))]
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         private static void GetGameModeServer(ref KitchenLevelConfigBase levelConfig)
         {
+            int currentDlc = OC2Helpers.GetCurrentDLCID();
+            if (lastDlc != currentDlc)
+            {
+                patchedLevels.Clear();
+            }
+            lastDlc = currentDlc;
+
+            if (patchedLevels.Contains(levelConfig.name))
+            {
+                return; // Only patch each level once per DLC
+            }
+            patchedLevels.Add(levelConfig.name);
+
             levelConfig.m_orderLifetime = OC2Config.CustomOrderLifetime;
 
             if (OC2Config.Custom66TimerScale != 1.0f && levelConfig.name.StartsWith("s_dynamic_stage_04"))
