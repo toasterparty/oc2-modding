@@ -91,7 +91,6 @@ namespace OC2Modding
                 return;
             }
 
-
             flowController.SkipToEnd();
         }
     }

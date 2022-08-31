@@ -242,6 +242,27 @@ namespace OC2Modding
             }
         }
 
+        [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), nameof(ClientPlayerControlsImpl_Default.Init))]
+        [HarmonyPostfix]
+        private static void Init(ref PlayerControls ___m_controls)
+        {
+            if (!OC2Config.WeakDash)
+            {
+                return;
+            }
+
+            var m_movement_prop = ___m_controls.GetType().GetField("m_movement", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            PlayerControls.MovementData m_movement = ((PlayerControls.MovementData)m_movement_prop.GetValue(___m_controls));
+            
+            float dashSpeedScale = 0.75f;
+            float dashCooldownScale = 1.5f;
+
+            m_movement.DashSpeed *= dashSpeedScale;
+            m_movement.DashCooldown *= dashCooldownScale;
+
+            m_movement_prop.SetValue(___m_controls, m_movement);
+        }
+
         [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), "DoDash")]
         [HarmonyPrefix]
         private static bool DoDash()

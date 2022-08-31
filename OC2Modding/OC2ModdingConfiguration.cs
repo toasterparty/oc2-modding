@@ -49,6 +49,7 @@ namespace OC2Modding
         public static bool PlatesStartDirty = false;
         public static int MaxTipCombo = 4;
         public static bool DisableDash = false;
+        public static bool WeakDash = false;
         public static bool DisableThrow = false;
         public static bool DisableCatch = false;
         public static bool DisableControlStick = false;
@@ -172,6 +173,7 @@ namespace OC2Modding
             data += $"\"PlatesStartDirty\":{PlatesStartDirty},";
             data += $"\"MaxTipCombo\":{MaxTipCombo},";
             data += $"\"DisableDash\":{DisableDash},";
+            data += $"\"WeakDash\":{WeakDash},";
             data += $"\"DisableThrow\":{DisableThrow},";
             data += $"\"DisableCatch\":{DisableCatch},";
             data += $"\"DisableControlStick\":{DisableControlStick},";
@@ -563,6 +565,7 @@ namespace OC2Modding
             try { if (config.HasKey("PlatesStartDirty"               )) PlatesStartDirty               = config["PlatesStartDirty"               ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'PlatesStartDirty'"               ); }
             try { if (config.HasKey("MaxTipCombo"                    )) MaxTipCombo                    = config["MaxTipCombo"                    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'MaxTipCombo'"                    ); }
             try { if (config.HasKey("DisableDash"                    )) DisableDash                    = config["DisableDash"                    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableDash'"                    ); }
+            try { if (config.HasKey("WeakDash"                       )) WeakDash                       = config["WeakDash"                       ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'WeakDash'"                       ); }
             try { if (config.HasKey("DisableThrow"                   )) DisableThrow                   = config["DisableThrow"                   ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableThrow'"                   ); }
             try { if (config.HasKey("DisableCatch"                   )) DisableCatch                   = config["DisableCatch"                   ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableCatch'"                   ); }
             try { if (config.HasKey("DisableControlStick"            )) DisableControlStick            = config["DisableControlStick"            ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableControlStick'"            ); }
