@@ -75,9 +75,13 @@ namespace OC2Modding
             BonusStar = 36,
         };
 
+        private static int AllItemsReceivedCount = 0;
         public static void Update()
         {
-
+            if (IsConnected && AllItemsReceivedCount != session.Items.AllItemsReceived.Count)
+            {
+                UpdateInventory();
+            }
         }
 
         private static Version CreateVersion()
@@ -184,6 +188,7 @@ namespace OC2Modding
             if (IsConnected)
             {
                 UpdateLocations();
+                UpdateInventory();
             }
 
             IsConnecting = false;
@@ -310,17 +315,21 @@ namespace OC2Modding
 
         private static void OnItemReceived(ReceivedItemsHelper receivedItemsHelper)
         {
-            NetworkItem item = receivedItemsHelper.DequeueItem();
+            UpdateInventory();
+        }
 
-            if (!IsMe(item.Player))
+        private static void UpdateInventory()
+        {
+            var items = session.Items.AllItemsReceived;
+            AllItemsReceivedCount = items.Count;
+            foreach (NetworkItem item in session.Items.AllItemsReceived)
             {
-                return;
+                long itemId = item.Item;
+                itemId -= 59812623889202; // "oc2" in ascii
+                GiveItem((int)itemId);
             }
 
-            long itemId = item.Item;
-            itemId -= 59812623889202; // "oc2" in ascii
-
-            GiveItem((int)itemId);
+            OC2Config.FlushConfig();
         }
 
         private static void GiveItem(int id)
@@ -524,8 +533,6 @@ namespace OC2Modding
                         break;
                     }
             }
-
-            OC2Config.FlushConfig();
         }
 
         private static void UnlockLevel(int id)
