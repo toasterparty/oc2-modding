@@ -28,7 +28,7 @@ namespace OC2Modding
         private static string scrollText = "";
         private static bool isHidden = true;
         private static float lastUpdateTime = Time.time;
-        private const int MAX_LOG_LINES = 35;
+        private const int MAX_LOG_LINES = 40;
         private const float HIDDEN_TIMEOUT_S = 15f;
 
         static string serverUrl = "archipelago.gg";
@@ -184,7 +184,7 @@ namespace OC2Modding
             }
             else
             {
-                height = (int)((float)Screen.height*0.2f);
+                height = (int)((float)Screen.height*0.4f);
                 scrollDepth = height*10;
             }
 
@@ -200,7 +200,7 @@ namespace OC2Modding
             }
             else
             {
-                textStyle.fontSize = (int)((float)Screen.height * 0.02f);
+                textStyle.fontSize = (int)((float)Screen.height * 0.0185f);
             }
             textStyle.normal.textColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
             textStyle.wordWrap = !isHidden;
