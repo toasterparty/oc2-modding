@@ -92,7 +92,8 @@ namespace OC2Modding
                 return;
             }
 
-            var result = Connect("localhost", "toasterparty");
+            var result = Connect("ws://192.168.0.108:38281", "toasterparty");
+
             LastUpdateCheckTime = Time.time;
             if (!result.Successful)
             {
@@ -139,12 +140,8 @@ namespace OC2Modding
 
             try
             {
-                session = ArchipelagoSessionFactory.CreateSession(new Uri(serverUrl));
-                session.MessageLog.OnMessageReceived += OnMessageReceived;
-                session.Items.ItemReceived += (receivedItemsHelper) =>
-                {
-                    OnItemReceived(receivedItemsHelper);
-                };
+                var uri = new Uri(server);
+                session = ArchipelagoSessionFactory.CreateSession(uri);
 
                 var result = session.TryConnectAndLogin(
                     "Overcooked! 2",
@@ -155,6 +152,12 @@ namespace OC2Modding
                     uuid: null,
                     password: password
                 );
+
+                session.MessageLog.OnMessageReceived += OnMessageReceived;
+                session.Items.ItemReceived += (receivedItemsHelper) =>
+                {
+                    OnItemReceived(receivedItemsHelper);
+                };
 
                 IsConnected = result.Successful;
                 cachedConnectionResult = result;
@@ -205,24 +208,34 @@ namespace OC2Modding
 
         public static void VisitLocation(long location)
         {
+            if (location < 1 || location > 44)
+            {
+                return; // Don't care about this level
+            }
+
+            if (VisitedLocations.Contains(location))
+            {
+                return; // It's already been sent
+            }
+
             ThreadPool.QueueUserWorkItem((o) => VisitLocationTask(location));
         }
 
         private static void VisitLocationTask(long location)
         {
-            if (!VisitedLocations.Contains(location))
-            {
-                return;
-            }
-
             VisitedLocations.Add(location);
+            OC2Modding.Log.LogInfo($"Adding Collected Location: {location}...");
+            
             UpdateLocations();
         }
 
         private static void UpdateLocations()
         {
+            OC2Modding.Log.LogInfo($"Syncing Collected Locations with remote...");
+
             ReconnectIfNeeded();
             session.Locations.CompleteLocationChecks(VisitedLocations.ToArray());
+            // session.Locations.ScoutLocationsAsync(VisitedLocations.ToArray());
         }
 
         static void ReconnectIfNeeded()
@@ -255,6 +268,8 @@ namespace OC2Modding
 
         private static void GiveItem(int id)
         {
+            OC2Modding.Log.LogInfo($"Received Item {id}");
+
             Oc2Item item = (Oc2Item)id;
             switch (item)
             {

@@ -12,8 +12,6 @@ namespace OC2Modding
 
         private static void RunCompletedLevelRoutines(int level_id)
         {
-            ArchipelagoClient.VisitLocation(level_id);
-
             if (OC2Config.OnLevelCompleted.ContainsKey(level_id))
             {
                 foreach (OC2Config.OnLevelCompletedEvent e in OC2Config.OnLevelCompleted[level_id])
@@ -101,6 +99,8 @@ namespace OC2Modding
             {
                 return; // 0 stars
             }
+
+            ArchipelagoClient.VisitLocation(_levelIndex);
 
             GameProgress.GameProgressData.LevelProgress levelProgress = _saveData.GetLevelProgress(_levelIndex);
             bool first_completion = levelProgress == null || levelProgress.LevelId == -1;

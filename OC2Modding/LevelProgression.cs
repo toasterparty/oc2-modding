@@ -12,16 +12,31 @@ namespace OC2Modding
 
         public static bool IsLevelCompleted(int levelId)
         {
-            return GameUtils.GetGameSession().Progress.SaveData.GetLevelProgress(levelId).ScoreStars > 0;
+            bool result = GameUtils.GetGameSession().Progress.SaveData.GetLevelProgress(levelId).ScoreStars > 0;
+            if (result && OC2Helpers.GetCurrentDLCID() == -1)
+            {
+                ArchipelagoClient.VisitLocation(levelId);
+            }
+            return result;
         }
 
         [HarmonyPatch(typeof(SaveSlotElement), nameof(SaveSlotElement.ServerLoadCampaign))]
         [HarmonyPrefix]
-        private static void ServerLoadCampaign()
+        private static void ServerLoadCampaign(ref GameSession session)
         {
             if (OC2Config.SkipTutorial)
             {
                 GameUtils.GetDebugConfig().m_skipTutorial = true;
+            }
+            
+            var Levels = session.Progress.SaveData.Levels;
+
+            for (int levelId = 0; levelId < Levels.Length; levelId++)
+            {
+                if (Levels[levelId].Completed)
+                {
+                    ArchipelagoClient.VisitLocation(levelId);
+                }
             }
         }
 
@@ -60,6 +75,11 @@ namespace OC2Modding
                 {
                     __result.Completed = true;
                     __result.ObjectivesCompleted = true;
+                }
+
+                if (__result.Completed)
+                {
+                    ArchipelagoClient.VisitLocation(_id);
                 }
             }
         }
