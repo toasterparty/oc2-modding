@@ -5,7 +5,7 @@ using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.Models;
-using UnityEngine;
+using Archipelago.MultiClient.Net.Packets;
 
 namespace OC2Modding
 {
@@ -156,6 +156,12 @@ namespace OC2Modding
                 var uri = new Uri(serverUrl);
                 session = ArchipelagoSessionFactory.CreateSession(uri);
 
+                session.Socket.PacketReceived += OnPacketReceived;
+                session.Items.ItemReceived += (receivedItemsHelper) =>
+                {
+                    OnItemReceived(receivedItemsHelper);
+                };
+
                 var result = session.TryConnectAndLogin(
                     "Overcooked! 2",
                     userName,
@@ -165,12 +171,6 @@ namespace OC2Modding
                     uuid: null,
                     password: password
                 );
-
-                session.MessageLog.OnMessageReceived += OnMessageReceived;
-                session.Items.ItemReceived += (receivedItemsHelper) =>
-                {
-                    OnItemReceived(receivedItemsHelper);
-                };
 
                 IsConnected = result.Successful;
                 cachedConnectionResult = result;
@@ -263,9 +263,49 @@ namespace OC2Modding
             ConnectionAttempt(serverUrl, userName, password, session.ConnectionInfo.Uuid);
         }
 
-        private static void OnMessageReceived(LogMessage message)
+        public static void OnPacketReceived(ArchipelagoPacketBase packet)
         {
-            GameLog.LogMessage(message.ToString());
+            switch (packet.PacketType)
+            {
+                case ArchipelagoPacketType.Print:
+                    {
+                        var p = packet as PrintPacket;
+                        GameLog.LogMessage(p.Text);
+                        break;
+                    }
+                case ArchipelagoPacketType.PrintJSON:
+                    {
+                        var p = packet as PrintJsonPacket;
+                        string text = "";
+                        foreach (var messagePart in p.Data)
+                        {
+                            switch (messagePart.Type)
+                            {
+                                case JsonMessagePartType.PlayerId:
+                                    text += int.TryParse(messagePart.Text, out var PlayerSlot)
+                                        ? session.Players.GetPlayerAlias(PlayerSlot) ?? $"Slot: {PlayerSlot}"
+                                        : messagePart.Text;
+                                    break;
+                                case JsonMessagePartType.ItemId:
+                                    text += int.TryParse(messagePart.Text, out var itemID)
+                                        ? session.Items.GetItemName(itemID) ?? $"Item: {itemID}" : messagePart.Text;
+                                    break;
+                                case JsonMessagePartType.LocationId:
+                                    text += int.TryParse(messagePart.Text, out var locationID)
+                                        ? session.Locations.GetLocationNameFromId(locationID) ?? $"Location: {locationID}"
+                                        : messagePart.Text;
+                                    break;
+                                default:
+                                    text +=  messagePart.Text;
+                                    break;
+                            }
+                        }
+
+                        GameLog.LogMessage(text);
+                    }
+
+                    break;
+            }
         }
 
         private static void OnItemReceived(ReceivedItemsHelper receivedItemsHelper)
