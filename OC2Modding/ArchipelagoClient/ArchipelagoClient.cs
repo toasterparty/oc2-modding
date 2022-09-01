@@ -13,13 +13,14 @@ namespace OC2Modding
     {
         private static ArchipelagoSession session = null;
 
-        static string serverUrl = "";
+        static string serverUrl = "archipelago.gg";
         static string userName = "";
         static string password = "";
 
         static LoginResult cachedConnectionResult;
 
-        public static bool IsConnected;
+        public static bool IsConnected = false;
+        public static bool IsConnecting = false;
 
         public static Permissions ForfeitPermissions => session.RoomState.ForfeitPermissions;
         public static Permissions CollectPermissions => session.RoomState.CollectPermissions;
@@ -74,43 +75,9 @@ namespace OC2Modding
             BonusStar = 36,
         };
 
-        private static float LastUpdateCheckTime = Time.time;
-
         public static void Update()
         {
-            if (Time.time - LastUpdateCheckTime > 5)
-            {
-                LastUpdateCheckTime = Time.time;
-                ThreadPool.QueueUserWorkItem((o) => ConnectionAttempt());
-            }
-        }
 
-        private static void ConnectionAttempt()
-        {
-            if (IsConnected)
-            {
-                return;
-            }
-
-            var result = Connect("ws://192.168.0.108:38281", "toasterparty");
-
-            LastUpdateCheckTime = Time.time;
-            if (!result.Successful)
-            {
-                LoginFailure failure = (LoginFailure)result;
-                OC2Modding.Log.LogWarning("Failed to Connect to the Archipelago Server");
-                foreach (string error in failure.Errors)
-                {
-                    OC2Modding.Log.LogWarning($"\t{error}");
-                }
-                foreach (ConnectionRefusedError error in failure.ErrorCodes)
-                {
-                    OC2Modding.Log.LogWarning($"\t{error}");
-                }
-                return;
-            }
-
-            OC2Modding.Log.LogInfo("Successfully Connected to Archipelago Server");
         }
 
         private static Version CreateVersion()
@@ -124,7 +91,39 @@ namespace OC2Modding
 
         private static Version Version = CreateVersion();
 
-        public static LoginResult Connect(string server, string user, string pass = null, string connectionId = null)
+        public static void Connect(string server, string user, string pass)
+        {
+            if (IsConnected)
+            {
+                return;
+            }
+
+            ThreadPool.QueueUserWorkItem((o) => ConnectTask(server, user, pass));
+        }
+
+        private static void ConnectTask(string server, string user, string pass)
+        {
+            var result = ConnectionAttempt(server, user, pass);
+            if (!result.Successful)
+            {
+                LoginFailure failure = (LoginFailure)result;
+                string errorMessage = "Failed to Connect to the Archipelago Server";
+                foreach (string error in failure.Errors)
+                {
+                    errorMessage += $"\n    {error}";
+                }
+                foreach (ConnectionRefusedError error in failure.ErrorCodes)
+                {
+                    errorMessage += $"\n    {error}";
+                }
+                GameLog.LogMessage(errorMessage);
+                return;
+            }
+
+            GameLog.LogMessage("Successfully Connected to Archipelago Server");
+        }
+
+        private static LoginResult ConnectionAttempt(string server, string user, string pass = null, string connectionId = null)
         {
             if (IsConnected && session.Socket.Connected && cachedConnectionResult != null)
             {
@@ -134,13 +133,27 @@ namespace OC2Modding
                 Disconnect();
             }
 
-            serverUrl = server;
-            userName = user;
-            password = pass;
+            while (IsConnecting)
+            {
+                // This is bad programming, but our GUI flow should never let us get here, so it's good system redundancy design :)
+                Thread.Sleep(100);
+            }
+
+            IsConnecting = true;
 
             try
-            {
-                var uri = new Uri(server);
+            {                
+                // Derrive the full uri without breaking it
+                serverUrl = server.Replace("ws://", "");
+                serverUrl = "ws://" + serverUrl;
+                serverUrl = serverUrl.Replace(":38281", "");
+                serverUrl += ":38281";
+                serverUrl = serverUrl.Replace(" ", "");
+
+                userName = user;
+                password = pass;
+
+                var uri = new Uri(serverUrl);
                 session = ArchipelagoSessionFactory.CreateSession(uri);
 
                 var result = session.TryConnectAndLogin(
@@ -172,6 +185,8 @@ namespace OC2Modding
             {
                 UpdateLocations();
             }
+
+            IsConnecting = false;
 
             return cachedConnectionResult;
         }
@@ -218,6 +233,8 @@ namespace OC2Modding
                 return; // It's already been sent
             }
 
+            // TODO: check hash of last location array that was sent
+
             ThreadPool.QueueUserWorkItem((o) => VisitLocationTask(location));
         }
 
@@ -243,7 +260,7 @@ namespace OC2Modding
             if (IsConnected && session.Socket.Connected)
                 return;
 
-            Connect(serverUrl, userName, password, session.ConnectionInfo.Uuid);
+            ConnectionAttempt(serverUrl, userName, password, session.ConnectionInfo.Uuid);
         }
 
         private static void OnMessageReceived(LogMessage message)

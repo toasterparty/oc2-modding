@@ -31,6 +31,10 @@ namespace OC2Modding
         private const int MAX_LOG_LINES = 35;
         private const float HIDDEN_TIMEOUT_S = 15f;
 
+        static string serverUrl = "archipelago.gg";
+        static string userName = "";
+        static string password = "";
+
         public static void Awake()
         {
             UpdateWindow();
@@ -102,6 +106,41 @@ namespace OC2Modding
                 }
 
                 UpdateWindow();
+            }
+
+            
+            if (!isHidden)
+            {
+                if (ArchipelagoClient.IsConnected)
+                {
+                    GUI.Label(new Rect(16, 16, 300, 20), "Archipelago v0.3.4 Status: Connected");
+                }
+                else
+                {
+                    GUI.Label(new Rect(16, 16, 300, 20), "Archipelago v0.3.4 Status: Not Connected");
+                    GUI.Label(new Rect(16, 36, 150, 20), "Host: ");
+                    GUI.Label(new Rect(16, 56, 150, 20), "Player Name: ");
+                    GUI.Label(new Rect(16, 76, 150, 20), "Password: ");
+
+                    serverUrl =
+                        GUI.TextField(new Rect(150 + 16 + 8, 36, 150, 20), serverUrl);
+                    userName =
+                        GUI.TextField(new Rect(150 + 16 + 8, 56, 150, 20), userName);
+                    password =
+                        GUI.TextField(new Rect(150 + 16 + 8, 76, 150, 20), password);
+
+                    if (!ArchipelagoClient.IsConnecting)
+                    {
+                        if (GUI.Button(new Rect(16, 96, 100, 20), "Connect"))
+                        {
+                            ArchipelagoClient.Connect(serverUrl, userName, password);
+                        }
+                    }
+                    else
+                    {
+                        GUI.Label(new Rect(16, 96, 100, 20), "Connecting...");
+                    }
+                }
             }
         }
 
