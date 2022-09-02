@@ -272,47 +272,55 @@ namespace OC2Modding
 
         public static void OnPacketReceived(ArchipelagoPacketBase packet)
         {
+            string text = "";
             switch (packet.PacketType)
             {
                 case ArchipelagoPacketType.Print:
                     {
                         var p = packet as PrintPacket;
-                        GameLog.LogMessage(p.Text);
+                        text = p.Text;
                         break;
                     }
                 case ArchipelagoPacketType.PrintJSON:
                     {
                         var p = packet as PrintJsonPacket;
-                        string text = "";
                         foreach (var messagePart in p.Data)
                         {
                             switch (messagePart.Type)
                             {
                                 case JsonMessagePartType.PlayerId:
-                                    text += int.TryParse(messagePart.Text, out var PlayerSlot)
-                                        ? session.Players.GetPlayerAlias(PlayerSlot) ?? $"Slot: {PlayerSlot}"
-                                        : messagePart.Text;
-                                    break;
+                                    {
+                                        text += Int32.TryParse(messagePart.Text, out var PlayerSlot)
+                                            ? session.Players.GetPlayerAlias(PlayerSlot) ?? $"Slot: {PlayerSlot}"
+                                            : messagePart.Text;
+                                        break;
+                                    }
                                 case JsonMessagePartType.ItemId:
-                                    text += int.TryParse(messagePart.Text, out var itemID)
-                                        ? session.Items.GetItemName(itemID) ?? $"Item: {itemID}" : messagePart.Text;
-                                    break;
+                                    {
+                                        text += Int64.TryParse(messagePart.Text, out var itemID)
+                                            ? session.Items.GetItemName(itemID) ?? $"Item: {itemID}" : messagePart.Text;
+                                        break;
+                                    }
                                 case JsonMessagePartType.LocationId:
-                                    text += int.TryParse(messagePart.Text, out var locationID)
-                                        ? session.Locations.GetLocationNameFromId(locationID) ?? $"Location: {locationID}"
-                                        : messagePart.Text;
-                                    break;
+                                    {
+                                        text += Int64.TryParse(messagePart.Text, out var locationID)
+                                            ? session.Locations.GetLocationNameFromId(locationID) ?? $"Location: {locationID}"
+                                            : messagePart.Text;
+                                        break;
+                                    }
                                 default:
-                                    text +=  messagePart.Text;
-                                    break;
+                                    {
+                                        text += messagePart.Text;
+                                        break;
+                                    }
                             }
                         }
 
-                        GameLog.LogMessage(text);
+                        break;
                     }
-
-                    break;
             }
+
+            GameLog.LogMessage(text);
         }
 
         private static void OnItemReceived(ReceivedItemsHelper receivedItemsHelper)

@@ -44,6 +44,11 @@ namespace OC2Modding
 
         public static void LogMessage(string logText)
         {
+            if (logText == "")
+            {
+                return;
+            }
+
             if (logLines.Count == MAX_LOG_LINES)
             {
                 logLines.RemoveAt(0);
