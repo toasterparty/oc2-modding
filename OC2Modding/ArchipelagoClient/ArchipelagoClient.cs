@@ -149,9 +149,11 @@ namespace OC2Modding
             {                
                 // Derrive the full uri without breaking it
                 serverUrl = server.Replace("ws://", "");
+                if (!serverUrl.Contains(":"))
+                {
+                    serverUrl += ":38281"; // default port
+                }
                 serverUrl = "ws://" + serverUrl;
-                serverUrl = serverUrl.Replace(":38281", "");
-                serverUrl += ":38281";
                 serverUrl = serverUrl.Replace(" ", "");
 
                 userName = user;
