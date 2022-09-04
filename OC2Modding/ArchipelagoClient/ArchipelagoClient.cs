@@ -75,6 +75,7 @@ namespace OC2Modding
             BonusStar = 36,
         };
 
+        private static int LastVisitedLocationsCount = 0;
         private static int AllItemsReceivedCount = 0;
         public static void Update()
         {
@@ -95,6 +96,18 @@ namespace OC2Modding
                 }
 
                 OC2Config.FlushConfig();
+            }
+
+            if (PendingLocationUpdate)
+            {
+                PendingLocationUpdate = false;
+
+                int count = VisitedLocations.Count;
+                if (count != LastVisitedLocationsCount)
+                {
+                    LastVisitedLocationsCount = count;
+                    ThreadPool.QueueUserWorkItem((o) => UpdateLocationsTask());
+                }
             }
         }
 
@@ -254,26 +267,23 @@ namespace OC2Modding
                 return; // It's already been sent
             }
 
-            // TODO: check hash of last location array that was sent
-
-            ThreadPool.QueueUserWorkItem((o) => VisitLocationTask(location));
-        }
-
-        private static void VisitLocationTask(long location)
-        {
-            VisitedLocations.Add(location);
             OC2Modding.Log.LogInfo($"Adding Collected Location: {location}...");
-            
+            VisitedLocations.Add(location);
             UpdateLocations();
         }
 
-        private static void UpdateLocations()
+        private static void UpdateLocationsTask()
         {
             OC2Modding.Log.LogInfo($"Syncing Collected Locations with remote...");
-
             ReconnectIfNeeded();
             session.Locations.CompleteLocationChecks(VisitedLocations.ToArray());
-            // session.Locations.ScoutLocationsAsync(VisitedLocations.ToArray());
+        }
+
+        private static bool PendingLocationUpdate = false;
+
+        private static void UpdateLocations()
+        {
+            PendingLocationUpdate = true;
         }
 
         static void ReconnectIfNeeded()
