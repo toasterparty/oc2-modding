@@ -1,5 +1,6 @@
 using HarmonyLib;
 using UnityEngine;
+using System.Reflection;
 
 namespace OC2Modding
 {
@@ -9,6 +10,9 @@ namespace OC2Modding
 
         public static bool Unlocked = false;
         private static bool ReachedTitleScreen = false;
+
+        private static StartScreenFlow instance = null;
+        private static GamepadUser gamepadUser = null;
 
         private static string serverUrl = "archipelago.gg";
         private static string userName = "";
@@ -27,6 +31,14 @@ namespace OC2Modding
         {
             if (Unlocked)
             {
+                if (instance != null)
+                {
+                    MethodInfo dynMethod = instance.GetType().GetMethod("OnEngagementFinished", BindingFlags.NonPublic | BindingFlags.Instance);
+                    dynMethod.Invoke(instance, new object[] { gamepadUser });
+                    instance = null;
+                    gamepadUser = null;
+                }
+
                 return;
             }
 
@@ -76,7 +88,7 @@ namespace OC2Modding
                 GUI.Box(ScreenRect, ""); // Darken Screen
             }
             else
-            {                
+            {
                 GUI.Box(bgRect, "");
             }
 
@@ -114,9 +126,9 @@ namespace OC2Modding
             }
         }
 
-        [HarmonyPatch(typeof(StartScreenFlow), "Update")]
+        [HarmonyPatch(typeof(StartScreenFlow), "OnEngagementFinished")]
         [HarmonyPrefix]
-        private static bool StartScreenFlow_Update(ref StartScreenFlow __instance)
+        private static bool OnEngagementFinished(ref StartScreenFlow __instance, ref GamepadUser _param1)
         {
             if (Unlocked)
             {
@@ -127,10 +139,11 @@ namespace OC2Modding
             {
                 GameLog.LogMessage("Please either sign in to the Archipelago Multiworld Server or Continue Without Archipelago");
                 ReachedTitleScreen = true;
+                instance = __instance;
+                gamepadUser = _param1;
             }
+
             return false;
         }
-
-
     }
 }
