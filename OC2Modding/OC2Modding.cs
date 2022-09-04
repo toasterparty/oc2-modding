@@ -38,8 +38,9 @@ namespace OC2Modding
             CustomLevelOrder.Awake();
             IngredientCrates.Awake();
             Nerfs.Awake();
-            GameLog.Awake();
             OnLevelCompleted.Awake();
+            GameLog.Awake();
+            ArchipelagoLoginGUI.Awake();
 
             DisplayModsOnResultsScreen.Awake();
         }
@@ -53,6 +54,7 @@ namespace OC2Modding
             Cheats.Update();
             AutoCompleteLevel.Update();
             ArchipelagoClient.Update();
+            ArchipelagoLoginGUI.Update();
         }
 
         private void OnGUI()
@@ -61,6 +63,7 @@ namespace OC2Modding
             DisplayFPS.OnGUI();
             DisplayModsOnResultsScreen.OnGUI();
             GameLog.OnGUI();
+            ArchipelagoLoginGUI.OnGUI();
         }
     }
 }

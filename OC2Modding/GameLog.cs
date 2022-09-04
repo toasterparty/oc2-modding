@@ -7,6 +7,8 @@ namespace OC2Modding
 {
     public static class GameLog
     {
+        public static bool isHidden = true;
+
         private static List<string> logLines = new List<string>();
         private static Vector2 scrollViewVector;
         private static Rect windowRect;
@@ -26,14 +28,9 @@ namespace OC2Modding
         public static AutoCompleteMode autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_DISABLED;
         private static GUIStyle textStyle = new GUIStyle();
         private static string scrollText = "";
-        private static bool isHidden = true;
         private static float lastUpdateTime = Time.time;
         private const int MAX_LOG_LINES = 40;
         private const float HIDDEN_TIMEOUT_S = 15f;
-
-        static string serverUrl = "archipelago.gg";
-        static string userName = "";
-        static string password = "";
 
         public static void Awake()
         {
@@ -68,6 +65,7 @@ namespace OC2Modding
             if (!isHidden || Time.time - lastUpdateTime < HIDDEN_TIMEOUT_S)
             {
                 scrollViewVector = GUI.BeginScrollView(windowRect, scrollViewVector, scrollRect);
+                GUI.Box(textRect, "");
                 GUI.Box(textRect, "");
                 GUI.Box(textRect, scrollText, textStyle);
                 GUI.EndScrollView();
@@ -112,44 +110,9 @@ namespace OC2Modding
 
                 UpdateWindow();
             }
-
-            
-            if (!isHidden)
-            {
-                if (ArchipelagoClient.IsConnected)
-                {
-                    GUI.Label(new Rect(16, 16, 300, 20), "Archipelago v0.3.4 Status: Connected");
-                }
-                else
-                {
-                    GUI.Label(new Rect(16, 16, 300, 20), "Archipelago v0.3.4 Status: Not Connected");
-                    GUI.Label(new Rect(16, 36, 150, 20), "Host: ");
-                    GUI.Label(new Rect(16, 56, 150, 20), "Player Name: ");
-                    GUI.Label(new Rect(16, 76, 150, 20), "Password: ");
-
-                    serverUrl =
-                        GUI.TextField(new Rect(150 + 16 + 8, 36, 150, 20), serverUrl);
-                    userName =
-                        GUI.TextField(new Rect(150 + 16 + 8, 56, 150, 20), userName);
-                    password =
-                        GUI.TextField(new Rect(150 + 16 + 8, 76, 150, 20), password);
-
-                    if (!ArchipelagoClient.IsConnecting)
-                    {
-                        if (GUI.Button(new Rect(16, 96, 100, 20), "Connect"))
-                        {
-                            ArchipelagoClient.Connect(serverUrl, userName, password);
-                        }
-                    }
-                    else
-                    {
-                        GUI.Label(new Rect(16, 96, 100, 20), "Connecting...");
-                    }
-                }
-            }
         }
 
-        private static void UpdateWindow()
+        public static void UpdateWindow()
         {
             if (!isHidden)
             {
@@ -189,7 +152,7 @@ namespace OC2Modding
             }
             else
             {
-                height = (int)((float)Screen.height*0.4f);
+                height = (int)((float)Screen.height*0.3f);
                 scrollDepth = height*10;
             }
 
@@ -221,7 +184,7 @@ namespace OC2Modding
                 textStyle.padding = new RectOffset(xPadding, xPadding, yPadding, yPadding);
             }
 
-            int buttonWidth = (int)((float)Screen.width*0.03f);
+            int buttonWidth = (int)((float)Screen.width*0.035f);
             int buttonHeight = (int)((float)Screen.height*0.03f);
 
             hideShowbuttonRect = new Rect((Screen.width / 2) + (width / 2) + (buttonWidth / 3), Screen.height*0.004f, buttonWidth, buttonHeight);
