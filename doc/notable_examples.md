@@ -23,3 +23,7 @@ Normally when patching, you only have access to public class data. Reflecting ca
 ## [Patch Method With Overloads](https://github.com/toasterparty/oc2-modding/blob/7d284ff5db821f27cd5ee3e0868e744629405539/OC2Modding/Nerfs.cs#L269)
 
 You can specify the argument types to hint at which method you want patched when multiple share the same name.
+
+## [Invoke Private Method](https://github.com/toasterparty/oc2-modding/blob/9eb4eab953be71ab5da4f2e17ecda37a136c26af/OC2Modding/ArchipelagoClient/ArchipelagoLoginGUI.cs#L36..L37)
+
+Since we are patching classes from outside their original scope, private/protected methods which are designed to be useful within a class are not accessible by default. Some reflection handwaving can be used to get around this.
