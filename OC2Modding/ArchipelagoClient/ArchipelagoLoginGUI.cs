@@ -110,9 +110,9 @@ namespace OC2Modding
 
             if (!ContinueWithoutArchipelago && GUI.Button(new Rect(145, 110, 195, 30), "Continue Without Archipelago"))
             {
-                ContinueWithoutArchipelago = true;
+                ContinueWithoutArchipelago = true;               
                 GameLog.isHidden = true;
-                GameLog.UpdateWindow();
+                GameLog.LogMessage("Continuing without Archipelago support...");
             }
         }
 
