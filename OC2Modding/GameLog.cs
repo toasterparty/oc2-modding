@@ -65,7 +65,10 @@ namespace OC2Modding
             if (!isHidden || Time.time - lastUpdateTime < HIDDEN_TIMEOUT_S)
             {
                 scrollViewVector = GUI.BeginScrollView(windowRect, scrollViewVector, scrollRect);
-                GUI.Box(textRect, "");
+                if (ArchipelagoLoginGUI.Unlocked)
+                {
+                    GUI.Box(textRect, "");
+                }
                 GUI.Box(textRect, "");
                 GUI.Box(textRect, scrollText, textStyle);
                 GUI.EndScrollView();

@@ -7,7 +7,7 @@ namespace OC2Modding
     {
         public static bool ContinueWithoutArchipelago = false;
 
-        private static bool Unlocked = false;
+        public static bool Unlocked = false;
         private static bool ReachedTitleScreen = false;
 
         private static string serverUrl = "archipelago.gg";
@@ -16,6 +16,7 @@ namespace OC2Modding
 
         private static Rect bgRect = new Rect(5, 5, 350, 143);
         private static Rect bgRectMini = new Rect(5, 5, 250, 45);
+        private static Rect ScreenRect = new Rect(0, 0, Screen.width, Screen.height);
 
         public static void Awake()
         {
@@ -24,7 +25,18 @@ namespace OC2Modding
 
         public static void Update()
         {
-            if (ArchipelagoClient.IsConnected || ContinueWithoutArchipelago)
+            if (Unlocked)
+            {
+                return;
+            }
+
+            if (ArchipelagoClient.IsConnected)
+            {
+                // TODO: One-time archipelago setup could be done here
+                //       It could also be part of the async connect task
+                Unlocked = true;
+            }
+            else if (ContinueWithoutArchipelago)
             {
                 Unlocked = true;
             }
@@ -59,7 +71,15 @@ namespace OC2Modding
                 return;
             }
 
-            GUI.Box(bgRect, "");
+            if (!Unlocked)
+            {
+                GUI.Box(ScreenRect, ""); // Darken Screen
+            }
+            else
+            {                
+                GUI.Box(bgRect, "");
+            }
+
             GUI.Box(bgRect, "");
 
             GUI.Label(new Rect(16, 16, 300, 20), "Archipelago Status: Not Connected");
@@ -105,10 +125,12 @@ namespace OC2Modding
 
             if (!ReachedTitleScreen)
             {
-                GameLog.LogMessage("Please either sign in to the Archipelago Multiworld Server, or Continue Without Archipelago");
+                GameLog.LogMessage("Please either sign in to the Archipelago Multiworld Server or Continue Without Archipelago");
                 ReachedTitleScreen = true;
             }
             return false;
         }
+
+
     }
 }
