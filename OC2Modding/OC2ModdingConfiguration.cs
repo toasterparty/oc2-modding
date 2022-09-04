@@ -528,6 +528,8 @@ namespace OC2Modding
             {
                 OC2Modding.Log.LogError($"Failed to parse json from {filename}");
             }
+
+            ArchipelagoClient.UpdateInventory();
         }
 
         public static void UpdateConfig(string text)

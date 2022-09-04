@@ -78,9 +78,23 @@ namespace OC2Modding
         private static int AllItemsReceivedCount = 0;
         public static void Update()
         {
-            if (IsConnected && AllItemsReceivedCount != session.Items.AllItemsReceived.Count)
+            if (!IsConnected)
             {
-                UpdateInventory();
+                return;
+            }
+
+            if (AllItemsReceivedCount != session.Items.AllItemsReceived.Count)
+            {
+                var items = session.Items.AllItemsReceived;
+                AllItemsReceivedCount = items.Count;
+                foreach (NetworkItem item in session.Items.AllItemsReceived)
+                {
+                    long itemId = item.Item;
+                    itemId -= 59812623889202; // "oc2" in ascii
+                    GiveItem((int)itemId);
+                }
+
+                OC2Config.FlushConfig();
             }
         }
 
@@ -328,18 +342,9 @@ namespace OC2Modding
             UpdateInventory();
         }
 
-        private static void UpdateInventory()
+        public static void UpdateInventory()
         {
-            var items = session.Items.AllItemsReceived;
-            AllItemsReceivedCount = items.Count;
-            foreach (NetworkItem item in session.Items.AllItemsReceived)
-            {
-                long itemId = item.Item;
-                itemId -= 59812623889202; // "oc2" in ascii
-                GiveItem((int)itemId);
-            }
-
-            OC2Config.FlushConfig();
+            AllItemsReceivedCount = 0; // clear "cache"
         }
 
         private static void GiveItem(int id)
