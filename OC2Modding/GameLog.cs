@@ -117,11 +117,6 @@ namespace OC2Modding
 
         public static void UpdateWindow()
         {
-            if (!isHidden)
-            {
-                lastUpdateTime = 0;
-            }
-
             scrollText = "";
 
             if (isHidden)

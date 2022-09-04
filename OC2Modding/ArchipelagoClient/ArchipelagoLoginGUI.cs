@@ -29,26 +29,7 @@ namespace OC2Modding
 
         public static void Update()
         {
-            if (Unlocked)
-            {
-                if (instance != null)
-                {
-                    MethodInfo dynMethod = instance.GetType().GetMethod("OnEngagementFinished", BindingFlags.NonPublic | BindingFlags.Instance);
-                    dynMethod.Invoke(instance, new object[] { gamepadUser });
-                    instance = null;
-                    gamepadUser = null;
-                }
-
-                return;
-            }
-
-            if (ArchipelagoClient.IsConnected)
-            {
-                // TODO: One-time archipelago setup could be done here
-                //       It could also be part of the async connect task
-                Unlocked = true;
-            }
-            else if (ContinueWithoutArchipelago)
+            if (ArchipelagoClient.IsConnected || ContinueWithoutArchipelago)
             {
                 Unlocked = true;
             }
@@ -56,6 +37,15 @@ namespace OC2Modding
             if (!Unlocked && ReachedTitleScreen && GameLog.isHidden)
             {
                 GameLog.isHidden = false;
+                GameLog.UpdateWindow();
+            }
+            else if (Unlocked && instance != null)
+            {
+                MethodInfo dynMethod = instance.GetType().GetMethod("OnEngagementFinished", BindingFlags.NonPublic | BindingFlags.Instance);
+                dynMethod.Invoke(instance, new object[] { gamepadUser });
+                instance = null;
+                gamepadUser = null;
+                GameLog.isHidden = true;
                 GameLog.UpdateWindow();
             }
         }
