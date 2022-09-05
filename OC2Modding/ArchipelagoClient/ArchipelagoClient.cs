@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.Models;
 using Archipelago.MultiClient.Net.Packets;
+using Newtonsoft.Json;
 
 namespace OC2Modding
 {
@@ -209,6 +211,27 @@ namespace OC2Modding
 
                 IsConnected = result.Successful;
                 cachedConnectionResult = result;
+                
+                if (result is LoginSuccessful loginSuccess)
+                {
+                    OC2Modding.Log.LogInfo("Checking slot data");
+                    if (loginSuccess.SlotData.TryGetValue("SaveFolderName", out var saveFolder))
+                    {
+                        string json = JsonConvert.SerializeObject(loginSuccess.SlotData);
+                        OC2Config.SaveFolderName = (string)saveFolder;
+                        OC2Modding.Log.LogInfo($"Dumping into {OC2Config.SaveFolderName}");
+                        string saveDirectory = OC2Helpers.getCustomSaveDirectory();
+                        string saveName = OC2Helpers.getCustomSaveDirectory() + OC2Config.SaveFolderName +
+                                          "/OC2Modding.json";
+                        if (!Directory.Exists(saveDirectory))
+                        {
+                            Directory.CreateDirectory(saveDirectory);
+                            if (!File.Exists(saveName))
+                                File.WriteAllText(saveName, json);
+                        }
+                        OC2Config.InitJson(saveName);
+                    }
+                }
             }
             catch (Exception e)
             {
