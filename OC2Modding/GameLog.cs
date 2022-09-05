@@ -221,5 +221,15 @@ namespace OC2Modding
                 }
             }
         }
+
+        [HarmonyPatch(typeof(FixedAspectRatioManager), "LateUpdate")]
+        [HarmonyPrefix]
+        private static void LateUpdate(ref float ___m_screenWidth, ref float ___m_screenHeight)
+        {
+            if ((float)Screen.width != ___m_screenWidth || (float)Screen.height != ___m_screenHeight)
+            {
+                UpdateWindow();
+            }
+        }
     }
 }
