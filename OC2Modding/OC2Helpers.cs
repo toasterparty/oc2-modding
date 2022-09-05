@@ -337,6 +337,11 @@ namespace OC2Modding
             return result;
         }
 
+        public static bool IsDynamicLevel(string levelName)
+        {
+            return levelName.Contains("_Dynamic_");
+        }
+
         private static void BuildLeaderboardScores()
         {
             leaderboardScores = new Dictionary<LeaderboardScoresKey, int>();

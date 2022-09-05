@@ -40,7 +40,7 @@ namespace OC2Modding
                 time += 30;
                 levelConfig.GetRoundData().m_roundTimer = time;
             }
-            else if (OC2Config.LevelTimerScale != 1.0f)
+            else if (OC2Config.LevelTimerScale != 1.0f && !OC2Helpers.IsDynamicLevel(levelConfig.name))
             {
                 float beforeTime = levelConfig.GetRoundData().m_roundTimer;
                 float time = beforeTime*OC2Config.LevelTimerScale;

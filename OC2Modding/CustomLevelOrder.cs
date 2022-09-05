@@ -53,11 +53,13 @@ namespace OC2Modding
             }
         }
 
-        private static int scoreScaleHelper(int inScore, float scale)
+        private static int scoreScaleHelper(int inScore, float scale, float timeScale)
         {
             float inScore_f = (float)inScore; // cast to float
             float scaledScore_f = inScore_f * scale; // scale score by difficulty curve
-            scaledScore_f *= OC2Config.LevelTimerScale; // scale score by level access time
+
+            scaledScore_f *= timeScale; // scale score by level access time
+            
             int scaledScore = (int)scaledScore_f; // cast back to int
 
             // round up to nearest 10
@@ -196,10 +198,11 @@ namespace OC2Modding
                         }
 
                         SceneDirectoryData.StarBoundaries starBoundariesOverride = new SceneDirectoryData.StarBoundaries();
-                        starBoundariesOverride.m_FourStarScore  = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[4]);
-                        starBoundariesOverride.m_ThreeStarScore = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[3]);
-                        starBoundariesOverride.m_TwoStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[2]);
-                        starBoundariesOverride.m_OneStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[1]);
+                        float timeScale = OC2Helpers.IsDynamicLevel(scene.Label) ? 1.0f : OC2Config.LevelTimerScale;
+                        starBoundariesOverride.m_FourStarScore  = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[4], timeScale);
+                        starBoundariesOverride.m_ThreeStarScore = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[3], timeScale);
+                        starBoundariesOverride.m_TwoStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[2], timeScale);
+                        starBoundariesOverride.m_OneStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[1], timeScale);
 
                         // OC2Modding.Log.LogInfo($"{starBoundariesOverride.m_OneStarScore} / {starBoundariesOverride.m_TwoStarScore} / {starBoundariesOverride.m_ThreeStarScore} / {starBoundariesOverride.m_FourStarScore}");
 

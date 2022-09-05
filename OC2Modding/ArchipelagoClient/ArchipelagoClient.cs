@@ -610,7 +610,6 @@ namespace OC2Modding
             try
             {
                 string itemName = session.Items.GetItemName(id + 59812623889202);
-                OC2Modding.Log.LogInfo($"Received {itemName}");
                 GameLog.LogMessage($"Received {itemName}");
             }
             catch

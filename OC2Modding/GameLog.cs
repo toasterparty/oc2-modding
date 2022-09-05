@@ -41,6 +41,8 @@ namespace OC2Modding
 
         public static void LogMessage(string logText)
         {
+            OC2Modding.Log.LogMessage(logText);
+
             if (logText == "")
             {
                 return;
