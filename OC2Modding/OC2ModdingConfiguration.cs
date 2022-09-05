@@ -511,7 +511,7 @@ namespace OC2Modding
             FixEmptyBurnerThrow = configFixEmptyBurnerThrow.Value;
         }
 
-        private static void InitJson(string filename)
+        public static void InitJson(string filename)
         {
             try
             {
