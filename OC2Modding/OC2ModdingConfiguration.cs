@@ -80,7 +80,7 @@ namespace OC2Modding
         public static Dictionary<string, Dictionary<int, DlcIdAndLevelId>> CustomLevelOrder = null;
         public static List<int> LockedEmotes;
         public static Dictionary<int, List<OnLevelCompletedEvent>> OnLevelCompleted = new Dictionary<int, List<OnLevelCompletedEvent>>();
-        public static List<string> RecievedItemIdentifiers = new List<string>();
+        public static int ItemIndex = 0;
 
         public struct OnLevelCompletedEvent
         {
@@ -188,9 +188,9 @@ namespace OC2Modding
             data += $"\"CarnivalDispenserRefactoryTime\":{CarnivalDispenserRefactoryTime},";
             data += $"\"StarOffset\":{StarOffset},";
             data += $"\"DisableRampButton\":{DisableRampButton},";
+            data += $"\"ItemIndex\":{ItemIndex},";
             data += $"\"LevelTimerScale\":{LevelTimerScale},";
             data += $"\"ImpossibleTutorial\":{ImpossibleTutorial},";
-            
 
             data += $"\"LevelUnlockRequirements\":{{";
             bool first = true;
@@ -332,22 +332,6 @@ namespace OC2Modding
                 }
                 data += "},";
             }
-
-            data += $"\"RecievedItemIdentifiers\":[";
-            first = true;
-            foreach (string value in RecievedItemIdentifiers)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    data += ",";
-                }
-                data += $"{value}";
-            }
-            data += "]";
 
             data += $"\"LockedEmotes\":[";
             first = true;
@@ -598,6 +582,7 @@ namespace OC2Modding
             try { if (config.HasKey("StarOffset"                     )) StarOffset                     = config["StarOffset"                     ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'StarOffset'"                     ); }
             try { if (config.HasKey("ImpossibleTutorial"             )) ImpossibleTutorial             = config["ImpossibleTutorial"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ImpossibleTutorial'"             ); }
             try { if (config.HasKey("DisableRampButton"              )) DisableRampButton              = config["DisableRampButton"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableRampButton'"              ); }
+            try { if (config.HasKey("ItemIndex"                      )) ItemIndex                      = config["ItemIndex"                      ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ItemIndex'"                      ); }
             try { if (config.HasKey("LevelTimerScale"                )) LevelTimerScale                = config["LevelTimerScale"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'LevelTimerScale'"                ); }
 
             try
@@ -742,26 +727,6 @@ namespace OC2Modding
 
             try
             {
-                if (config.HasKey("RecievedItemIdentifiers"))
-                {
-                    List<string> temp = new List<string>();
-
-                    foreach (string identifier in config["RecievedItemIdentifiers"].AsArray.Values)
-                    {
-                        temp.Add(identifier);
-                    }
-
-                    RecievedItemIdentifiers.Clear();
-                    RecievedItemIdentifiers = temp;
-                }
-            }
-            catch
-            {
-                OC2Modding.Log.LogWarning($"Failed to parse key 'RecievedItemIdentifiers'");
-            }
-
-            try
-            {
                 if (config.HasKey("OnLevelCompleted"))
                 {
                     Dictionary<int, List<OnLevelCompletedEvent>> temp = new Dictionary<int, List<OnLevelCompletedEvent>>();
@@ -826,7 +791,7 @@ namespace OC2Modding
                     InitJson(JsonConfigPath);
                 }
 
-                RecievedItemIdentifiers.Clear(); // When starting a new game, reset the remote items that have been received
+                ItemIndex = 0; // When starting a new game, reset the remote items that have been received
                 ArchipelagoClient.UpdateInventory(); // and then immediately apply them all
 
                 FlushConfig();

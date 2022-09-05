@@ -85,34 +85,19 @@ namespace OC2Modding
                 return;
             }
 
-            int itemCount = session.Items.AllItemsReceived.Count;
-            if (itemCount != 0 && itemCount != AllItemsReceivedCount)
+            bool flushConfig = false;
+            while (OC2Config.ItemIndex < session.Items.AllItemsReceived.Count)
             {
-                AllItemsReceivedCount = itemCount;
-                bool shouldFlush = false;
-                foreach (NetworkItem item in session.Items.AllItemsReceived)
-                {
-                    long itemId = item.Item;
-                    itemId -= 59812623889202; // "oc2" in ascii
+                flushConfig = true;
+                NetworkItem item = session.Items.AllItemsReceived[OC2Config.ItemIndex];
+                long itemId = item.Item - 59812623889202; // "oc2" in ascii
+                GiveItem((int)itemId);
+                OC2Config.ItemIndex++;
+            }
 
-                    string location = $"{item.Player}.{item.Location}.{itemId}"; // unique identifier for each location
-                    if (OC2Config.RecievedItemIdentifiers.Contains(location))
-                    {
-                        OC2Modding.Log.LogInfo($"Not giving item #{itemId} as it was already received");
-                        continue; // we've already processed this item
-                    }
-                    OC2Config.RecievedItemIdentifiers.Add(location);
-
-                    if (GiveItem((int)itemId))
-                    {
-                        shouldFlush = true;
-                    }
-                }
-
-                if (shouldFlush)
-                {
-                    OC2Config.FlushConfig();
-                }
+            if (flushConfig)
+            {
+                OC2Config.FlushConfig();
             }
 
             if (PendingLocationUpdate)
