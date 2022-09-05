@@ -77,6 +77,7 @@ namespace OC2Modding
 
         private static int LastVisitedLocationsCount = 0;
         private static int AllItemsReceivedCount = 0;
+        
         public static void Update()
         {
             if (!IsConnected)
@@ -88,14 +89,30 @@ namespace OC2Modding
             if (itemCount != 0 && itemCount != AllItemsReceivedCount)
             {
                 AllItemsReceivedCount = itemCount;
+                bool shouldFlush = false;
                 foreach (NetworkItem item in session.Items.AllItemsReceived)
                 {
                     long itemId = item.Item;
                     itemId -= 59812623889202; // "oc2" in ascii
-                    GiveItem((int)itemId);
+
+                    string location = $"{item.Player}.{item.Location}.{itemId}"; // unique identifier for each location
+                    if (OC2Config.RecievedItemIdentifiers.Contains(location))
+                    {
+                        OC2Modding.Log.LogInfo($"Not giving item #{itemId} as it was already received");
+                        continue; // we've already processed this item
+                    }
+                    OC2Config.RecievedItemIdentifiers.Add(location);
+
+                    if (GiveItem((int)itemId))
+                    {
+                        shouldFlush = true;
+                    }
                 }
 
-                OC2Config.FlushConfig();
+                if (shouldFlush)
+                {
+                    OC2Config.FlushConfig();
+                }
             }
 
             if (PendingLocationUpdate)
@@ -358,46 +375,46 @@ namespace OC2Modding
         }
 
         /* Updates the current inventory with this item id.
-           Also, prints a message and flushes new JSON if
-           the item was not already in inventory */
-        private static void GiveItem(int id)
+           Also, prints a message and returns true if JSON
+           should be flushed to disk */
+        private static bool GiveItem(int id)
         {
             Oc2Item item = (Oc2Item)id;
             switch (item)
             {
                 case Oc2Item.Wood:
                     {
-                        if (!OC2Config.DisableWood) return;
+                        if (!OC2Config.DisableWood) return false;
                         OC2Config.DisableWood = false;
                         break;
                     }
                 case Oc2Item.CoalBucket:
                     {
-                        if (!OC2Config.DisableCoal) return;
+                        if (!OC2Config.DisableCoal) return false;
                         OC2Config.DisableCoal = false;
                         break;
                     }
                 case Oc2Item.SparePlate:
                     {
-                        if (!OC2Config.DisableOnePlate) return;
+                        if (!OC2Config.DisableOnePlate) return false;
                         OC2Config.DisableOnePlate = false;
                         break;
                     }
                 case Oc2Item.FireExtinguisher:
                     {
-                        if (!OC2Config.DisableFireExtinguisher) return;
+                        if (!OC2Config.DisableFireExtinguisher) return false;
                         OC2Config.DisableFireExtinguisher = false;
                         break;
                     }
                 case Oc2Item.Bellows:
                     {
-                        if (!OC2Config.DisableBellows) return;
+                        if (!OC2Config.DisableBellows) return false;
                         OC2Config.DisableBellows = false;
                         break;
                     }
                 case Oc2Item.CleanDishes:
                     {
-                        if (!OC2Config.PlatesStartDirty) return;
+                        if (!OC2Config.PlatesStartDirty) return false;
                         OC2Config.PlatesStartDirty = false;
                         break;
                     }
@@ -409,7 +426,7 @@ namespace OC2Modding
                         }
                         else
                         {
-                            return;
+                            return false;
                         }
                         break;
                     }
@@ -425,50 +442,50 @@ namespace OC2Modding
                         }
                         else
                         {
-                            return;
+                            return false;
                         }
 
                         break;
                     }
                 case Oc2Item.Throw:
                     {
-                        if (!OC2Config.DisableThrow) return;
+                        if (!OC2Config.DisableThrow) return false;
                         OC2Config.DisableThrow = false;
                         break;
                     }
                 case Oc2Item.Catch:
                     {
-                        if (!OC2Config.DisableCatch) return;
+                        if (!OC2Config.DisableCatch) return false;
                         OC2Config.DisableCatch = false;
                         break;
                     }
                 case Oc2Item.RemoteControlBatteries:
                     {
-                        if (!OC2Config.DisableControlStick) return;
+                        if (!OC2Config.DisableControlStick) return false;
                         OC2Config.DisableControlStick = false;
                         break;
                     }
                 case Oc2Item.WokWheels:
                     {
-                        if (!OC2Config.DisableWokDrag) return;
+                        if (!OC2Config.DisableWokDrag) return false;
                         OC2Config.DisableWokDrag = false;
                         break;
                     }
                 case Oc2Item.DishScrubber:
                     {
-                        if (OC2Config.WashTimeMultiplier == 1.0f) return;
+                        if (OC2Config.WashTimeMultiplier == 1.0f) return false;
                         OC2Config.WashTimeMultiplier = 1.0f;
                         break;
                     }
                 case Oc2Item.BurnLeniency:
                     {
-                        if (OC2Config.BurnSpeedMultiplier == 1.0f) return;
+                        if (OC2Config.BurnSpeedMultiplier == 1.0f) return false;
                         OC2Config.BurnSpeedMultiplier = 1.0f;
                         break;
                     }
                 case Oc2Item.SharpKnife:
                     {
-                        if (OC2Config.ChoppingTimeScale == 1.0f) return;
+                        if (OC2Config.ChoppingTimeScale == 1.0f) return false;
                         OC2Config.ChoppingTimeScale = 1.0f;
                         break;
                     }
@@ -480,107 +497,107 @@ namespace OC2Modding
                         }
                         else
                         {
-                            return;
+                            return false;
                         }
                         break;
                     }
                 case Oc2Item.LightweightBackpack:
                     {
-                        if (OC2Config.BackpackMovementScale == 1.0f) return;
+                        if (OC2Config.BackpackMovementScale == 1.0f) return false;
                         OC2Config.BackpackMovementScale = 1.0f;
                         break;
                     }
                 case Oc2Item.FasterRespawnTime:
                     {
-                        if (OC2Config.RespawnTime == 5.0f) return;
+                        if (OC2Config.RespawnTime == 5.0f) return false;
                         OC2Config.RespawnTime = 5.0f;
                         break;
                     }
                 case Oc2Item.FasterCondimentDrinkSwitch:
                     {
-                        if (OC2Config.CarnivalDispenserRefactoryTime == 0.0f) return;
+                        if (OC2Config.CarnivalDispenserRefactoryTime == 0.0f) return false;
                         OC2Config.CarnivalDispenserRefactoryTime = 0.0f;
                         break;
                     }
                 case Oc2Item.GuestPatience:
                     {
-                        if (OC2Config.CustomOrderLifetime == 100.0f) return;
+                        if (OC2Config.CustomOrderLifetime == 100.0f) return false;
                         OC2Config.CustomOrderLifetime = 100.0f;
                         break;
                     }
                 case Oc2Item.Kevin1:
                     {
-                        if (!UnlockLevel(37)) return;
+                        if (!UnlockLevel(37)) return false;
                         break;
                     }
                 case Oc2Item.Kevin2:
                     {
-                        if (!UnlockLevel(38)) return;
+                        if (!UnlockLevel(38)) return false;
                         break;
                     }
                 case Oc2Item.Kevin3:
                     {
-                        if (!UnlockLevel(39)) return;
+                        if (!UnlockLevel(39)) return false;
                         break;
                     }
                 case Oc2Item.Kevin4:
                     {
-                        if (!UnlockLevel(40)) return;
+                        if (!UnlockLevel(40)) return false;
                         break;
                     }
                 case Oc2Item.Kevin5:
                     {
-                        if (!UnlockLevel(41)) return;
+                        if (!UnlockLevel(41)) return false;
                         break;
                     }
                 case Oc2Item.Kevin6:
                     {
-                        if (!UnlockLevel(42)) return;
+                        if (!UnlockLevel(42)) return false;
                         break;
                     }
                 case Oc2Item.Kevin7:
                     {
-                        if (!UnlockLevel(43)) return;
+                        if (!UnlockLevel(43)) return false;
                         break;
                     }
                 case Oc2Item.Kevin8:
                     {
-                        if (!UnlockLevel(44)) return;
+                        if (!UnlockLevel(44)) return false;
                         break;
                     }
                 case Oc2Item.CookingEmote:
                     {
-                        if (!UnlockEmote(0)) return;
+                        if (!UnlockEmote(0)) return false;
                         break;
                     }
                 case Oc2Item.CurseEmote:
                     {
-                        if (!UnlockEmote(1)) return;
+                        if (!UnlockEmote(1)) return false;
                         break;
                     }
                 case Oc2Item.ServingEmote:
                     {
-                        if (!UnlockEmote(2)) return;
+                        if (!UnlockEmote(2)) return false;
                         break;
                     }
                 case Oc2Item.PreparingEmote:
                     {
-                        if (!UnlockEmote(3)) return;
+                        if (!UnlockEmote(3)) return false;
                         break;
                     }
                 case Oc2Item.WashingUpEmote:
                     {
-                        if (!UnlockEmote(4)) return;
+                        if (!UnlockEmote(4)) return false;
                         break;
                     }
                 case Oc2Item.OkEmote:
                     {
-                        if (!UnlockEmote(5)) return;
+                        if (!UnlockEmote(5)) return false;
                         break;
                     }
                 case Oc2Item.RampButton:
                     {
-                        if (!OC2Config.DisableRampButton) return;
+                        if (!OC2Config.DisableRampButton) return false;
                         OC2Config.DisableRampButton = false;
                         break;
                     }
@@ -601,6 +618,8 @@ namespace OC2Modding
             {
                 OC2Modding.Log.LogInfo($"Received Item #{id}");
             }
+
+            return true;
         }
 
         private static bool UnlockLevel(int id)

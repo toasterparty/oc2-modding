@@ -80,6 +80,7 @@ namespace OC2Modding
         public static Dictionary<string, Dictionary<int, DlcIdAndLevelId>> CustomLevelOrder = null;
         public static List<int> LockedEmotes;
         public static Dictionary<int, List<OnLevelCompletedEvent>> OnLevelCompleted = new Dictionary<int, List<OnLevelCompletedEvent>>();
+        public static List<string> RecievedItemIdentifiers = new List<string>();
 
         public struct OnLevelCompletedEvent
         {
@@ -332,6 +333,22 @@ namespace OC2Modding
                 data += "},";
             }
 
+            data += $"\"RecievedItemIdentifiers\":[";
+            first = true;
+            foreach (string value in RecievedItemIdentifiers)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    data += ",";
+                }
+                data += $"{value}";
+            }
+            data += "]";
+
             data += $"\"LockedEmotes\":[";
             first = true;
             foreach (int value in LockedEmotes)
@@ -528,8 +545,6 @@ namespace OC2Modding
             {
                 OC2Modding.Log.LogError($"Failed to parse json from {filename}");
             }
-
-            ArchipelagoClient.UpdateInventory();
         }
 
         public static void UpdateConfig(string text)
@@ -727,6 +742,26 @@ namespace OC2Modding
 
             try
             {
+                if (config.HasKey("RecievedItemIdentifiers"))
+                {
+                    List<string> temp = new List<string>();
+
+                    foreach (string identifier in config["RecievedItemIdentifiers"].AsArray.Values)
+                    {
+                        temp.Add(identifier);
+                    }
+
+                    RecievedItemIdentifiers.Clear();
+                    RecievedItemIdentifiers = temp;
+                }
+            }
+            catch
+            {
+                OC2Modding.Log.LogWarning($"Failed to parse key 'RecievedItemIdentifiers'");
+            }
+
+            try
+            {
                 if (config.HasKey("OnLevelCompleted"))
                 {
                     Dictionary<int, List<OnLevelCompletedEvent>> temp = new Dictionary<int, List<OnLevelCompletedEvent>>();
@@ -790,6 +825,9 @@ namespace OC2Modding
                 {
                     InitJson(JsonConfigPath);
                 }
+
+                RecievedItemIdentifiers.Clear(); // When starting a new game, reset the remote items that have been received
+                ArchipelagoClient.UpdateInventory(); // and then immediately apply them all
 
                 FlushConfig();
             }
