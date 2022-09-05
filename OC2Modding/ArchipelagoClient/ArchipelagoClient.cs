@@ -208,30 +208,31 @@ namespace OC2Modding
                     uuid: null,
                     password: password
                 );
-
-                IsConnected = result.Successful;
-                cachedConnectionResult = result;
                 
                 if (result is LoginSuccessful loginSuccess)
                 {
-                    OC2Modding.Log.LogInfo("Checking slot data");
                     if (loginSuccess.SlotData.TryGetValue("SaveFolderName", out var saveFolder))
                     {
                         string json = JsonConvert.SerializeObject(loginSuccess.SlotData);
                         OC2Config.SaveFolderName = (string)saveFolder;
-                        OC2Modding.Log.LogInfo($"Dumping into {OC2Config.SaveFolderName}");
                         string saveDirectory = OC2Helpers.getCustomSaveDirectory();
-                        string saveName = OC2Helpers.getCustomSaveDirectory() + OC2Config.SaveFolderName +
-                                          "/OC2Modding.json";
                         if (!Directory.Exists(saveDirectory))
                         {
                             Directory.CreateDirectory(saveDirectory);
-                            if (!File.Exists(saveName))
-                                File.WriteAllText(saveName, json);
                         }
+
+                        string saveName = saveDirectory + "/OC2Modding.json";
+                        if (!File.Exists(saveName))
+                        {
+                            File.WriteAllText(saveName, json);
+                        }
+
                         OC2Config.InitJson(saveName);
                     }
                 }
+
+                IsConnected = result.Successful;
+                cachedConnectionResult = result;
             }
             catch (Exception e)
             {
@@ -264,17 +265,6 @@ namespace OC2Modding
 
             cachedConnectionResult = null;
         }
-
-        // public static NetworkItem? GetNextItem(int currentIndex) =>
-        //     session.Items.AllItemsReceived.Count > currentIndex
-        //         ? session.Items.AllItemsReceived[currentIndex]
-        //         : default(NetworkItem?);
-
-        // public static void SetStatus(ArchipelagoClientState status) => SendPacket(new StatusUpdatePacket { Status = status });
-
-        // static void SendPacket(ArchipelagoPacketBase packet) => session?.Socket?.SendPacket(packet);
-
-        // public static void Say(string message) => SendPacket(new SayPacket { Text = message });
 
         static bool IsMe(int slot) => slot == session.ConnectionInfo.Slot;
 
