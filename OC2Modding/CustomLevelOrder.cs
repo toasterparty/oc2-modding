@@ -142,6 +142,12 @@ namespace OC2Modding
                         }
                         newScene.PreviousEntriesToUnlock = originalScene.PreviousEntriesToUnlock;
 
+                        // Kevin Levels require Tutorial level so that they have to be force unlocked
+                        if (levelId > 36)
+                        {
+                            newScene.PreviousEntriesToUnlock.AddItem(0);
+                        }
+
                         ___m_sceneDirectory.Scenes[levelId] = newScene;
 
                         // Helper for determining DLC when patching scores
