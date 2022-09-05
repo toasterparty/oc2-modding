@@ -84,10 +84,10 @@ namespace OC2Modding
                 return;
             }
 
-            if (AllItemsReceivedCount != session.Items.AllItemsReceived.Count)
+            int itemCount = session.Items.AllItemsReceived.Count;
+            if (itemCount != 0 && itemCount != AllItemsReceivedCount)
             {
-                var items = session.Items.AllItemsReceived;
-                AllItemsReceivedCount = items.Count;
+                AllItemsReceivedCount = itemCount;
                 foreach (NetworkItem item in session.Items.AllItemsReceived)
                 {
                     long itemId = item.Item;
@@ -103,7 +103,7 @@ namespace OC2Modding
                 PendingLocationUpdate = false;
 
                 int count = VisitedLocations.Count;
-                if (count != LastVisitedLocationsCount)
+                if (count != 0 && count != LastVisitedLocationsCount)
                 {
                     LastVisitedLocationsCount = count;
                     ThreadPool.QueueUserWorkItem((o) => UpdateLocationsTask());
@@ -357,40 +357,47 @@ namespace OC2Modding
             AllItemsReceivedCount = 0; // clear "cache"
         }
 
+        /* Updates the current inventory with this item id.
+           Also, prints a message and flushes new JSON if
+           the item was not already in inventory */
         private static void GiveItem(int id)
         {
-            OC2Modding.Log.LogInfo($"Received Item {id}");
-
             Oc2Item item = (Oc2Item)id;
             switch (item)
             {
                 case Oc2Item.Wood:
                     {
+                        if (!OC2Config.DisableWood) return;
                         OC2Config.DisableWood = false;
                         break;
                     }
                 case Oc2Item.CoalBucket:
                     {
+                        if (!OC2Config.DisableCoal) return;
                         OC2Config.DisableCoal = false;
                         break;
                     }
                 case Oc2Item.SparePlate:
                     {
+                        if (!OC2Config.DisableOnePlate) return;
                         OC2Config.DisableOnePlate = false;
                         break;
                     }
                 case Oc2Item.FireExtinguisher:
                     {
+                        if (!OC2Config.DisableFireExtinguisher) return;
                         OC2Config.DisableFireExtinguisher = false;
                         break;
                     }
                 case Oc2Item.Bellows:
                     {
+                        if (!OC2Config.DisableBellows) return;
                         OC2Config.DisableBellows = false;
                         break;
                     }
                 case Oc2Item.CleanDishes:
                     {
+                        if (!OC2Config.PlatesStartDirty) return;
                         OC2Config.PlatesStartDirty = false;
                         break;
                     }
@@ -400,6 +407,10 @@ namespace OC2Modding
                         {
                             OC2Config.MaxTipCombo++;
                         }
+                        else
+                        {
+                            return;
+                        }
                         break;
                     }
                 case Oc2Item.ProgressiveDash:
@@ -408,44 +419,56 @@ namespace OC2Modding
                         {
                             OC2Config.DisableDash = false;
                         }
-                        else
+                        else if (OC2Config.WeakDash)
                         {
                             OC2Config.WeakDash = false;
                         }
+                        else
+                        {
+                            return;
+                        }
+
                         break;
                     }
                 case Oc2Item.Throw:
                     {
+                        if (!OC2Config.DisableThrow) return;
                         OC2Config.DisableThrow = false;
                         break;
                     }
                 case Oc2Item.Catch:
                     {
+                        if (!OC2Config.DisableCatch) return;
                         OC2Config.DisableCatch = false;
                         break;
                     }
                 case Oc2Item.RemoteControlBatteries:
                     {
+                        if (!OC2Config.DisableControlStick) return;
                         OC2Config.DisableControlStick = false;
                         break;
                     }
                 case Oc2Item.WokWheels:
                     {
+                        if (!OC2Config.DisableWokDrag) return;
                         OC2Config.DisableWokDrag = false;
                         break;
                     }
                 case Oc2Item.DishScrubber:
                     {
+                        if (OC2Config.WashTimeMultiplier == 1.0f) return;
                         OC2Config.WashTimeMultiplier = 1.0f;
                         break;
                     }
                 case Oc2Item.BurnLeniency:
                     {
+                        if (OC2Config.BurnSpeedMultiplier == 1.0f) return;
                         OC2Config.BurnSpeedMultiplier = 1.0f;
                         break;
                     }
                 case Oc2Item.SharpKnife:
                     {
+                        if (OC2Config.ChoppingTimeScale == 1.0f) return;
                         OC2Config.ChoppingTimeScale = 1.0f;
                         break;
                     }
@@ -455,100 +478,109 @@ namespace OC2Modding
                         {
                             OC2Config.MaxOrdersOnScreenOffset++;
                         }
+                        else
+                        {
+                            return;
+                        }
                         break;
                     }
                 case Oc2Item.LightweightBackpack:
                     {
+                        if (OC2Config.BackpackMovementScale == 1.0f) return;
                         OC2Config.BackpackMovementScale = 1.0f;
                         break;
                     }
                 case Oc2Item.FasterRespawnTime:
                     {
+                        if (OC2Config.RespawnTime == 5.0f) return;
                         OC2Config.RespawnTime = 5.0f;
                         break;
                     }
                 case Oc2Item.FasterCondimentDrinkSwitch:
                     {
+                        if (OC2Config.CarnivalDispenserRefactoryTime == 0.0f) return;
                         OC2Config.CarnivalDispenserRefactoryTime = 0.0f;
                         break;
                     }
                 case Oc2Item.GuestPatience:
                     {
+                        if (OC2Config.CustomOrderLifetime == 100.0f) return;
                         OC2Config.CustomOrderLifetime = 100.0f;
                         break;
                     }
                 case Oc2Item.Kevin1:
                     {
-                        UnlockLevel(37);
+                        if (!UnlockLevel(37)) return;
                         break;
                     }
                 case Oc2Item.Kevin2:
                     {
-                        UnlockLevel(38);
+                        if (!UnlockLevel(38)) return;
                         break;
                     }
                 case Oc2Item.Kevin3:
                     {
-                        UnlockLevel(39);
+                        if (!UnlockLevel(39)) return;
                         break;
                     }
                 case Oc2Item.Kevin4:
                     {
-                        UnlockLevel(40);
+                        if (!UnlockLevel(40)) return;
                         break;
                     }
                 case Oc2Item.Kevin5:
                     {
-                        UnlockLevel(41);
+                        if (!UnlockLevel(41)) return;
                         break;
                     }
                 case Oc2Item.Kevin6:
                     {
-                        UnlockLevel(42);
+                        if (!UnlockLevel(42)) return;
                         break;
                     }
                 case Oc2Item.Kevin7:
                     {
-                        UnlockLevel(43);
+                        if (!UnlockLevel(43)) return;
                         break;
                     }
                 case Oc2Item.Kevin8:
                     {
-                        UnlockLevel(44);
+                        if (!UnlockLevel(44)) return;
                         break;
                     }
                 case Oc2Item.CookingEmote:
                     {
-                        UnlockEmote(0);
+                        if (!UnlockEmote(0)) return;
                         break;
                     }
                 case Oc2Item.CurseEmote:
                     {
-                        UnlockEmote(1);
+                        if (!UnlockEmote(1)) return;
                         break;
                     }
                 case Oc2Item.ServingEmote:
                     {
-                        UnlockEmote(2);
+                        if (!UnlockEmote(2)) return;
                         break;
                     }
                 case Oc2Item.PreparingEmote:
                     {
-                        UnlockEmote(3);
+                        if (!UnlockEmote(3)) return;
                         break;
                     }
                 case Oc2Item.WashingUpEmote:
                     {
-                        UnlockEmote(4);
+                        if (!UnlockEmote(4)) return;
                         break;
                     }
                 case Oc2Item.OkEmote:
                     {
-                        UnlockEmote(5);
+                        if (!UnlockEmote(5)) return;
                         break;
                     }
                 case Oc2Item.RampButton:
                     {
+                        if (!OC2Config.DisableRampButton) return;
                         OC2Config.DisableRampButton = false;
                         break;
                     }
@@ -558,22 +590,39 @@ namespace OC2Modding
                         break;
                     }
             }
+
+            try
+            {
+                string itemName = session.Items.GetItemName(id + 59812623889202);
+                OC2Modding.Log.LogInfo($"Received {itemName}");
+                GameLog.LogMessage($"Received {itemName}");
+            }
+            catch
+            {
+                OC2Modding.Log.LogInfo($"Received Item #{id}");
+            }
         }
 
-        private static void UnlockLevel(int id)
+        private static bool UnlockLevel(int id)
         {
             if (!OC2Config.LevelForceReveal.Contains(id))
             {
                 OC2Config.LevelForceReveal.Add(id);
+                return true;
             }
+
+            return false;
         }
 
-        private static void UnlockEmote(int id)
+        private static bool UnlockEmote(int id)
         {
             if (OC2Config.LockedEmotes.Contains(id))
             {
                 OC2Config.LockedEmotes.Remove(id);
+                return true;
             }
+
+            return false;
         }
     }
 }
