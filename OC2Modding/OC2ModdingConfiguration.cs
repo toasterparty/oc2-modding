@@ -533,7 +533,7 @@ namespace OC2Modding
 
         public static void UpdateConfig(string text)
         {
-            OC2Modding.Log.LogInfo($"Applying Config:\n{text}");
+            // OC2Modding.Log.LogInfo($"Applying Config:\n{text}");
 
             var config = SimpleJSON.JSON.Parse(text);
 
@@ -790,6 +790,8 @@ namespace OC2Modding
                 {
                     InitJson(JsonConfigPath);
                 }
+
+                InitJson(OC2Helpers.getCustomSaveDirectory() + "OC2Modding-INIT.json");
 
                 ItemIndex = 0; // When starting a new game, reset the remote items that have been received
                 ArchipelagoClient.UpdateInventory(); // and then immediately apply them all

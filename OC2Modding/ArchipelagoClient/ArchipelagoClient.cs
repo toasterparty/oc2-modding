@@ -221,7 +221,7 @@ namespace OC2Modding
                             Directory.CreateDirectory(saveDirectory);
                         }
 
-                        string saveName = saveDirectory + "/OC2Modding.json";
+                        string saveName = saveDirectory + "/OC2Modding-INIT.json";
                         if (!File.Exists(saveName))
                         {
                             File.WriteAllText(saveName, json);
