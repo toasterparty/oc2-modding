@@ -465,6 +465,17 @@ namespace OC2Modding
             }
         }
 
+        [HarmonyPatch(typeof(GameModes.Horde.TeamScoreStats), nameof(GameModes.Horde.TeamScoreStats.GetTotalMoney))]
+        [HarmonyPostfix]
+        private static void GetTotalMoney(ref int __result, ref int ___TotalMoneyEarned)
+        {
+            if (OC2Config.DisableEarnHordeMoney)
+            {
+                ___TotalMoneyEarned = 0;
+                __result = 0;
+            }
+        }
+
         // [HarmonyPatch(typeof(ServerDirtyPlateStack), nameof(ServerDirtyPlateStack.OnSurfaceDeplacement))]
         // [HarmonyPostfix]
         // private static void OnSurfaceDeplacement(ref ServerDirtyPlateStack __instance, ref ServerStack ___m_stack, ref ServerAttachStation ___m_attachStation)

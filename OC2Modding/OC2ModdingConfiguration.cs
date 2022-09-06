@@ -63,6 +63,7 @@ namespace OC2Modding
         public static float CarnivalDispenserRefactoryTime = 0.0f;
         public static int StarOffset = 0;
         public static bool DisableRampButton = false;
+        public static bool DisableEarnHordeMoney = false;
         // Pick up plate stacks 1 at a time
         // Squirt Gun Distance
         // Guitine Cooldown
@@ -188,6 +189,7 @@ namespace OC2Modding
             data += $"\"CarnivalDispenserRefactoryTime\":{CarnivalDispenserRefactoryTime},";
             data += $"\"StarOffset\":{StarOffset},";
             data += $"\"DisableRampButton\":{DisableRampButton},";
+            data += $"\"DisableEarnHordeMoney\":{DisableEarnHordeMoney},";
             data += $"\"ItemIndex\":{ItemIndex},";
             data += $"\"LevelTimerScale\":{LevelTimerScale},";
             data += $"\"ImpossibleTutorial\":{ImpossibleTutorial},";
@@ -582,6 +584,7 @@ namespace OC2Modding
             try { if (config.HasKey("StarOffset"                     )) StarOffset                     = config["StarOffset"                     ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'StarOffset'"                     ); }
             try { if (config.HasKey("ImpossibleTutorial"             )) ImpossibleTutorial             = config["ImpossibleTutorial"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ImpossibleTutorial'"             ); }
             try { if (config.HasKey("DisableRampButton"              )) DisableRampButton              = config["DisableRampButton"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableRampButton'"              ); }
+            try { if (config.HasKey("DisableEarnHordeMoney"          )) DisableEarnHordeMoney          = config["DisableEarnHordeMoney"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableEarnHordeMoney'"          ); }
             try { if (config.HasKey("ItemIndex"                      )) ItemIndex                      = config["ItemIndex"                      ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ItemIndex'"                      ); }
             try { if (config.HasKey("LevelTimerScale"                )) LevelTimerScale                = config["LevelTimerScale"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'LevelTimerScale'"                ); }
 
