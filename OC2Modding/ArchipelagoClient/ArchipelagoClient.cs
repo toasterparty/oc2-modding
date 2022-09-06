@@ -227,8 +227,8 @@ namespace OC2Modding
                             File.WriteAllText(saveName, json);
                         }
 
-                        OC2Config.InitJson(OC2Helpers.getCustomSaveDirectory() + "OC2Modding.json"); // current inventory
                         OC2Config.InitJson(saveName); // starting inventory
+                        OC2Config.InitJson(OC2Helpers.getCustomSaveDirectory() + "OC2Modding.json"); // current inventory
                     }
                 }
 
