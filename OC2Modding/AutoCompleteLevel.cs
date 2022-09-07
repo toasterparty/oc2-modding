@@ -55,6 +55,10 @@ namespace OC2Modding
             }
 
             SceneDirectoryData.PerPlayerCountDirectoryEntry sceneVariant = gameSession.LevelSettings.SceneDirectoryVarientEntry;
+            if (sceneVariant.LevelConfig.name.StartsWith("s_dynamic_stage_04"))
+            {
+                return; // level 6-6 is exempt because of it's unique behavior
+            }
 
             int targetScore;
             switch(GameLog.autoCompleteMode)

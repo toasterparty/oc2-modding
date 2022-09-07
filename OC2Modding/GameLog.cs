@@ -88,29 +88,24 @@ namespace OC2Modding
                 {
                     case AutoCompleteMode.AUTO_COMPLETE_DISABLED:
                     {
-                        autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_ONE_STAR;
+                        autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_THREE_STAR;
                         break;
                     }
-                    case AutoCompleteMode.AUTO_COMPLETE_ONE_STAR:
+                    case AutoCompleteMode.AUTO_COMPLETE_THREE_STAR:
                     {
                         autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_TWO_STAR;
                         break;
                     }
                     case AutoCompleteMode.AUTO_COMPLETE_TWO_STAR:
                     {
-                        autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_THREE_STAR;
+                        autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_ONE_STAR;
                         break;
                     }
-                    case AutoCompleteMode.AUTO_COMPLETE_THREE_STAR:
+                    case AutoCompleteMode.AUTO_COMPLETE_ONE_STAR:
                     {
                         autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_DISABLED;
                         break;
                     }
-                    // case AutoCompleteMode.AUTO_COMPLETE_FOUR_STAR:
-                    // {
-                    //     autoCompleteButtonText = "Auto-Complete (4-Star)";
-                    //     break;
-                    // }
                 }
 
                 UpdateWindow();
