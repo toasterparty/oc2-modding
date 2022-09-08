@@ -41,6 +41,7 @@ namespace OC2Modding
             OnLevelCompleted.Awake();
             GameLog.Awake();
             ArchipelagoLoginGUI.Awake();
+            AggressiveHorde.Awake();
 
             DisplayModsOnResultsScreen.Awake();
         }
