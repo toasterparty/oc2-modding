@@ -70,6 +70,17 @@ namespace OC2Modding
                                 OC2Config.WeakDash = false;
                             }
                         }
+                        else if (e.action == "INC_THROW")
+                        {
+                            if (OC2Config.DisableThrow)
+                            {
+                                OC2Config.DisableThrow = false;
+                            }
+                            else
+                            {
+                                OC2Config.DisableCatch = false;
+                            }
+                        }
 
                         if (e.message != "")
                         {

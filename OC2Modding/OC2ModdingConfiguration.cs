@@ -797,7 +797,6 @@ namespace OC2Modding
                 InitJson(OC2Helpers.getCustomSaveDirectory() + "OC2Modding-INIT.json");
 
                 ItemIndex = 0; // When starting a new game, reset the remote items that have been received
-                ArchipelagoClient.UpdateInventory(); // and then immediately apply them all
 
                 FlushConfig();
             }

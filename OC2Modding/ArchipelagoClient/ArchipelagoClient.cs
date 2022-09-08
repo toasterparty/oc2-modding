@@ -37,6 +37,7 @@ namespace OC2Modding
 
         public static DataStorageHelper DataStorage => session.DataStorage;
 
+        // must follow: https://github.com/toasterparty/Archipelago/blob/overcooked2/worlds/overcooked2/Items.py
         private enum Oc2Item
         {
             Wood = 1,
@@ -47,8 +48,8 @@ namespace OC2Modding
             CleanDishes = 6,
             LargerTipJar = 7,
             ProgressiveDash = 8,
-            Throw = 9,
-            Catch = 10,
+            ProgressiveThrowCatch = 9,
+            CoinPurse = 10,
             RemoteControlBatteries = 11,
             WokWheels = 12,
             DishScrubber = 13,
@@ -78,7 +79,6 @@ namespace OC2Modding
         };
 
         private static int LastVisitedLocationsCount = 0;
-        private static int AllItemsReceivedCount = 0;
         
         public static void Update()
         {
@@ -92,9 +92,13 @@ namespace OC2Modding
             {
                 flushConfig = true;
                 NetworkItem item = session.Items.AllItemsReceived[OC2Config.ItemIndex];
-                long itemId = item.Item - 59812623889202; // "oc2" in ascii
-                GiveItem((int)itemId);
                 OC2Config.ItemIndex++;
+
+                long itemId = item.Item - 59812623889202; // "oc2" in ascii
+                if (!GiveItem((int)itemId))
+                {
+                    OC2Modding.Log.LogError("Archipelago sent an item which goes above our inventory limits");
+                }
             }
 
             if (flushConfig)
@@ -194,10 +198,10 @@ namespace OC2Modding
                 session = ArchipelagoSessionFactory.CreateSession(uri);
 
                 session.Socket.PacketReceived += OnPacketReceived;
-                session.Items.ItemReceived += (receivedItemsHelper) =>
-                {
-                    OnItemReceived(receivedItemsHelper);
-                };
+                // session.Items.ItemReceived += (receivedItemsHelper) =>
+                // {
+                //     OnItemReceived(receivedItemsHelper);
+                // };
 
                 var result = session.TryConnectAndLogin(
                     "Overcooked! 2",
@@ -244,7 +248,6 @@ namespace OC2Modding
             if (IsConnected)
             {
                 UpdateLocations();
-                UpdateInventory();
             }
 
             IsConnecting = false;
@@ -363,16 +366,6 @@ namespace OC2Modding
             GameLog.LogMessage(text);
         }
 
-        private static void OnItemReceived(ReceivedItemsHelper receivedItemsHelper)
-        {
-            UpdateInventory();
-        }
-
-        public static void UpdateInventory()
-        {
-            AllItemsReceivedCount = 0; // clear "cache"
-        }
-
         /* Updates the current inventory with this item id.
            Also, prints a message and returns true if JSON
            should be flushed to disk */
@@ -446,16 +439,27 @@ namespace OC2Modding
 
                         break;
                     }
-                case Oc2Item.Throw:
+                case Oc2Item.ProgressiveThrowCatch:
                     {
-                        if (!OC2Config.DisableThrow) return false;
-                        OC2Config.DisableThrow = false;
+                        if (OC2Config.DisableThrow)
+                        {
+                            OC2Config.DisableThrow = false;
+                        }
+                        else if (OC2Config.DisableCatch)
+                        {
+                            OC2Config.DisableCatch = false;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
                         break;
                     }
-                case Oc2Item.Catch:
+                case Oc2Item.CoinPurse:
                     {
-                        if (!OC2Config.DisableCatch) return false;
-                        OC2Config.DisableCatch = false;
+                        if (!OC2Config.DisableEarnHordeMoney) return false;
+                        OC2Config.DisableEarnHordeMoney = false;
                         break;
                     }
                 case Oc2Item.RemoteControlBatteries:
