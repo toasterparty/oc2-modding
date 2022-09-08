@@ -587,7 +587,7 @@ namespace OC2Modding
             try { if (config.HasKey("ImpossibleTutorial"             )) ImpossibleTutorial             = config["ImpossibleTutorial"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ImpossibleTutorial'"             ); }
             try { if (config.HasKey("DisableRampButton"              )) DisableRampButton              = config["DisableRampButton"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableRampButton'"              ); }
             try { if (config.HasKey("DisableEarnHordeMoney"          )) DisableEarnHordeMoney          = config["DisableEarnHordeMoney"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableEarnHordeMoney'"          ); }
-            try { if (config.HasKey("AggressiveHorde"                 )) AggressiveHorde                 = config["AggressiveHorde"                 ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'AggressiveHorde'"                 ); }
+            try { if (config.HasKey("AggressiveHorde"                )) AggressiveHorde                = config["AggressiveHorde"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'AggressiveHorde'"                ); }
             try { if (config.HasKey("ItemIndex"                      )) ItemIndex                      = config["ItemIndex"                      ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ItemIndex'"                      ); }
             try { if (config.HasKey("LevelTimerScale"                )) LevelTimerScale                = config["LevelTimerScale"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'LevelTimerScale'"                ); }
 

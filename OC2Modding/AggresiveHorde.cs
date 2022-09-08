@@ -16,7 +16,7 @@ namespace OC2Modding
         const float HORDE_ENEMY_TARGET_ATTACK_SPEED_MULTIPLIER = 0.6f; // larger means slower attack rate
         const float HORDE_ENEMY_TARGET_DAMAGE_MULTIPLIER       = 0.7f; // larger means more damage
         const float HORDE_ENEMY_KITCH_DAMAGE_MULTIPLIER        = 0.8f; // larger means more damage
-        const float HORDE_ENEMY_MOVEMENT_SPEED_MULTIPLIER      = 0.5f; // larger means move to window faster
+        const float HORDE_ENEMY_MOVEMENT_SPEED_MULTIPLIER      = 0.35f; // larger means move to window faster
 
         /*
          * Increases/Decreases staggering of horde spawn in each wave
