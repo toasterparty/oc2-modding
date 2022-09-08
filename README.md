@@ -80,3 +80,7 @@ dist\oc2-modding-install.bat
 ```
 
 and follow the instructions.
+
+7. Enable Logging:
+
+Edit `...\Overcooked! 2\BepInEx\config\BepInEx.cfg` to enable console logging. This is very helpful for debugging.
