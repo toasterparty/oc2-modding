@@ -1,6 +1,14 @@
 # Overcooked! 2 Mods
 
-🤠
+OC2-Modding is a general-purpose modding framework for Team 17's hit game *Overcooked! 2*.
+
+There are two main uses for it right now:
+- [Archipelago Randomizer/MultiWorld](https://archipelago.gg/games/Overcooked!%202/info/en)
+    - Visit the Archipealgo Site for setup/usage
+- Playing the normal game with quality of life improvements
+    - Edit `OC2Modding.cfg` after installation
+
+This has only been tested on Steam, but in theory it *should* work with Epic.
 
 # How To Install
 
@@ -12,7 +20,7 @@
 
 4. Open `<path-to-game>\Overcooked! 2\BepInEx\config\OC2Modding.cfg` with your favorite text editor and configure your game to taste
 
-# How To Build (Read only if you are a developer)
+# How To Build (read only if you are a developer)
 
 1. Install latest [.NET sdk](https://dotnet.microsoft.com/en-us/)
 
