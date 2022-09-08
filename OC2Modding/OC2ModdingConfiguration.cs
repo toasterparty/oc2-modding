@@ -69,9 +69,6 @@ namespace OC2Modding
         // Squirt Gun Distance
         // Guitine Cooldown
         // Custom Knockback Force (Bellows, Squirt Gun, Dashing, Throwing)
-        // Repair Hammer
-        // Coin Bag
-        // Calmer Unbread
         // 6-6 Timer Advantage (progressive?) 
 
         // <UnlockerLevelId, LockedLevelId>
@@ -107,6 +104,11 @@ namespace OC2Modding
 
             /* Initialize Standalone Config */
             InitCfg();
+
+            if (DisableAllMods)
+            {
+                return; // Disable All Mods takes priority
+            }
 
             /* Initialize API Config */
             if (JsonConfigPath == "")

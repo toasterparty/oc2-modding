@@ -17,7 +17,10 @@ namespace OC2Modding
 
             /* Initialize Configuration */
             OC2Config.Awake();
-            if (OC2Config.DisableAllMods) return;
+            if (OC2Config.DisableAllMods) {
+                OC2Modding.Log.LogInfo($"All mods DISABLED!");
+                return;
+            }
 
             /* Inject Mods */
             OC2Helpers.Awake(); // This MUST go first
