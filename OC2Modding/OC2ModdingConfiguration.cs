@@ -14,6 +14,7 @@ namespace OC2Modding
         private static string JsonConfigPath = "";
         public static string SaveFolderName = "";
         public static bool JsonMode = false;
+        public static bool DisableArchipelagoLogin = false;
 
         /* Globally Accessible Config Values */
         // QoL + Cheats
@@ -197,6 +198,7 @@ namespace OC2Modding
             data += $"\"ItemIndex\":{ItemIndex},";
             data += $"\"LevelTimerScale\":{LevelTimerScale},";
             data += $"\"ImpossibleTutorial\":{ImpossibleTutorial},";
+            data += $"\"DisableArchipelagoLogin\":{DisableArchipelagoLogin},";
 
             data += $"\"LevelUnlockRequirements\":{{";
             bool first = true;
@@ -376,6 +378,14 @@ namespace OC2Modding
                 "Set to true to completely return the game back to it's original state"
             );
             DisableAllMods = configDisableAllMods.Value;
+
+            ConfigEntry<bool> configDisableArchipelagoLogin = configFile.Bind(
+                "_DisableAllMods_",
+                "DisableArchipelagoLogin",
+                false,
+                "Set to true to automatically bypass the login screen for Archipelago games"
+            );
+            DisableArchipelagoLogin = configDisableArchipelagoLogin.Value;
 
             ConfigEntry<bool> configAlwaysServeOldestOrder = configFile.Bind(
                 "GameModifications", // Config Category
@@ -592,6 +602,7 @@ namespace OC2Modding
             try { if (config.HasKey("AggressiveHorde"                )) AggressiveHorde                = config["AggressiveHorde"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'AggressiveHorde'"                ); }
             try { if (config.HasKey("ItemIndex"                      )) ItemIndex                      = config["ItemIndex"                      ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ItemIndex'"                      ); }
             try { if (config.HasKey("LevelTimerScale"                )) LevelTimerScale                = config["LevelTimerScale"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'LevelTimerScale'"                ); }
+            try { if (config.HasKey("DisableArchipelagoLogin"        )) DisableArchipelagoLogin        = config["DisableArchipelagoLogin"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableArchipelagoLogin'"        ); }
 
             try
             {

@@ -29,6 +29,11 @@ namespace OC2Modding
 
         public static void Update()
         {
+            if (OC2Config.DisableArchipelagoLogin)
+            {
+                ContinueWithoutArchipelago = true;
+            }
+
             if (ArchipelagoClient.IsConnected || ContinueWithoutArchipelago)
             {
                 Unlocked = true;
@@ -52,7 +57,7 @@ namespace OC2Modding
 
         public static void OnGUI()
         {
-            if (GameLog.isHidden)
+            if (GameLog.isHidden || OC2Config.DisableArchipelagoLogin)
             {
                 return;
             }
