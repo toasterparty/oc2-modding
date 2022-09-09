@@ -19,75 +19,6 @@ namespace OC2Modding
             modsDisplay = new ModsDisplay();
             onScreenDebugDisplay.AddDisplay(modsDisplay);
 
-            modsDisplay.m_Text = $"OC2 Modding v{PluginInfo.PLUGIN_VERSION}";
-
-            if (OC2Config.CheatsEnabled)
-            {
-                modsDisplay.m_Text += "\nDebug Cheats Enabled";
-            }
-            if (
-                OC2Config.BurnSpeedMultiplier != 1.0f ||
-                OC2Config.CustomOrderLifetime != 100.0 ||
-                OC2Config.DisableWood ||
-                OC2Config.DisableCoal ||
-                OC2Config.DisableOnePlate ||
-                OC2Config.DisableFireExtinguisher ||
-                OC2Config.DisableBellows ||
-                OC2Config.PlatesStartDirty ||
-                OC2Config.MaxTipCombo != 4 ||
-                OC2Config.DisableDash ||
-                OC2Config.DisableThrow ||
-                OC2Config.DisableCatch ||
-                OC2Config.DisableControlStick ||
-                OC2Config.DisableWokDrag ||
-                OC2Config.WashTimeMultiplier != 1.0f ||
-                OC2Config.BurnSpeedMultiplier != 1.0f ||
-                OC2Config.MaxOrdersOnScreenOffset != 0 ||
-                OC2Config.ChoppingTimeScale != 1.0f ||
-                OC2Config.BackpackMovementScale != 1.0f ||
-                OC2Config.RespawnTime != 5.0f ||
-                OC2Config.CarnivalDispenserRefactoryTime != 0.0f
-            )
-            {
-                modsDisplay.m_Text += "\nRandomizer Nerfs";
-            }
-            if (OC2Config.LeaderboardScoreScale != null)
-            {
-                modsDisplay.m_Text += "\nCustom Star Scaling";
-            }
-            if (OC2Config.LevelTimerScale != 1.0f)
-            {
-                modsDisplay.m_Text += "\nCustom Level Duration";
-            }
-            if (OC2Config.TimerAlwaysStarts)
-            {
-                modsDisplay.m_Text += "\nTimer Always Starts";
-            }
-            if (OC2Config.PreserveCookingProgress)
-            {
-                modsDisplay.m_Text += "\nPreserve Cooking Progress";
-            }
-            if (OC2Config.AlwaysServeOldestOrder)
-            {
-                modsDisplay.m_Text += "\nAlways Serve Oldest Order";
-            }
-            if (OC2Config.FixDoubleServing)
-            {
-                modsDisplay.m_Text += "\nDouble Servering Bugfix";
-            }
-            if (OC2Config.FixSinkBug)
-            {
-                modsDisplay.m_Text += "\nSink Bugfix";
-            }
-            if (OC2Config.FixEmptyBurnerThrow)
-            {
-                modsDisplay.m_Text += "\nEmpty Burner/Mixer Throw Bugfix";
-            }
-            if (OC2Config.FixControlStickThrowBug)
-            {
-                modsDisplay.m_Text += "\nControl Stick Throw Cooldown Bugfix";
-            }
-
             /* Inject Mod */
             Harmony.CreateAndPatchAll(typeof(DisplayModsOnResultsScreen));
         }
@@ -183,6 +114,75 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void OnOutro()
         {
+            modsDisplay.m_Text = $"OC2 Modding v{PluginInfo.PLUGIN_VERSION}";
+
+            if (OC2Config.CheatsEnabled)
+            {
+                modsDisplay.m_Text += "\nDebug Cheats Enabled";
+            }
+            if (
+                OC2Config.BurnSpeedMultiplier != 1.0f ||
+                OC2Config.CustomOrderLifetime != 100.0 ||
+                OC2Config.DisableWood ||
+                OC2Config.DisableCoal ||
+                OC2Config.DisableOnePlate ||
+                OC2Config.DisableFireExtinguisher ||
+                OC2Config.DisableBellows ||
+                OC2Config.PlatesStartDirty ||
+                OC2Config.MaxTipCombo != 4 ||
+                OC2Config.DisableDash ||
+                OC2Config.DisableThrow ||
+                OC2Config.DisableCatch ||
+                OC2Config.DisableControlStick ||
+                OC2Config.DisableWokDrag ||
+                OC2Config.WashTimeMultiplier != 1.0f ||
+                OC2Config.BurnSpeedMultiplier != 1.0f ||
+                OC2Config.MaxOrdersOnScreenOffset != 0 ||
+                OC2Config.ChoppingTimeScale != 1.0f ||
+                OC2Config.BackpackMovementScale != 1.0f ||
+                OC2Config.RespawnTime != 5.0f ||
+                OC2Config.CarnivalDispenserRefactoryTime != 0.0f
+            )
+            {
+                modsDisplay.m_Text += "\nRandomizer Nerfs";
+            }
+            if (OC2Config.LeaderboardScoreScale != null)
+            {
+                modsDisplay.m_Text += "\nCustom Star Scaling";
+            }
+            if (OC2Config.LevelTimerScale != 1.0f)
+            {
+                modsDisplay.m_Text += "\nCustom Level Duration";
+            }
+            if (OC2Config.TimerAlwaysStarts)
+            {
+                modsDisplay.m_Text += "\nTimer Always Starts";
+            }
+            if (OC2Config.PreserveCookingProgress)
+            {
+                modsDisplay.m_Text += "\nPreserve Cooking Progress";
+            }
+            if (OC2Config.AlwaysServeOldestOrder)
+            {
+                modsDisplay.m_Text += "\nAlways Serve Oldest Order";
+            }
+            if (OC2Config.FixDoubleServing)
+            {
+                modsDisplay.m_Text += "\nDouble Servering Bugfix";
+            }
+            if (OC2Config.FixSinkBug)
+            {
+                modsDisplay.m_Text += "\nSink Bugfix";
+            }
+            if (OC2Config.FixEmptyBurnerThrow)
+            {
+                modsDisplay.m_Text += "\nEmpty Burner/Mixer Throw Bugfix";
+            }
+            if (OC2Config.FixControlStickThrowBug)
+            {
+                modsDisplay.m_Text += "\nControl Stick Throw Cooldown Bugfix";
+            }
+
             shouldDisplay = true;
         }
 

@@ -9,8 +9,6 @@ namespace OC2Modding
 {
     public static class OC2Config
     {
-        public const bool CHEATS_ALLOWED = true;
-
         private static string JsonConfigPath = "";
         public static string SaveFolderName = "";
         public static bool JsonMode = false;
@@ -427,16 +425,13 @@ namespace OC2Modding
             );
             PurchaseAllLevels = configPurchaseAllLevels.Value;
 
-            if (CHEATS_ALLOWED)
-            {
-                ConfigEntry<bool> configCheatsEnabled = configFile.Bind(
-                    "GameModifications", // Config Category
-                    "CheatsEnabled", // Config key name
-                    false, // Default Config value
-                    "Enables some not very fun cheats for debug purposes" // Friendly description
-                );
-                CheatsEnabled = configCheatsEnabled.Value;
-            }
+            ConfigEntry<bool> configCheatsEnabled = configFile.Bind(
+                "GameModifications", // Config Category
+                "CheatsEnabled", // Config key name
+                false, // Default Config value
+                "Enables some not very fun cheats for debug purposes" // Friendly description
+            );
+            CheatsEnabled = configCheatsEnabled.Value;
 
             ConfigEntry<bool> configDisplayLeaderboardScores = configFile.Bind(
                 "QualityOfLife", // Config Category
