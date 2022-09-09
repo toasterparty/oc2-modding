@@ -140,6 +140,18 @@ namespace OC2Modding
             ThreadPool.QueueUserWorkItem((o) => ConnectTask(server, user, pass));
         }
 
+        public static void SendCompletion()
+        {
+            if (!IsConnected)
+            {
+                return;
+            }
+
+            var statusUpdatePacket = new StatusUpdatePacket();
+            statusUpdatePacket.Status = ArchipelagoClientState.ClientGoal;
+            session.Socket.SendPacket(statusUpdatePacket);
+        }
+
         private static void ConnectTask(string server, string user, string pass)
         {
             var result = ConnectionAttempt(server, user, pass);

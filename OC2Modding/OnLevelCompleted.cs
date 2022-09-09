@@ -122,6 +122,11 @@ namespace OC2Modding
             }
 
             RunCompletedLevelRoutines(_levelIndex);
+
+            if (_levelIndex == 36)
+            {
+                ArchipelagoClient.SendCompletion();
+            }
         }
 
         [HarmonyPatch(typeof(GameProgress), nameof(GameProgress.GetStarTotal))]
