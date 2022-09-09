@@ -35,8 +35,8 @@ namespace OC2Modding
             }
 
             /* Average progress weighted by how many items in each container 
-               but bleed 7% of the original cooked progress per extra item */
-            float bleed = 1.0f - 0.07f * (recipientContents - 1);
+               but bleed 13% of the original cooked progress per extra item */
+            float bleed = 1.0f - 0.13f * (recipientContents - 1);
             return (recipientProgress * recipientContents * bleed + receivedProgress * receivedContents) / (recipientContents + receivedContents);
         }
 

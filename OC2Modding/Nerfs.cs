@@ -201,8 +201,6 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool Update_Movement(ref ServerThrowableItem __instance)
         {
-            GameLog.LogMessage(__instance.gameObject.name);
-
             if (__instance.gameObject.name.Contains("Pushable_Object") && OC2Config.DisableWokDrag)
             {
                 return false;
