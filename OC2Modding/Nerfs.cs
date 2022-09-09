@@ -414,6 +414,21 @@ namespace OC2Modding
             ___m_PlayerRespawnBehaviour.m_respawnTime = OC2Config.RespawnTime;
         }
 
+        private static bool inReceiveTriggerInteractEvent = false;
+        [HarmonyPatch(typeof(ServerPlayerControlsImpl_Default), nameof(ServerPlayerControlsImpl_Default.ReceiveTriggerInteractEvent))]
+        [HarmonyPrefix]
+        private static void ReceiveTriggerInteractEvent_Prefix()
+        {
+            inReceiveTriggerInteractEvent = true;
+        }
+
+        [HarmonyPatch(typeof(ServerPlayerControlsImpl_Default), nameof(ServerPlayerControlsImpl_Default.ReceiveTriggerInteractEvent))]
+        [HarmonyPostfix]
+        private static void ReceiveTriggerInteractEvent_Postfix()
+        {
+            inReceiveTriggerInteractEvent = false;
+        }
+
         private static double previousDrinkTime = 0;
         [HarmonyPatch(typeof(ServerInteractable), nameof(ServerInteractable.CanInteract))]
         [HarmonyPostfix]
@@ -427,6 +442,11 @@ namespace OC2Modding
             if (!__result)
             {
                 return; // It's already not interactable
+            }
+
+            if (!inReceiveTriggerInteractEvent)
+            {
+                return; // It's an interaction check not pertaining to a player/drink switch
             }
 
             // OC2Modding.Log.LogInfo($"Can Interact With '{__instance.gameObject.name}'?");
