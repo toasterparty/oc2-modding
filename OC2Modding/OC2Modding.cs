@@ -46,6 +46,7 @@ namespace OC2Modding
             ArchipelagoLoginGUI.Awake();
             AggressiveHorde.Awake();
             CustomOrderTimeoutPenalty.Awake();
+            IncreasedKnockback.Awake();
 
             DisplayModsOnResultsScreen.Awake();
         }
