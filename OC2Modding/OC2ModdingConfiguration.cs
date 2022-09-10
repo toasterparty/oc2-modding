@@ -9,7 +9,6 @@ namespace OC2Modding
 {
     public static class OC2Config
     {
-        private static string JsonConfigPath = "";
         public static string SaveFolderName = "";
         public static bool JsonMode = false;
         public static bool DisableArchipelagoLogin = false;
@@ -102,31 +101,47 @@ namespace OC2Modding
             LevelForceReveal = new List<int>();
             LockedEmotes = new List<int>();
 
-            /* Initialize Standalone Config */
-            InitCfg();
-
-            if (DisableAllMods)
-            {
-                return; // Disable All Mods takes priority
-            }
-
-            /* Initialize API Config */
-            if (JsonConfigPath == "")
-            {
-                InitJson("OC2Modding.json");
-            }
-            if (JsonConfigPath != "")
-            {
-                InitJson(JsonConfigPath);
-            }
-            if (SaveFolderName != "")
-            {
-                InitJson(OC2Helpers.getCustomSaveDirectory() + "/OC2Modding.json");
-            }
-
-            FlushConfig();
+            InitConfig(false);
 
             Harmony.CreateAndPatchAll(typeof(OC2Config));
+        }
+
+        public static void InitConfig(bool newGame) {
+            // Everything gets update except for the SaveFolderName
+            string oldSaveFolderName = SaveFolderName;
+
+            /* Initialize with standalone config */
+            InitConfigStandalone();
+
+            /* short circuit if globally disabled */
+            if (DisableAllMods) return;
+            
+            /* Initialize using locally supplied configuration (optional) */
+            InitJsonFile("OC2Modding.json");
+
+            /* short circuit if globally disabled */
+            if (DisableAllMods) return;
+
+            if (oldSaveFolderName != "") {
+                SaveFolderName = oldSaveFolderName;
+            }
+
+            if (SaveFolderName != "") {
+                /* Apply starting inventory */
+                InitJsonFile(OC2Helpers.getCustomSaveDirectory() + "OC2Modding-INIT.json");
+
+                /* Apply saved game inventory */
+                if (!newGame) {
+                    InitJsonFile(OC2Helpers.getCustomSaveDirectory() + "/OC2Modding.json");
+                }
+            }
+
+            if (newGame) {
+                ItemIndex = 0; // When starting a new game, reset the remote items that have been received
+            }
+
+            /* Ensure save game inventory is saved to disk */
+            FlushConfig();
         }
 
         public static void FlushConfig()
@@ -367,7 +382,7 @@ namespace OC2Modding
 
         /* Create OC2Modding.cfg if it doesn't exist and populate it 
            with all possible config options. Load the file and set all */
-        private static void InitCfg()
+        private static void InitConfigStandalone()
         {
             ConfigFile configFile = new ConfigFile(Path.Combine(Paths.ConfigPath, "OC2Modding.cfg"), true);
 
@@ -524,7 +539,7 @@ namespace OC2Modding
             FixEmptyBurnerThrow = configFixEmptyBurnerThrow.Value;
         }
 
-        public static void InitJson(string filename)
+        private static void InitJsonFile(string filename)
         {
             try
             {
@@ -540,7 +555,7 @@ namespace OC2Modding
             }
             catch
             {
-                OC2Modding.Log.LogError($"Failed to parse json from {filename}");
+                OC2Modding.Log.LogWarning($"Failed to parse json from {filename}");
             }
         }
 
@@ -570,7 +585,6 @@ namespace OC2Modding
             try { if (config.HasKey("SkipTutorial"                   )) SkipTutorial                   = config["SkipTutorial"                   ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SkipTutorial'"                   ); }
             try { if (config.HasKey("CheatsEnabled"                  )) CheatsEnabled                  = config["CheatsEnabled"                  ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CheatsEnabled'"                  ); }
             try { if (config.HasKey("SaveFolderName"                 )) SaveFolderName                 = config["SaveFolderName"                 ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SaveFolderName'"                 ); }
-            try { if (config.HasKey("JsonConfigPath"                 )) JsonConfigPath                 = config["JsonConfigPath"                 ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'JsonConfigPath'"                 ); }
             try { if (config.HasKey("DisableWood"                    )) DisableWood                    = config["DisableWood"                    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableWood'"                    ); }
             try { if (config.HasKey("DisableCoal"                    )) DisableCoal                    = config["DisableCoal"                    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableCoal'"                    ); }
             try { if (config.HasKey("DisableOnePlate"                )) DisableOnePlate                = config["DisableOnePlate"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableOnePlate'"                ); }
@@ -793,27 +807,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void SaveNewGame()
         {
-            if (JsonMode)
-            {
-                /* Initialize Standalone Config */
-                InitCfg();
-
-                /* Initialize API Config */
-                if (JsonConfigPath == "")
-                {
-                    InitJson("OC2Modding.json");
-                }
-                if (JsonConfigPath != "")
-                {
-                    InitJson(JsonConfigPath);
-                }
-
-                InitJson(OC2Helpers.getCustomSaveDirectory() + "OC2Modding-INIT.json");
-
-                ItemIndex = 0; // When starting a new game, reset the remote items that have been received
-
-                FlushConfig();
-            }
+            InitConfig(true); // re-initialize without loading saved inventory state
         }
 
         [HarmonyPatch(typeof(SelectSaveDialog), "Update")]
