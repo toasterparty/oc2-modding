@@ -496,6 +496,8 @@ namespace OC2Modding
             }
         }
 
+        /*** Experiments Below ***/
+
         // [HarmonyPatch(typeof(ServerDirtyPlateStack), nameof(ServerDirtyPlateStack.OnSurfaceDeplacement))]
         // [HarmonyPostfix]
         // private static void OnSurfaceDeplacement(ref ServerDirtyPlateStack __instance, ref ServerStack ___m_stack, ref ServerAttachStation ___m_attachStation)
@@ -516,6 +518,39 @@ namespace OC2Modding
         //     }
             
         //     ___m_attachStation.AddItem(gameObject, Vector2.up);
+        // }
+
+        // [HarmonyPatch(typeof(ServerTriggerTimer), nameof(ServerTriggerTimer.StartSynchronising))]
+        // [HarmonyPostfix]
+        // private static void StartSynchronising(ref TriggerTimer ___m_triggerTimer)
+        // {
+        //     GameLog.LogMessage($"start={___m_triggerTimer.m_startTrigger}, end={___m_triggerTimer.m_completeTrigger}");
+        // }
+        
+        // private static bool scaleTime = false;
+        // [HarmonyPatch(typeof(ServerTriggerTimer), nameof(ServerTriggerTimer.UpdateSynchronising))]
+        // [HarmonyPrefix]
+        // private static void ServerTriggerTimer_UpdateSynchronising_Prefix()
+        // {
+        //     scaleTime = true;
+        // }
+
+        // [HarmonyPatch(typeof(ServerTriggerTimer), nameof(ServerTriggerTimer.UpdateSynchronising))]
+        // [HarmonyPostfix]
+        // private static void ServerTriggerTimer_UpdateSynchronising_Postfix()
+        // {
+        //     scaleTime = false;
+        // }
+
+        // [HarmonyPatch(typeof(TimeManager), nameof(TimeManager.GetDeltaTime))]
+        // [HarmonyPatch(new Type[] { typeof(GameObject) })]
+        // [HarmonyPostfix]
+        // private static void ServerTriggerTimer_UpdateSynchronising_Postfix(ref float __result)
+        // {
+        //     if (scaleTime)
+        //     {
+        //         __result *= 10.0f;
+        //     }
         // }
     }
 }

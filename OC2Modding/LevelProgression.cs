@@ -12,7 +12,7 @@ namespace OC2Modding
 
         public static bool IsLevelCompleted(int levelId)
         {
-            bool result = GameUtils.GetGameSession().Progress.SaveData.GetLevelProgress(levelId).ScoreStars > 0;
+            bool result = GameUtils.GetGameSession().Progress.SaveData.GetLevelProgress(levelId).Completed;
             if (result && OC2Helpers.GetCurrentDLCID() == -1)
             {
                 ArchipelagoClient.VisitLocation(levelId);

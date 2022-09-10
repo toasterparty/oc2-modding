@@ -439,6 +439,41 @@ namespace OC2Modding
             }
         }
 
+        public static bool IsLevelHordeLevel(int _levelIndex) {
+            if (OC2Config.CustomLevelOrder == null)
+            {
+                return false;
+            }
+
+            if (!OC2Config.CustomLevelOrder.ContainsKey("Story"))
+            {
+                return false;
+            }
+
+            if (!OC2Config.CustomLevelOrder["Story"].ContainsKey(_levelIndex))
+            {
+                return false;
+            }
+
+            OC2Config.DlcIdAndLevelId level = OC2Config.CustomLevelOrder["Story"][_levelIndex];
+
+            int[] levels;
+            if (level.Dlc == 7) // horde
+            {
+                levels = new int[] { 12, 13, 14, 15, 16, 17, 18, 19 };
+            }
+            else if (level.Dlc == 3) // seasonal
+            {
+                levels = new int[] { 13, 15 };
+            }
+            else
+            {
+                levels = new int[] {};
+            }
+
+            return levels.Contains(level.LevelId);
+        }
+
         public static int DLCFromString(string dlc)
         {
             switch (dlc)

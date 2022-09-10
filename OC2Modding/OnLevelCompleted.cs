@@ -136,47 +136,14 @@ namespace OC2Modding
             __result += OC2Config.StarOffset;
         }
 
+        /* Horde Levels should never increase star count */
         [HarmonyPatch(typeof(GameProgress), "ApplyLevelProgress")]
         [HarmonyPrefix]
         private static void ApplyLevelProgress(ref int _levelIndex, ref int _starRating)
         {
-            if (OC2Config.CustomLevelOrder == null)
-            {
-                return;
+            if (OC2Helpers.IsLevelHordeLevel(_levelIndex)) {
+                _starRating = 0;
             }
-
-            if (!OC2Config.CustomLevelOrder.ContainsKey("Story"))
-            {
-                return;
-            }
-
-            if (!OC2Config.CustomLevelOrder["Story"].ContainsKey(_levelIndex))
-            {
-                return;
-            }
-
-            OC2Config.DlcIdAndLevelId level = OC2Config.CustomLevelOrder["Story"][_levelIndex];
-
-            int[] levels;
-            if (level.Dlc == 7) // horde
-            {
-                levels = new int[] { 12, 13, 14, 15, 16, 17, 18, 19 };
-            }
-            else if (level.Dlc == 3) // seasonal
-            {
-                levels = new int[] { 13, 15 };
-            }
-            else
-            {
-                levels = new int[] {};
-            }
-
-            if (!levels.Contains(level.LevelId))
-            {
-                return;
-            }
-
-            _starRating = 0;
         }
     }
 }
