@@ -12,6 +12,10 @@ namespace OC2Modding
 
         private static void RunCompletedLevelRoutines(int level_id)
         {
+            if (ArchipelagoClient.REMOTE_INVENTORY && ArchipelagoClient.IsConnected) {
+                return; // The client is not reponsible for giving their own items
+            }
+
             if (OC2Config.OnLevelCompleted.ContainsKey(level_id))
             {
                 foreach (OC2Config.OnLevelCompletedEvent e in OC2Config.OnLevelCompleted[level_id])

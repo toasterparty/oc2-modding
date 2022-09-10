@@ -13,6 +13,8 @@ namespace OC2Modding
 {
     public static class ArchipelagoClient
     {
+        public const bool REMOTE_INVENTORY = true;
+
         private static ArchipelagoSession session = null;
 
         static string serverUrl = "archipelago.gg";
@@ -218,7 +220,7 @@ namespace OC2Modding
                 var result = session.TryConnectAndLogin(
                     "Overcooked! 2",
                     userName,
-                    ItemsHandlingFlags.RemoteItems,
+                    REMOTE_INVENTORY ? ItemsHandlingFlags.AllItems : ItemsHandlingFlags.RemoteItems,
                     Version,
                     tags: new string[0],
                     uuid: null,

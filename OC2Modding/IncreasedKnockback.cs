@@ -18,14 +18,5 @@ namespace OC2Modding
 
             // OC2Modding.Log.LogMessage($"{___m_context.m_levelConfig.name}");
         }
-
-        [HarmonyPatch(typeof(ServerPlayerControlsImpl_Default), "StartDashCollision")]
-        [HarmonyPostfix]
-        private static void StartDashCollision(ref Vector2 _knockbackForce)
-        {
-            // _knockbackForce *= 2.0f;
-
-            // OC2Modding.Log.LogMessage($"{___m_context.m_levelConfig.name}");
-        }
     }
 }
