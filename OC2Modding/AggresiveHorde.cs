@@ -12,8 +12,8 @@ namespace OC2Modding
         }
 
         const float HORDE_SPAWN_SPEED_MULTIPLIER               = 2.0f; // larger means less stagger
-        const float HORDE_ENEMY_KITCH_ATTACK_SPEED_MULTIPLIER  = 0.6f; // larger means slower attack rate
-        const float HORDE_ENEMY_TARGET_ATTACK_SPEED_MULTIPLIER = 0.6f; // larger means slower attack rate
+        const float HORDE_ENEMY_KITCH_ATTACK_SPEED_MULTIPLIER  = 0.7f; // larger means slower attack rate
+        const float HORDE_ENEMY_TARGET_ATTACK_SPEED_MULTIPLIER = 0.7f; // larger means slower attack rate
         const float HORDE_ENEMY_TARGET_DAMAGE_MULTIPLIER       = 0.7f; // larger means more damage
         const float HORDE_ENEMY_KITCH_DAMAGE_MULTIPLIER        = 0.8f; // larger means more damage
         const float HORDE_ENEMY_MOVEMENT_SPEED_MULTIPLIER      = 0.3f; // larger means move to window faster
