@@ -52,16 +52,22 @@ namespace OC2Modding
         {
             static void Prefix(ref GameModes.Horde.HordeEnemy ___m_enemy)
             {
-                if (!OC2Config.AggressiveHorde)
+                if (OC2Config.AggressiveHorde)
                 {
-                    return;
+                    ___m_enemy.m_attackKitchenFrequencySeconds = 5f * HORDE_ENEMY_KITCH_ATTACK_SPEED_MULTIPLIER;
+                    ___m_enemy.m_targetDamage = (int)(25 * HORDE_ENEMY_TARGET_DAMAGE_MULTIPLIER);
+                    ___m_enemy.m_attackTargetFrequencySeconds = 5f * HORDE_ENEMY_TARGET_ATTACK_SPEED_MULTIPLIER;
+                    ___m_enemy.m_kitchenDamage = (int)(10 * HORDE_ENEMY_KITCH_DAMAGE_MULTIPLIER);
+                    ___m_enemy.m_movementSpeed = 1f * HORDE_ENEMY_MOVEMENT_SPEED_MULTIPLIER;
                 }
-
-                ___m_enemy.m_attackKitchenFrequencySeconds = 5f * HORDE_ENEMY_KITCH_ATTACK_SPEED_MULTIPLIER;
-                ___m_enemy.m_targetDamage = (int)(25 * HORDE_ENEMY_TARGET_DAMAGE_MULTIPLIER);
-                ___m_enemy.m_attackTargetFrequencySeconds = 5f * HORDE_ENEMY_TARGET_ATTACK_SPEED_MULTIPLIER;
-                ___m_enemy.m_kitchenDamage = (int)(10 * HORDE_ENEMY_KITCH_DAMAGE_MULTIPLIER);
-                ___m_enemy.m_movementSpeed = 1f * HORDE_ENEMY_MOVEMENT_SPEED_MULTIPLIER;
+                else
+                {
+                    ___m_enemy.m_attackKitchenFrequencySeconds = 5f;
+                    ___m_enemy.m_targetDamage = 25;
+                    ___m_enemy.m_attackTargetFrequencySeconds = 5f;
+                    ___m_enemy.m_kitchenDamage = 10;
+                    ___m_enemy.m_movementSpeed = 1f;
+                }
             }
         }
     }
