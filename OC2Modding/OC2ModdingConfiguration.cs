@@ -74,6 +74,7 @@ namespace OC2Modding
         public static Dictionary<int, int> LevelUnlockRequirements;
         public static Dictionary<int, int> LevelPurchaseRequirements;
         public static List<int> LevelForceReveal;
+        public static List<int> LevelForceHide;
         public static Dictionary<int, float> LeaderboardScoreScale = null;
         public static Dictionary<string, Dictionary<int, DlcIdAndLevelId>> CustomLevelOrder = null;
         public static List<int> LockedEmotes;
@@ -99,6 +100,7 @@ namespace OC2Modding
             LevelUnlockRequirements = new Dictionary<int, int>();
             LevelPurchaseRequirements = new Dictionary<int, int>();
             LevelForceReveal = new List<int>();
+            LevelForceHide = new List<int>();
             LockedEmotes = new List<int>();
 
             InitConfig(false);
@@ -250,6 +252,22 @@ namespace OC2Modding
             data += $"\"LevelForceReveal\":[";
             first = true;
             foreach (int value in LevelForceReveal)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    data += ",";
+                }
+                data += $"{value}";
+            }
+            data += "],";
+
+            data += $"\"LevelForceHide\":[";
+            first = true;
+            foreach (int value in LevelForceHide)
             {
                 if (first)
                 {
@@ -734,6 +752,26 @@ namespace OC2Modding
             catch
             {
                 OC2Modding.Log.LogWarning($"Failed to parse key 'LevelForceReveal'");
+            }
+
+            try
+            {
+                if (config.HasKey("LevelForceHide"))
+                {
+                    List<int> temp = new List<int>();
+
+                    foreach (int levelId in config["LevelForceHide"].AsArray.Values)
+                    {
+                        temp.Add(levelId);
+                    }
+
+                    LevelForceHide.Clear();
+                    LevelForceHide = temp;
+                }
+            }
+            catch
+            {
+                OC2Modding.Log.LogWarning($"Failed to parse key 'LevelForceHide'");
             }
 
             try

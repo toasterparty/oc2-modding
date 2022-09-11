@@ -88,9 +88,19 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void IsLevelUnlocked(ref int _levelIndex, ref bool __result)
         {
+            if (OC2Helpers.GetCurrentDLCID() != -1)
+            {
+                return;
+            }
+
             if (OC2Config.LevelUnlockRequirements.ContainsKey(_levelIndex))
             {
                 __result = IsLevelCompleted(OC2Config.LevelUnlockRequirements[_levelIndex]);
+            }
+
+            if (OC2Config.LevelForceHide.Contains(_levelIndex))
+            {
+                __result = false;
             }
 
             if (OC2Config.LevelForceReveal.Contains(_levelIndex))

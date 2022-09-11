@@ -57,7 +57,6 @@ namespace OC2Modding
                 if (OC2Config.PlatesStartDirty)
                 {
                     string levelName = GameUtils.GetGameSession().LevelSettings.SceneDirectoryVarientEntry.LevelConfig.name;
-                    GameLog.LogMessage(levelName);
 
                     if (
                         levelName.StartsWith("Summer_1_5") ||
