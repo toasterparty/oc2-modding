@@ -78,6 +78,7 @@ namespace OC2Modding
             OkEmote = 34,
             RampButton = 35,
             BonusStar = 36,
+            AggressiveHorde = 37,
         };
 
         private static int LastVisitedLocationsCount = 0;
@@ -623,6 +624,12 @@ namespace OC2Modding
                     {
                         if (!OC2Config.DisableRampButton) return false;
                         OC2Config.DisableRampButton = false;
+                        break;
+                    }
+                case Oc2Item.AggressiveHorde:
+                    {
+                        if (!OC2Config.AggressiveHorde) return false;
+                        OC2Config.AggressiveHorde = false;
                         break;
                     }
                 case Oc2Item.BonusStar:
