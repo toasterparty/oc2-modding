@@ -11,12 +11,12 @@ namespace OC2Modding
             Harmony.CreateAndPatchAll(typeof(HordeEnemyPath));
         }
 
-        const float HORDE_SPAWN_SPEED_MULTIPLIER               = 2.0f; // larger means less stagger
-        const float HORDE_ENEMY_KITCH_ATTACK_SPEED_MULTIPLIER  = 0.7f; // larger means slower attack rate
-        const float HORDE_ENEMY_TARGET_ATTACK_SPEED_MULTIPLIER = 0.7f; // larger means slower attack rate
-        const float HORDE_ENEMY_TARGET_DAMAGE_MULTIPLIER       = 0.7f; // larger means more damage
-        const float HORDE_ENEMY_KITCH_DAMAGE_MULTIPLIER        = 0.8f; // larger means more damage
-        const float HORDE_ENEMY_MOVEMENT_SPEED_MULTIPLIER      = 0.3f; // larger means move to window faster
+        const float HORDE_SPAWN_SPEED_MULTIPLIER               = 1.5f; // larger means less stagger
+        const float HORDE_ENEMY_KITCH_ATTACK_SPEED_MULTIPLIER  = 1.0f; // larger means slower attack rate
+        const float HORDE_ENEMY_TARGET_ATTACK_SPEED_MULTIPLIER = 1.3f; // larger means slower attack rate
+        const float HORDE_ENEMY_TARGET_DAMAGE_MULTIPLIER       = 1.0f; // larger means more damage
+        const float HORDE_ENEMY_KITCH_DAMAGE_MULTIPLIER        = 1.0f; // larger means more damage
+        const float HORDE_ENEMY_MOVEMENT_SPEED_MULTIPLIER      = 1.2f; // larger means move to window faster
 
         /*
          * Increases/Decreases staggering of horde spawn in each wave
