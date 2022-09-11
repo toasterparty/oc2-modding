@@ -339,7 +339,7 @@ namespace OC2Modding
 
         public static bool IsDynamicLevel(string levelName)
         {
-            return levelName.Contains("_Dynamic_");
+            return levelName.Contains("_Dynamic_") || levelName.Contains("_Special_");
         }
 
         private static void BuildLeaderboardScores()
