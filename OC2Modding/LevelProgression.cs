@@ -81,6 +81,18 @@ namespace OC2Modding
                 {
                     ArchipelagoClient.VisitLocation(_id);
                 }
+
+                if (OC2Config.PseudoSave.ContainsKey(_id))
+                {
+                    __result.Completed = true;
+                    __result.Purchased = true;
+                    __result.Revealed = true;
+                    if (__result.HighScore <= 0)
+                    {
+                        __result.HighScore = 1;
+                    }
+                    __result.ScoreStars = OC2Config.PseudoSave[_id];
+                }
             }
         }
 

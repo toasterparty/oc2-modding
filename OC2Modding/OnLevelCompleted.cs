@@ -118,6 +118,13 @@ namespace OC2Modding
             ArchipelagoClient.VisitLocation(_levelIndex);
 
             GameProgress.GameProgressData.LevelProgress levelProgress = _saveData.GetLevelProgress(_levelIndex);
+
+            // Update "save file"
+            if (!OC2Config.PseudoSave.ContainsKey(_levelIndex) || _starRating > OC2Config.PseudoSave[_levelIndex]) {
+                OC2Config.PseudoSave[_levelIndex] = _starRating;
+                ArchipelagoClient.SendPseudoSave();
+            }
+
             bool first_completion = levelProgress == null || levelProgress.LevelId == -1;
 
             if ((!first_completion && levelProgress.Completed) || LevelProgression.IsLevelCompleted(_levelIndex))

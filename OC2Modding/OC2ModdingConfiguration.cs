@@ -79,6 +79,7 @@ namespace OC2Modding
         public static Dictionary<string, Dictionary<int, DlcIdAndLevelId>> CustomLevelOrder = null;
         public static List<int> LockedEmotes;
         public static Dictionary<int, List<OnLevelCompletedEvent>> OnLevelCompleted = new Dictionary<int, List<OnLevelCompletedEvent>>();
+        public static Dictionary<int, int> PseudoSave = new Dictionary<int, int>(); // levelId, stars
         public static int ItemIndex = 0;
 
         public struct OnLevelCompletedEvent
@@ -236,6 +237,22 @@ namespace OC2Modding
             data += $"\"LevelPurchaseRequirements\":{{";
             first = true;
             foreach (KeyValuePair<int, int> kvp in LevelPurchaseRequirements)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    data += ",";
+                }
+                data += $"\"{kvp.Key}\":{kvp.Value}";
+            }
+            data += "},";
+
+            data += $"\"PseudoSave\":{{";
+            first = true;
+            foreach (KeyValuePair<int, int> kvp in PseudoSave)
             {
                 if (first)
                 {
@@ -671,6 +688,26 @@ namespace OC2Modding
             catch
             {
                 OC2Modding.Log.LogWarning($"Failed to parse key 'LevelPurchaseRequirements'");
+            }
+
+            try
+            {
+                if (config.HasKey("PseudoSave"))
+                {
+                    Dictionary<int, int> tempDict = new Dictionary<int, int>();
+
+                    foreach (KeyValuePair<string, SimpleJSON.JSONNode> kvp in config["PseudoSave"].AsObject)
+                    {
+                        tempDict.Add(int.Parse(kvp.Key), kvp.Value);
+                    }
+
+                    PseudoSave.Clear();
+                    PseudoSave = tempDict;
+                }
+            }
+            catch
+            {
+                OC2Modding.Log.LogWarning($"Failed to parse key 'PseudoSave'");
             }
 
             try

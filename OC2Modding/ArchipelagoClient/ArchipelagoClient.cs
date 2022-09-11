@@ -8,6 +8,7 @@ using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.Models;
 using Archipelago.MultiClient.Net.Packets;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace OC2Modding
 {
@@ -135,24 +136,63 @@ namespace OC2Modding
 
         public static void Connect(string server, string user, string pass)
         {
-            if (IsConnected)
-            {
-                return;
-            }
+            if (IsConnected) return;
 
             ThreadPool.QueueUserWorkItem((o) => ConnectTask(server, user, pass));
         }
 
         public static void SendCompletion()
         {
-            if (!IsConnected)
-            {
-                return;
-            }
+            if (!IsConnected) return;
 
             var statusUpdatePacket = new StatusUpdatePacket();
             statusUpdatePacket.Status = ArchipelagoClientState.ClientGoal;
             session.Socket.SendPacket(statusUpdatePacket);
+        }
+
+        public static void SendPseudoSave()
+        {
+            if (!IsConnected) return;
+
+            ThreadPool.QueueUserWorkItem((o) => SendPseudoSaveTask());
+        }
+
+        private static void SendPseudoSaveTask()
+        {
+            // Fetch the existing
+            Dictionary<int, int> PseudoSave = session.DataStorage["PseudoSave"].To<Dictionary<int, int>>();
+
+            // Update us
+            MergeDicts(OC2Config.PseudoSave, PseudoSave);
+
+            // Update them
+            bool updateRemote = MergeDicts(PseudoSave, OC2Config.PseudoSave);
+
+            // Write back
+            if (updateRemote)
+            {
+                session.DataStorage["PseudoSave"] = JObject.FromObject(PseudoSave);
+            }
+        }
+
+        private static void OnPseudoSaveChanged(Dictionary<int, int> PseudoSave)
+        {
+            MergeDicts(OC2Config.PseudoSave, PseudoSave);
+        }
+
+        private static bool MergeDicts(Dictionary<int, int> main, Dictionary<int, int> update)
+        {
+            bool changed = false;
+            foreach (KeyValuePair<int, int> kvp in update)
+            {
+                if (!main.ContainsKey(kvp.Key) || kvp.Value > main[kvp.Key])
+                {
+                    changed = true;
+                    main[kvp.Key] = kvp.Value;
+                }
+            }
+
+            return changed;
         }
 
         private static void ConnectTask(string server, string user, string pass)
@@ -213,10 +253,7 @@ namespace OC2Modding
                 session = ArchipelagoSessionFactory.CreateSession(uri);
 
                 session.Socket.PacketReceived += OnPacketReceived;
-                // session.Items.ItemReceived += (receivedItemsHelper) =>
-                // {
-                //     OnItemReceived(receivedItemsHelper);
-                // };
+                
 
                 var result = session.TryConnectAndLogin(
                     "Overcooked! 2",
@@ -269,6 +306,18 @@ namespace OC2Modding
 
             if (IsConnected)
             {
+                try
+                {
+                    session.DataStorage["PseudoSave"].Initialize(JObject.FromObject(new Dictionary<int, int>()));
+                    session.DataStorage["PseudoSave"].OnValueChanged += (_old, _new) => {
+                        OnPseudoSaveChanged(_new.ToObject<Dictionary<int, int>>());
+                    };
+                }
+                catch (Exception e)
+                {
+                    GameLog.LogMessage($"Failed to initialize psuedo cloud save: {e.Message}");
+                }
+                
                 UpdateLocations();
             }
 
