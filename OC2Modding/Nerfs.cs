@@ -44,19 +44,32 @@ namespace OC2Modding
                 return false;
             }
 
+            string objectName = _objectToPlace.name;
             bool isPlate =
-                _objectToPlace.name.StartsWith("equipment_plate_01") ||
-                _objectToPlace.name.StartsWith("Plate ") ||
-                _objectToPlace.name.StartsWith("equipment_mug_01") ||
-                _objectToPlace.name.StartsWith("DLC08_equipment_tray") ||
-                _objectToPlace.name.StartsWith("DLC11_equipment_glass_01") ||
-                _objectToPlace.name.StartsWith("equipment_glass_01")
-                ;
+                objectName.StartsWith("Plate ") ||
+                objectName.Contains("equipment_plate") ||
+                objectName.Contains("equipment_mug") ||
+                objectName.Contains("equipment_tray") ||
+                objectName.Contains("equipment_glass");
 
             if (isPlate)
             {
                 if (OC2Config.PlatesStartDirty)
                 {
+                    string levelName = GameUtils.GetGameSession().LevelSettings.SceneDirectoryVarientEntry.LevelConfig.name;
+                    GameLog.LogMessage(levelName);
+
+                    if (
+                        levelName.StartsWith("Summer_1_5") ||
+                        levelName.StartsWith("Beach_3_2") ||
+                        levelName.StartsWith("Beach_Special")
+                    ) {
+                        // certain levels have both plates and cups and
+                        // on these levels, moving them to the serving window
+                        // turns cups into plates, so we just don't bother
+                        return true;
+                    }
+
                     removedPlates++;
                     _objectToPlace.Destroy();
                     return false;
@@ -69,7 +82,7 @@ namespace OC2Modding
                 }
             }
 
-            if (OC2Config.DisableFireExtinguisher && (_objectToPlace.name.StartsWith("utensil_fire_extinguisher_") || _objectToPlace.name.StartsWith("DLC08_utensil_fire_extinguisher")))
+            if (OC2Config.DisableFireExtinguisher && _objectToPlace.name.Contains("utensil_fire_extinguisher"))
             {
                 _objectToPlace.Destroy();
                 return false;
