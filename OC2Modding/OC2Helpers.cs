@@ -150,7 +150,6 @@ namespace OC2Modding
                 return null;
             }
 
-            // GameSession[] gameSessions = (GameSession[])m_CoopGameSessionPrefabs.AllData.Clone(); // TODO: to clone or not to clone
             GameSession[] gameSessions = (GameSession[])m_CoopGameSessionPrefabs.AllData;
             gameSessions = gameSessions.AllRemoved_Predicate((GameSession x) => x == null);
             if (gameSessions == null)

@@ -35,7 +35,7 @@ namespace OC2Modding
         public static void Awake()
         {
             UpdateWindow();
-            Harmony.CreateAndPatchAll(typeof(GameLog)); // TODO call update on game resolution changed
+            Harmony.CreateAndPatchAll(typeof(GameLog));
             LogMessage($"OC2Modding v{PluginInfo.PLUGIN_VERSION} started");
         }
 
