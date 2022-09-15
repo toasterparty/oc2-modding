@@ -27,3 +27,7 @@ You can specify the argument types to hint at which method you want patched when
 ## [Invoke Private Method](https://github.com/toasterparty/oc2-modding/blob/9eb4eab953be71ab5da4f2e17ecda37a136c26af/OC2Modding/ArchipelagoClient/ArchipelagoLoginGUI.cs#L36..L37)
 
 Since we are patching classes from outside their original scope, private/protected methods which are designed to be useful within a class are not accessible by default. Some reflection handwaving can be used to get around this.
+
+## [Replace IL Operation(s)](https://github.com/toasterparty/oc2-modding/blob/b49a5c5d2957bba2b86a9c161b57de7d778ae294/OC2Modding/OC2ModdingConfiguration.cs#L989..L1031)
+
+Sometimes you have to get dirty and edit some assembly. This is the tip of the iceberg.
