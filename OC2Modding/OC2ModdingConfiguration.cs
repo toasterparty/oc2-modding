@@ -885,28 +885,36 @@ namespace OC2Modding
             InitConfig(true); // re-initialize without loading saved inventory state
         }
 
-        [HarmonyPatch(typeof(SelectSaveDialog), "Update")]
-        [HarmonyPrefix]
-        private static void UpdatePrefix(ref T17EventSystem ___m_eventSystem, ref SaveSlotElement[] ___m_saveElements)
+        private static void DisableExtraSaveSlots(ref SaveSlotElement[] ___m_saveElements)
         {
-            // OC2Modding only allows a single save slot
-            if (JsonMode)
+            if (!JsonMode)
             {
-                ___m_saveElements[1].gameObject.SetActive(false);
-                ___m_saveElements[2].gameObject.SetActive(false);
+                return; // vanilla with QoL
+            }
+
+            /* Disable slots 2 and 3 */
+            ___m_saveElements[1].gameObject.SetActive(false);
+            ___m_saveElements[2].gameObject.SetActive(false);
+
+            /* Disable slot 1 if the player is a guest */
+            if (!OC2Helpers.IsHostPlayer()) // If this doesn't work, check `m_DontSaveButton == null`
+            {
+                ___m_saveElements[0].gameObject.SetActive(false);
             }
         }
 
         [HarmonyPatch(typeof(SelectSaveDialog), "Update")]
-        [HarmonyPostfix]
-        private static void UpdatePostfix(ref T17EventSystem ___m_eventSystem, ref SaveSlotElement[] ___m_saveElements)
+        [HarmonyPrefix]
+        private static void UpdatePrefix(ref SaveSlotElement[] ___m_saveElements)
         {
-            // OC2Modding only allows a single save slot
-            if (JsonMode)
-            {
-                ___m_saveElements[1].gameObject.SetActive(false);
-                ___m_saveElements[2].gameObject.SetActive(false);
-            }
+            DisableExtraSaveSlots(ref ___m_saveElements);
+        }
+
+        [HarmonyPatch(typeof(SelectSaveDialog), "Update")]
+        [HarmonyPostfix]
+        private static void UpdatePostfix(ref SaveSlotElement[] ___m_saveElements)
+        {
+            DisableExtraSaveSlots(ref ___m_saveElements);
         }
     }
 }
