@@ -145,6 +145,11 @@ namespace OC2Modding
         {
             if (!IsConnected) return;
 
+            if (!OC2Helpers.IsHostPlayer())
+            {
+                return;
+            }
+
             var statusUpdatePacket = new StatusUpdatePacket();
             statusUpdatePacket.Status = ArchipelagoClientState.ClientGoal;
             session.Socket.SendPacket(statusUpdatePacket);
@@ -164,6 +169,11 @@ namespace OC2Modding
 
             // Update us
             MergeDicts(OC2Config.PseudoSave, PseudoSave);
+
+            if (!OC2Helpers.IsHostPlayer())
+            {
+                return;
+            }
 
             // Update them
             bool updateRemote = MergeDicts(PseudoSave, OC2Config.PseudoSave);
@@ -341,8 +351,6 @@ namespace OC2Modding
             cachedConnectionResult = null;
         }
 
-        static bool IsMe(int slot) => slot == session.ConnectionInfo.Slot;
-
         private static List<long> VisitedLocations = new List<long>();
 
         public static void VisitLocation(long location)
@@ -355,6 +363,11 @@ namespace OC2Modding
             if (VisitedLocations.Contains(location))
             {
                 return; // It's already been sent
+            }
+
+            if (!OC2Helpers.IsHostPlayer())
+            {
+                return;
             }
 
             OC2Modding.Log.LogInfo($"Adding Collected Location: {location}...");
@@ -373,6 +386,11 @@ namespace OC2Modding
 
         private static void UpdateLocations()
         {
+            if (!OC2Helpers.IsHostPlayer())
+            {
+                return;
+            }
+
             PendingLocationUpdate = true;
         }
 

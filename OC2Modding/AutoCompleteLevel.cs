@@ -95,6 +95,11 @@ namespace OC2Modding
                 return;
             }
 
+            if (!OC2Helpers.IsHostPlayer())
+            {
+                return;
+            }
+
             flowController.SkipToEnd();
         }
     }

@@ -44,6 +44,11 @@ namespace OC2Modding
 
         private static void FinishLevel(int stars)
         {
+            if (!OC2Helpers.IsHostPlayer())
+            {
+                return;
+            }
+
             ServerCampaignFlowController flowController = GameObject.FindObjectOfType<ServerCampaignFlowController>();
             if (flowController == null)
             {
@@ -71,7 +76,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void OnSuccessfulDelivery(ref ServerCampaignFlowController __instance)
         {
-            if (SkipLevel)
+            if (SkipLevel && OC2Helpers.IsHostPlayer())
             {
                 SkipLevel = false;
                 __instance.SkipToEnd();

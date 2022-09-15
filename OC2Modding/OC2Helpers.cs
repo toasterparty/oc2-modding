@@ -21,6 +21,33 @@ namespace OC2Modding
             Harmony.CreateAndPatchAll(typeof(CurrentDLC.CampaignMenu));
         }
 
+        public static bool IsHostPlayer()
+        {
+            IOnlinePlatformManager onlinePlatformManager = GameUtils.RequireManagerInterface<IOnlinePlatformManager>();
+            if (onlinePlatformManager == null)
+            {
+                return true;
+            }
+
+            IOnlineMultiplayerSessionCoordinator coordinator = onlinePlatformManager.OnlineMultiplayerSessionCoordinator();
+            if (coordinator == null)
+            {
+                return true;
+            }
+
+            if (coordinator.IsIdle())
+            {
+                return true;
+            }
+
+            // if (coordinator.Members().Length == 0)
+            // {
+            //     return true;
+            // }
+
+            return coordinator.IsHost();
+        }
+
         public static int DLCFromWorld(SceneDirectoryData.World world)
         {
             return DLCFromWorld((int)world);

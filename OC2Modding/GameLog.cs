@@ -41,12 +41,12 @@ namespace OC2Modding
 
         public static void LogMessage(string logText)
         {
-            OC2Modding.Log.LogMessage(logText);
-
             if (logText == "")
             {
                 return;
             }
+
+            OC2Modding.Log.LogMessage(logText);
 
             if (logLines.Count == MAX_LOG_LINES)
             {
@@ -215,6 +215,8 @@ namespace OC2Modding
                     break;
                 }
             }
+
+            ArchipelagoLoginGUI.UpdateGUI();
         }
 
         [HarmonyPatch(typeof(FixedAspectRatioManager), "LateUpdate")]

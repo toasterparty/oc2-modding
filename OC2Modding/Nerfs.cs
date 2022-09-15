@@ -31,20 +31,21 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool OnItemPlaced(ref GameObject _objectToPlace)
         {
-            OC2Modding.Log.LogInfo($"Placed '{_objectToPlace.name}'");
+            // OC2Modding.Log.LogInfo($"Placed '{_objectToPlace.name}'");
 
             if (finishedFirstPass)
             {
                 return true; // this is just regular gameplay
             }
 
-            if (OC2Config.DisableCoal && _objectToPlace.name == "utensil_coalbucket_01")
+            string objectName = _objectToPlace.name;
+
+            if (OC2Config.DisableCoal && objectName == "utensil_coalbucket_01")
             {
                 _objectToPlace.Destroy();
                 return false;
             }
 
-            string objectName = _objectToPlace.name;
             bool isPlate =
                 objectName.StartsWith("Plate ") ||
                 objectName.Contains("equipment_plate") ||
@@ -299,7 +300,6 @@ namespace OC2Modding
         {
             ___m_dashButton = __state; // Restore, just in case
         }
-
 
         [HarmonyPatch(typeof(ServerWashingStation), nameof(ServerWashable.UpdateSynchronising))]
         [HarmonyPrefix]

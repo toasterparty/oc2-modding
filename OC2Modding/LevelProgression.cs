@@ -29,6 +29,11 @@ namespace OC2Modding
                 GameUtils.GetDebugConfig().m_skipTutorial = true;
             }
             
+            if (!OC2Helpers.IsHostPlayer())
+            {
+                return;
+            }
+
             var Levels = session.Progress.SaveData.Levels;
 
             for (int levelId = 0; levelId < Levels.Length; levelId++)

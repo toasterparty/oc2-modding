@@ -10,6 +10,7 @@ namespace OC2Modding
 
         public static bool Unlocked = false;
         private static bool ReachedTitleScreen = false;
+        private static string StatusText = "";
 
         private static StartScreenFlow instance = null;
         private static GamepadUser gamepadUser = null;
@@ -55,6 +56,21 @@ namespace OC2Modding
             }
         }
 
+        // TODO: call on client connect/disconnect
+        public static void UpdateGUI()
+        {
+            StatusText = "Archipelago Status: ";
+            if (ContinueWithoutArchipelago)
+            {
+                StatusText += "Skipped";
+            }
+            else
+            {
+                StatusText += $"Connected ";
+                StatusText += OC2Helpers.IsHostPlayer() ? "[Host]" : "[Guest]";
+            }
+        }
+
         public static void OnGUI()
         {
             if (GameLog.isHidden || OC2Config.DisableArchipelagoLogin)
@@ -62,19 +78,11 @@ namespace OC2Modding
                 return;
             }
 
-            if (ArchipelagoClient.IsConnected)
+            if (ArchipelagoClient.IsConnected || ContinueWithoutArchipelago)
             {
                 GUI.Box(bgRectMini, "");
                 GUI.Box(bgRectMini, "");
-                GUI.Label(new Rect(16, 16, 300, 20), "Archipelago Status: Connected");
-                return;
-            }
-
-            if (ContinueWithoutArchipelago)
-            {
-                GUI.Box(bgRectMini, "");
-                GUI.Box(bgRectMini, "");
-                GUI.Label(new Rect(16, 16, 300, 20), "Archipelago Status: Skipped");
+                GUI.Label(new Rect(16, 16, 300, 20), StatusText);
                 return;
             }
 

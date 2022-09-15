@@ -84,7 +84,7 @@ namespace OC2Modding
         {
             [HarmonyPatch(typeof(ServerWashingStation), "OnItemAdded")]
             [HarmonyPrefix]
-            private static void OnItemAddedPrefix(ref IHandlePickup ___m_originalPickupReferee, ref ServerHandlePickupReferral ___m_handlePickupReferral)
+            private static void OnItemAdded(ref IHandlePickup ___m_originalPickupReferee, ref ServerHandlePickupReferral ___m_handlePickupReferral)
             {
                 if (OC2Config.FixSinkBug && ___m_originalPickupReferee == null && ___m_handlePickupReferral != null)
                 {
