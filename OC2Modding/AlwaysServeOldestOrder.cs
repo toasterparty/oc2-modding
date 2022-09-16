@@ -7,7 +7,6 @@ namespace OC2Modding
 {
     public static class AlwaysServeOldestOrder
     {
-
         public static void Awake()
         {
             Harmony.CreateAndPatchAll(typeof(AlwaysServeOldestOrder));

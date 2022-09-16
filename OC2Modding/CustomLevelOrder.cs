@@ -12,9 +12,7 @@ namespace OC2Modding
 
         private static Dictionary<OC2Config.DlcIdAndLevelId, SceneDirectoryData.SceneDirectoryEntry> replacementScenes = null;
 
-        [HarmonyPatch(typeof(T17FrontendFlow), nameof(T17FrontendFlow.Awake))]
-        [HarmonyPostfix]
-        private static void T17FrontendFlow_Awake()
+        private static void UpdateReplacementScenes()
         {
             if (replacementScenes != null)
             {
@@ -53,6 +51,13 @@ namespace OC2Modding
             }
         }
 
+        [HarmonyPatch(typeof(T17FrontendFlow), nameof(T17FrontendFlow.Awake))]
+        [HarmonyPostfix]
+        private static void T17FrontendFlow_Awake()
+        {
+            UpdateReplacementScenes();
+        }
+
         private static int scoreScaleHelper(int inScore, float scale, float timeScale)
         {
             float inScore_f = (float)inScore; // cast to float
@@ -82,6 +87,8 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void GetSceneDirectory(ref SceneDirectoryData ___m_sceneDirectory, ref SceneDirectoryData __result)
         {
+            UpdateReplacementScenes();
+
             int currentDlc = OC2Helpers.GetCurrentDLCID();
             if (lastDlc == currentDlc)
             {
@@ -102,7 +109,7 @@ namespace OC2Modding
 
             Dictionary<int, int> storyLevelIdToDlc = new Dictionary<int, int>();
             bool isCustomLevelOrder = OC2Config.CustomLevelOrder != null && currentDlc == -1 && OC2Config.CustomLevelOrder.ContainsKey("Story");
-            if (isCustomLevelOrder) // TODO: no reason not to allow other levels
+            if (isCustomLevelOrder)
             {
                 if (replacementScenes == null)
                 {

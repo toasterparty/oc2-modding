@@ -17,6 +17,7 @@ namespace OC2Modding
         {
             BuildLeaderboardScores();
 
+            Harmony.CreateAndPatchAll(typeof(CurrentDLC));
             Harmony.CreateAndPatchAll(typeof(CurrentDLC.DLCMenu));
             Harmony.CreateAndPatchAll(typeof(CurrentDLC.CampaignMenu));
         }
@@ -528,7 +529,7 @@ namespace OC2Modding
         [HarmonyPatch]
         private static class CurrentDLC
         {
-            public static int m_DLCID = 0;
+            public static int m_DLCID = -1;
 
             public static string DLCToString(int dlc)
             {
@@ -546,6 +547,13 @@ namespace OC2Modding
                             return "";
                         }
                 }
+            }
+
+            [HarmonyPatch(typeof(SelectSaveDialog), nameof(SelectSaveDialog.OnDontSaveSelected))]
+            [HarmonyPrefix]
+            private static void OnDontSaveSelected()
+            {
+                m_DLCID = -1; // return to default "story"
             }
 
             public static class CampaignMenu
@@ -575,10 +583,18 @@ namespace OC2Modding
                 }
 
                 [HarmonyPrefix]
-                private static void LoadDLC(ref DLCFrontendData dlcData)
+                private static bool LoadDLC(ref DLCFrontendData dlcData)
                 {
+                    if (OC2Config.JsonMode)
+                    {
+                        GameLog.LogMessage("Loading DLC is not supported when playing randomizer!");
+                        return false;
+                    }
+
                     m_DLCID = dlcData.m_DLCID;
                     OC2Modding.Log.LogInfo($"DLC set to {m_DLCID}:{DLCToString(m_DLCID)}");
+
+                    return true;
                 }
             }
         }
