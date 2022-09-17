@@ -11,7 +11,7 @@ namespace OC2Modding
     {
         static int removedPlates = 0;
         static bool finishedFirstPass = false;
-        static List<int> PlayersWearingBackpacks = new List<int>();
+        static List<PlayerInputLookup.Player> PlayersWearingBackpacks = new List<PlayerInputLookup.Player>();
 
         public static void Awake()
         {
@@ -296,7 +296,7 @@ namespace OC2Modding
             PlayerControls.MovementData m_movement = ((PlayerControls.MovementData)m_movement_prop.GetValue(___m_controls));
             
             float dashSpeedScale = 0.75f;
-            float dashCooldownScale = 1.5f;
+            float dashCooldownScale = 1.4f;
 
             m_movement.DashSpeed *= dashSpeedScale;
             m_movement.DashCooldown *= dashCooldownScale;
@@ -395,50 +395,44 @@ namespace OC2Modding
             return true;
         }
 
-        [HarmonyPatch(typeof(ServerBackpack), nameof(ServerBackpack.HandlePickup))]
+        [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), "OnCarriedItemChanged")]
         [HarmonyPostfix]
-        private static void CanHandlePickup(ref ICarrier _carrier)
+        private static void CanHandlePickup(ref GameObject _before, ref GameObject _after, ref PlayerIDProvider ___m_controlsPlayer)
         {
-            if (OC2Config.BackpackMovementScale == 1.0f)
-            {
-                return;
-            }
+            PlayerInputLookup.Player player = ___m_controlsPlayer.GetID();
 
-            string name = _carrier.AccessGameObject().name;
-            try
+            if (_before == null && _after != null && _after.name.Contains("ackpack"))
             {
-                int playerNum = Int32.Parse($"{name[name.Length - 1]}");
-                PlayersWearingBackpacks.Add(playerNum);
-                OC2Modding.Log.LogInfo($"Player #{playerNum} picked up a backpack");
+                // pickup
+                OC2Modding.Log.LogMessage($"Player {player} picked up a backpack");
+                PlayersWearingBackpacks.Add(player);
             }
-            catch { }
+            else if (_before != null && _after == null && _before.name.Contains("ackpack"))
+            {
+                // putdown
+                OC2Modding.Log.LogMessage($"Player {player} set down a backpack");
+                PlayersWearingBackpacks.Remove(player);
+            }
         }
 
         [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), "Update_Movement")]
         [HarmonyPrefix]
         private static void Update_Movement(ref PlayerControls ___m_controls, ref PlayerIDProvider ___m_controlsPlayer)
         {
-            if (___m_controls.MovementScale != 1.0f && ___m_controls.MovementScale != 0.0f)
-            {
-                return;
-            }
+            PlayerInputLookup.Player player = ___m_controlsPlayer.GetID();
+            bool wearingBackpack = PlayersWearingBackpacks.Contains(player) || (OC2Helpers.GetCurrentPlayerCount() == 1 && PlayersWearingBackpacks.Count > 0);
 
-            PlayerInputLookup.Player id = ___m_controlsPlayer.GetID();
-            int playerNum = ((int)id) + 1;
-
-            if ((OC2Helpers.GetCurrentPlayerCount() == 1 && PlayersWearingBackpacks.Count > 0) || PlayersWearingBackpacks.Contains(playerNum))
+            if (wearingBackpack && OC2Config.BackpackMovementScale != 1.0f && ___m_controls.MovementScale != OC2Config.BackpackMovementScale)
             {
-                OC2Modding.Log.LogInfo($"Player #{playerNum}'s speed set to {OC2Config.BackpackMovementScale}");
+                OC2Modding.Log.LogInfo($"Player {player}'s speed set to {OC2Config.BackpackMovementScale}");
                 ___m_controls.SetMovementScale(OC2Config.BackpackMovementScale);
             }
+            else if (!wearingBackpack && ___m_controls.MovementScale != 1.0f)
+            {
+                OC2Modding.Log.LogInfo($"Restored {player}'s speed to normal");
+                ___m_controls.SetMovementScale(1.0f);
+            }
         }
-
-        // [HarmonyPatch(typeof(ServerPlayerRespawnManager), "KillOrRespawn")]
-        // [HarmonyPrefix]
-        // private static void KillOrRespawn(ref GameObject _gameObject)
-        // {
-        //     OC2Modding.Log.LogInfo($"Respawning {_gameObject.gameObject.name}...");
-        // }
 
         [HarmonyPatch(typeof(ServerPlayerRespawnBehaviour), nameof(ServerPlayerRespawnBehaviour.StartSynchronising))]
         [HarmonyPostfix]
