@@ -11,14 +11,22 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(GameModes.ServerCampaignMode), nameof(GameModes.ServerCampaignMode.Begin))]
         [HarmonyPrefix]
-        private static void Begin(ref GameModes.ClientContext ___m_context)
+        private static void Begin_Server(ref GameModes.ClientContext ___m_context)
         {
             if (OC2Config.TimerAlwaysStarts)
             {
                 ___m_context.m_levelConfig.m_recipesBeforeTimerStarts = 0;
             }
+        }
 
-            // OC2Modding.Log.LogMessage($"{___m_context.m_levelConfig.name}");
+        [HarmonyPatch(typeof(GameModes.ClientCampaignMode), nameof(GameModes.ClientCampaignMode.Begin))]
+        [HarmonyPrefix]
+        private static void Begin_Client(ref GameModes.ClientContext ___m_context)
+        {
+            if (OC2Config.TimerAlwaysStarts)
+            {
+                ___m_context.m_levelConfig.m_recipesBeforeTimerStarts = 0;
+            }
         }
     }
 }
