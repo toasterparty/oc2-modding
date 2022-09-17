@@ -422,12 +422,15 @@ namespace OC2Modding
             PlayerInputLookup.Player player = ___m_controlsPlayer.GetID();
             bool wearingBackpack = PlayersWearingBackpacks.Contains(player) || (OC2Helpers.GetCurrentPlayerCount() == 1 && PlayersWearingBackpacks.Count > 0);
 
-            if (wearingBackpack && OC2Config.BackpackMovementScale != 1.0f && ___m_controls.MovementScale != OC2Config.BackpackMovementScale)
+            if (wearingBackpack)
             {
-                OC2Modding.Log.LogInfo($"Player {player}'s speed set to {OC2Config.BackpackMovementScale}");
-                ___m_controls.SetMovementScale(OC2Config.BackpackMovementScale);
+                if (OC2Config.BackpackMovementScale != 1.0f && ___m_controls.MovementScale != OC2Config.BackpackMovementScale)
+                {
+                    OC2Modding.Log.LogInfo($"Player {player}'s speed set to {OC2Config.BackpackMovementScale}");
+                    ___m_controls.SetMovementScale(OC2Config.BackpackMovementScale);
+                }
             }
-            else if (!wearingBackpack && ___m_controls.MovementScale != 1.0f)
+            else if (___m_controls.MovementScale != 1.0f)
             {
                 OC2Modding.Log.LogInfo($"Restored {player}'s speed to normal");
                 ___m_controls.SetMovementScale(1.0f);
