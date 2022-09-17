@@ -506,7 +506,7 @@ namespace OC2Modding
 
             ConfigEntry<bool> configDisplayFPS = configFile.Bind(
                 "QualityOfLife", // Config Category
-                "DisplayLeaderboardScores", // Config key name
+                "configDisplayFPS", // Config key name
                 true, // Default Config value
                 "Set to true to show FPS when HOME is pressed (hide with END)" // Friendly description
             );
@@ -515,7 +515,7 @@ namespace OC2Modding
             ConfigEntry<bool> configSkipTutorialPopups = configFile.Bind(
                 "QualityOfLife", // Config Category
                 "SkipTutorialPopups", // Config key name
-                true, // Default Config value
+                false, // Default Config value
                 "Set to true to skip showing tutorial popups before starting a level" // Friendly description
             );
             SkipTutorialPopups = configSkipTutorialPopups.Value;
@@ -539,7 +539,7 @@ namespace OC2Modding
             ConfigEntry<bool> configRevealAllLevels = configFile.Bind(
                 "QualityOfLife", // Config Category
                 "RevealAllLevels", // Config key name
-                true, // Default Config value
+                false, // Default Config value
                 "Set to true to immediately flip all hidden tiles on the overworld" // Friendly description
             );
             RevealAllLevels = configRevealAllLevels.Value;
@@ -555,7 +555,7 @@ namespace OC2Modding
             ConfigEntry<bool> configFixDoubleServing = configFile.Bind(
                 "Bugfixes", // Config Category
                 "FixDoubleServing", // Config key name
-                true, // Default Config value
+                false, // Default Config value
                 "Set to true to fix a bug which ruins competitive play" // Friendly description
             );
             FixDoubleServing = configFixDoubleServing.Value;
@@ -563,7 +563,7 @@ namespace OC2Modding
             ConfigEntry<bool> configFixSinkBug = configFile.Bind(
                 "Bugfixes", // Config Category
                 "FixSinkBug", // Config key name
-                true, // Default Config value
+                false, // Default Config value
                 "Set to true to fix a bug where sinks can have reduced usability for the rest of the level" // Friendly description
             );
             FixSinkBug = configFixSinkBug.Value;
@@ -571,7 +571,7 @@ namespace OC2Modding
             ConfigEntry<bool> configFixControlStickThrowBug = configFile.Bind(
                 "Bugfixes", // Config Category
                 "FixControlStickThrowBug", // Config key name
-                true, // Default Config value
+                false, // Default Config value
                 "Set to true to fix a bug where cancelling out of a platform control stick in a specific way would eat the next throw input" // Friendly description
             );
             FixControlStickThrowBug = configFixControlStickThrowBug.Value;
@@ -579,7 +579,7 @@ namespace OC2Modding
             ConfigEntry<bool> configFixEmptyBurnerThrow = configFile.Bind(
                 "Bugfixes", // Config Category
                 "FixEmptyBurnerThrow", // Config key name
-                true, // Default Config value
+                false, // Default Config value
                 "Set to true to fix a bug where you cannot throw items when standing directly over a burner/mixer with no pan/bowl" // Friendly description
             );
             FixEmptyBurnerThrow = configFixEmptyBurnerThrow.Value;
