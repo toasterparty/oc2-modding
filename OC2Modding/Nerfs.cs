@@ -27,22 +27,22 @@ namespace OC2Modding
             PlayersWearingBackpacks.Clear();
         }
 
-        [HarmonyPatch(typeof(ServerAttachStation), "OnItemPlaced")]
-        [HarmonyPrefix]
-        private static bool OnItemPlaced(ref GameObject _objectToPlace)
+        private static bool ShouldPlace(ref GameObject _objectToPlace, bool isServer=false)
         {
-            // OC2Modding.Log.LogInfo($"Placed '{_objectToPlace.name}'");
+            string objectName = _objectToPlace.name;
+
+            if (OC2Config.DisableFireExtinguisher && objectName.Contains("utensil_fire_extinguisher"))
+            {
+                return false;
+            }
 
             if (finishedFirstPass)
             {
-                return true; // this is just regular gameplay
+                return true;
             }
-
-            string objectName = _objectToPlace.name;
 
             if (OC2Config.DisableCoal && objectName == "utensil_coalbucket_01")
             {
-                _objectToPlace.Destroy();
                 return false;
             }
 
@@ -70,31 +70,59 @@ namespace OC2Modding
                         return true;
                     }
 
-                    removedPlates++;
-                    _objectToPlace.Destroy();
+                    if (isServer)
+                    {
+                        removedPlates++;
+                    }
                     return false;
                 }
                 else if (OC2Config.DisableOnePlate && removedPlates == 0)
                 {
-                    removedPlates++;
-                    _objectToPlace.Destroy();
+                    if (isServer)
+                    {
+                        removedPlates++;
+                    }
                     return false;
                 }
             }
 
-            if (OC2Config.DisableFireExtinguisher && _objectToPlace.name.Contains("utensil_fire_extinguisher"))
+            if (OC2Config.DisableBellows && objectName == "utensil_bellows_01")
             {
-                _objectToPlace.Destroy();
-                return false;
-            }
-
-            if (OC2Config.DisableBellows && _objectToPlace.name == "utensil_bellows_01")
-            {
-                _objectToPlace.Destroy();
                 return false;
             }
 
             return true;
+        }
+
+        [HarmonyPatch(typeof(ServerAttachStation), "OnItemPlaced")]
+        [HarmonyPrefix]
+        private static bool OnItemPlaced_Server(ref GameObject _objectToPlace)
+        {
+            // OC2Modding.Log.LogInfo($"Placed '{_objectToPlace.name}'");
+
+            bool shouldPlace = ShouldPlace(ref _objectToPlace, isServer:true);
+            if (!shouldPlace)
+            {
+                _objectToPlace.Destroy();
+            }
+
+            return shouldPlace;
+        }
+
+        [HarmonyPatch(typeof(ClientAttachStation), "OnItemPlaced")]
+        [HarmonyPrefix]
+        private static bool OnItemPlaced_Client(ref IClientAttachment _item)
+        {
+            GameObject _objectToPlace = _item.AccessGameObject();
+            // OC2Modding.Log.LogInfo($"Placed '{_objectToPlace.name} (client)'");
+
+            bool shouldPlace = ShouldPlace(ref _objectToPlace);
+            if (!shouldPlace)
+            {
+                _objectToPlace.Destroy();
+            }
+
+            return shouldPlace;
         }
 
         [HarmonyPatch(typeof(ServerPlateReturnStation), nameof(ServerPlateReturnStation.UpdateSynchronising))]
