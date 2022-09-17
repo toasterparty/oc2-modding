@@ -114,8 +114,17 @@ namespace OC2Modding
             InitConfig(false);
 
             Harmony.CreateAndPatchAll(typeof(OC2Config));
-            Harmony.CreateAndPatchAll(typeof(ReceiveJoinRequestMessage_Patch));
-            Harmony.CreateAndPatchAll(typeof(UpdateJoiningLobby_Patch));
+
+            // at the time or writing, epic games is ver=22 and steam is ver=17
+            if (Team17.Online.OnlineMultiplayerConfig.CodeVersion < 22)
+            {
+                Harmony.CreateAndPatchAll(typeof(ReceiveJoinRequestMessage_Patch));
+                Harmony.CreateAndPatchAll(typeof(UpdateJoiningLobby_Patch));
+            }
+            else
+            {
+                // TODO: patch epic games to use unique codeversion when connecting to clients
+            }
 
             OC2Modding.Log.LogInfo($"Using REPORTED_ONLINE_VERSION={REPORTED_ONLINE_VERSION}");
         }
