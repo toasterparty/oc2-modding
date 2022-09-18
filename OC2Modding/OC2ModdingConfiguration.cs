@@ -118,8 +118,8 @@ namespace OC2Modding
             // at the time or writing, epic games is ver=22 and steam is ver=17
             if (Team17.Online.OnlineMultiplayerConfig.CodeVersion < 22)
             {
-                Harmony.CreateAndPatchAll(typeof(ReceiveJoinRequestMessage_Patch));
-                Harmony.CreateAndPatchAll(typeof(UpdateJoiningLobby_Patch));
+                // Harmony.CreateAndPatchAll(typeof(ReceiveJoinRequestMessage_Patch));
+                // Harmony.CreateAndPatchAll(typeof(UpdateJoiningLobby_Patch));
             }
             else
             {
@@ -161,6 +161,7 @@ namespace OC2Modding
 
             if (newGame) {
                 ItemIndex = 0; // When starting a new game, reset the remote items that have been received
+                ArchipelagoClient.SendPseudoSave(); // Force an update of slot data (completed levels)
             }
 
             /* Ensure save game inventory is saved to disk */

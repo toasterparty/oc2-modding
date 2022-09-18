@@ -110,6 +110,16 @@ namespace OC2Modding
                 OC2Config.FlushConfig();
             }
 
+            if (PendingLocationUpdate || DoPseudoSave)
+            {
+                LocationsAndOrPseudoSaveTask();
+            }
+
+            ThreadPool.QueueUserWorkItem((o) => LocationsAndOrPseudoSaveTask());
+        }
+
+        private static void LocationsAndOrPseudoSaveTask()
+        {
             if (PendingLocationUpdate)
             {
                 PendingLocationUpdate = false;
@@ -118,8 +128,15 @@ namespace OC2Modding
                 if (count != 0 && count != LastVisitedLocationsCount)
                 {
                     LastVisitedLocationsCount = count;
-                    ThreadPool.QueueUserWorkItem((o) => UpdateLocationsTask());
+                    OC2Modding.Log.LogInfo($"Syncing Collected Locations with remote...");
+                    session.Locations.CompleteLocationChecks(VisitedLocations.ToArray());
                 }
+            }
+
+            if (DoPseudoSave)
+            {
+                DoPseudoSave = false;
+                SendPseudoSaveTask();
             }
         }
 
@@ -155,11 +172,11 @@ namespace OC2Modding
             session.Socket.SendPacket(statusUpdatePacket);
         }
 
+        private static bool DoPseudoSave = false;
         public static void SendPseudoSave()
         {
             if (!IsConnected) return;
-
-            ThreadPool.QueueUserWorkItem((o) => SendPseudoSaveTask());
+            DoPseudoSave = true;
         }
 
         private static void SendPseudoSaveTask()
@@ -375,12 +392,6 @@ namespace OC2Modding
             UpdateLocations();
         }
 
-        private static void UpdateLocationsTask()
-        {
-            OC2Modding.Log.LogInfo($"Syncing Collected Locations with remote...");
-            ReconnectIfNeeded();
-            session.Locations.CompleteLocationChecks(VisitedLocations.ToArray());
-        }
 
         private static bool PendingLocationUpdate = false;
 
