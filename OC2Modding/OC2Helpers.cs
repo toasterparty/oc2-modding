@@ -21,6 +21,12 @@ namespace OC2Modding
             Harmony.CreateAndPatchAll(typeof(CurrentDLC.DLCMenu));
             Harmony.CreateAndPatchAll(typeof(CurrentDLC.CampaignMenu));
         }
+        
+        public static bool IsEpicGames()
+        {
+            // at the time or writing, epic games is ver=22 and steam is ver=17
+            return Team17.Online.OnlineMultiplayerConfig.CodeVersion >= 22;
+        }
 
         public static bool IsHostPlayer()
         {

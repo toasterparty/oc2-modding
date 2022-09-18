@@ -112,10 +112,8 @@ namespace OC2Modding
 
             if (PendingLocationUpdate || DoPseudoSave)
             {
-                LocationsAndOrPseudoSaveTask();
+                LocationsAndOrPseudoSaveTask(); // was going to put this in a thread, but then forgot to before testing
             }
-
-            ThreadPool.QueueUserWorkItem((o) => LocationsAndOrPseudoSaveTask());
         }
 
         private static void LocationsAndOrPseudoSaveTask()

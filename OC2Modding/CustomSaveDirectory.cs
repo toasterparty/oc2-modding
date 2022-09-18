@@ -10,39 +10,29 @@ namespace OC2Modding
         }
 
         static bool displayOnce = false;
-
-        [HarmonyPatch(typeof(SteamSaveManager), "GetSaveDirectory")]
+        [HarmonyPatch(typeof(PCSaveManager), "GetFileAddress")]
         [HarmonyPostfix]
-        private static void GetSaveDirectory(ref string __result)
+        private static void GetFileAddress(ref string __result)
         {
             if (OC2Config.SaveFolderName == "")
             {
-                return;
+                return; // Use vanilla save dir
             }
 
-            __result = OC2Helpers.getCustomSaveDirectory();
+            // Extract filename
+            var temp = __result.Split('/');
+            string filename = temp[temp.Length-1];
+
+            // Get custom dir
+            string saveDir = OC2Helpers.getCustomSaveDirectory();
             if (!displayOnce)
             {
                 displayOnce = true;
-                OC2Modding.Log.LogInfo($"Using custom save directory: {__result}");
-            }
-        }
-
-        [HarmonyPatch(typeof(PCSaveManager), "GetSaveDirectory")]
-        [HarmonyPostfix]
-        private static void GetSaveDirectoryPC(ref string __result)
-        {
-            if (OC2Config.SaveFolderName == "")
-            {
-                return;
+                OC2Modding.Log.LogInfo($"Using custom save directory: {saveDir}");
             }
 
-            __result = OC2Helpers.getCustomSaveDirectory();
-            if (!displayOnce)
-            {
-                displayOnce = true;
-                OC2Modding.Log.LogInfo($"Using custom save directory: {__result}");
-            }
+            // Use modified filepath
+            __result = saveDir + "/" + filename;
         }
     }
 }
