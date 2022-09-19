@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using HarmonyLib;
 using UnityEngine;
 using Team17.Online.Multiplayer.Messaging;
@@ -11,6 +12,7 @@ namespace OC2Modding
     {
         static int removedPlates = 0;
         static bool finishedFirstPass = false;
+        static bool finishedFirstPassServer = false;
         static float originalWashTime = 0.0f;
         static List<PlayerInputLookup.Player> PlayersWearingBackpacks = new List<PlayerInputLookup.Player>();
 
@@ -25,6 +27,7 @@ namespace OC2Modding
         {
             removedPlates = 0;
             finishedFirstPass = false;
+            finishedFirstPassServer = false;
             PlayersWearingBackpacks.Clear();
             originalWashTime = 0.0f;
         }
@@ -38,7 +41,11 @@ namespace OC2Modding
                 return false;
             }
 
-            if (finishedFirstPass)
+            if (!isServer && finishedFirstPass)
+            {
+                return true;
+            }
+            else if (isServer && finishedFirstPassServer)
             {
                 return true;
             }
@@ -98,17 +105,22 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(ServerAttachStation), "OnItemPlaced")]
         [HarmonyPrefix]
-        private static bool OnItemPlaced_Server(ref GameObject _objectToPlace)
+        private static void OnItemPlaced_Server_Prefix(ref GameObject _objectToPlace, ref bool __state)
         {
-            // OC2Modding.Log.LogInfo($"Placed '{_objectToPlace.name}'");
+            // OC2Modding.Log.LogInfo($"Placed '{_objectToPlace.name} (server)'");
 
-            bool shouldPlace = ShouldPlace(ref _objectToPlace, isServer:true);
-            if (!shouldPlace)
+            __state = ShouldPlace(ref _objectToPlace, isServer:true);
+        }
+
+        [HarmonyPatch(typeof(ServerAttachStation), "OnItemPlaced")]
+        [HarmonyPostfix]
+        private static void OnItemPlaced_Server_Postfix(ref GameObject _objectToPlace, ref ServerAttachStation __instance, ref bool __state)
+        {
+            if (!__state)
             {
-                _objectToPlace.Destroy();
+                MethodInfo dynMethod = __instance.GetType().GetMethod("OnItemTaken", BindingFlags.NonPublic | BindingFlags.Instance);
+                dynMethod.Invoke(__instance, new object[] { });
             }
-
-            return shouldPlace;
         }
 
         [HarmonyPatch(typeof(ClientAttachStation), "OnItemPlaced")]
@@ -131,7 +143,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void UpdateSynchronising(ref PlateReturnStation ___m_returnStation)
         {
-            if (___m_returnStation.m_startingPlateNumber != 0 || removedPlates == 0 || finishedFirstPass)
+            if (___m_returnStation.m_startingPlateNumber != 0 || removedPlates == 0 || finishedFirstPassServer)
             {
                 return; // We already did this patch
             }
@@ -148,9 +160,16 @@ namespace OC2Modding
                 ___m_returnStation.m_startingPlateNumber -= 1;
             }
 
-            finishedFirstPass = true;
+            finishedFirstPassServer = true;
 
             OC2Modding.Log.LogInfo($"Added {___m_returnStation.m_startingPlateNumber} plates to the serving window");
+        }
+
+        [HarmonyPatch(typeof(ClientCarryableItem), nameof(ClientCarryableItem.CanHandlePickup))]
+        [HarmonyPrefix]
+        private static void CanHandlePickup()
+        {
+            finishedFirstPass = true;
         }
 
         [HarmonyPatch(typeof(ServerKitchenFlowControllerBase), "OnSuccessfulDelivery")]
