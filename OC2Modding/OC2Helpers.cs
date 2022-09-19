@@ -3,6 +3,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Threading;
 using HarmonyLib;
 using Team17.Online;
 using UnityEngine;
@@ -15,7 +16,8 @@ namespace OC2Modding
 
         public static void Awake()
         {
-            BuildLeaderboardScores();
+            /* Asynchronously download leaderboard file and populate memory structure with score */
+            ThreadPool.QueueUserWorkItem((o) => BuildLeaderboardScores());
 
             Harmony.CreateAndPatchAll(typeof(CurrentDLC));
             Harmony.CreateAndPatchAll(typeof(CurrentDLC.DLCMenu));
@@ -470,6 +472,8 @@ namespace OC2Modding
                     OC2Modding.Log.LogWarning($"Failed to parse line:\n'{line}'\n{e}");
                 }
             }
+
+            OC2Modding.Log.LogInfo("Finished bulding high score repository");
         }
 
         public static bool IsLevelHordeLevel(int _levelIndex) {
@@ -616,6 +620,7 @@ namespace OC2Modding
                 downloadProcess.StartInfo.Arguments = "https://overcooked.greeny.dev/assets/data/data.csv --output leaderboard_scores.csv";
                 downloadProcess.StartInfo.CreateNoWindow = true;
                 downloadProcess.Start();
+                downloadProcess.WaitForExit();
             }
             catch (Exception e)
             {
