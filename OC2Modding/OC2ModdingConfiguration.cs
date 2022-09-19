@@ -14,7 +14,7 @@ namespace OC2Modding
 {
     public static class OC2Config
     {
-        public const sbyte REPORTED_ONLINE_VERSION = 100;
+        public const int REPORTED_ONLINE_VERSION = 100;
 
         public static string SaveFolderName = "";
         public static bool JsonMode = false;
@@ -120,11 +120,11 @@ namespace OC2Modding
                 // TODO: patch epic games to use unique CodeVersion when connecting to clients
             }
             {
-                // Harmony.CreateAndPatchAll(typeof(ReceiveJoinRequestMessage_Patch));
-                // Harmony.CreateAndPatchAll(typeof(UpdateJoiningLobby_Patch));
+                Harmony.CreateAndPatchAll(typeof(ReceiveJoinRequestMessage_Patch));
+                Harmony.CreateAndPatchAll(typeof(UpdateJoiningLobby_Patch));
             }
 
-            OC2Modding.Log.LogInfo($"Using REPORTED_ONLINE_VERSION={REPORTED_ONLINE_VERSION}");
+            OC2Modding.Log.LogInfo($"Using REPORTED_ONLINE_VERSION={REPORTED_ONLINE_VERSION} (Normally {OnlineMultiplayerConfig.CodeVersion})");
         }
 
         public static void InitConfig(bool newGame) {
@@ -978,6 +978,7 @@ namespace OC2Modding
                 if (requesterVersion != REPORTED_ONLINE_VERSION)
                 {
                     GameLog.LogMessage("ERROR: Only modded players can connect to your game");
+                    OC2Modding.Log.LogWarning($"them={requesterVersion}, us={REPORTED_ONLINE_VERSION}");
 
                     // Send rejection letter
                     MethodInfo SetupOutgoingMessage = __instance.GetType().GetMethod("SetupOutgoingMessage", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -994,10 +995,18 @@ namespace OC2Modding
             }
         }
 
+        private static bool PrintOnce = false;
+
         [HarmonyPatch(typeof(Team17.Online.SteamOnlineMultiplayerSessionCoordinator))]
         [HarmonyPatch("UpdateJoiningLobby")]
         private static class UpdateJoiningLobby_Patch
         {
+            private static void Prefix()
+            {
+                // OC2Modding.Log.LogMessage("UpdateJoiningLobby");
+                PrintOnce = true;
+            }
+
             private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
                 var code = new List<CodeInstruction>(instructions);
@@ -1030,12 +1039,49 @@ namespace OC2Modding
                 }
 
                 // Instead of calling the getter of CodeVersion, load an immediate value of our own
-                code[injectionIndex] = new CodeInstruction(OpCodes.Ldc_I4_S, (sbyte)REPORTED_ONLINE_VERSION);
+                code[injectionIndex] = new CodeInstruction(OpCodes.Ldc_I4, REPORTED_ONLINE_VERSION);
 
-                OC2Modding.Log.LogInfo("Successfully transpiled UpdateJoiningLobby so that it doesn't check connection version");
+                OC2Modding.Log.LogInfo($"Successfully transpiled UpdateJoiningLobby idx={injectionIndex}");
 
                 return code;
             }
+        }
+
+        [HarmonyPatch(typeof(BitStreamWriter))]
+        [HarmonyPatch(new Type[] { typeof(uint), typeof(int) })]
+        [HarmonyPatch(nameof(BitStreamWriter.Write))]
+        [HarmonyPrefix]
+        private static void Write(ref uint bits, ref int countOfBits)
+        {
+            if (PrintOnce)
+            {
+                PrintOnce = false;
+                OC2Modding.Log.LogInfo($"Sent custom CodeVersion={REPORTED_ONLINE_VERSION} to prospective host");
+            }
+        }
+
+        [HarmonyPatch(typeof(ServerSessionPropertyValuesProvider), nameof(ServerSessionPropertyValuesProvider.Initialise))]
+        [HarmonyPostfix]
+        private static void Initialise_Server()
+        {
+            if (!JsonMode) return;
+            FieldInfo prop = typeof(ServerSessionPropertyValuesProvider).GetField("m_versionPropertyValue", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            OnlineMultiplayerSessionPropertyValue m_versionPropertyValue = (OnlineMultiplayerSessionPropertyValue)prop.GetValue(null);
+            m_versionPropertyValue.m_value = REPORTED_ONLINE_VERSION;
+            prop.SetValue(null, m_versionPropertyValue);
+        }
+
+        [HarmonyPatch(typeof(SearchSessionPropertyValuesProvider), nameof(ServerSessionPropertyValuesProvider.Initialise))]
+        [HarmonyPostfix]
+        private static void Initialise_Serach()
+        {
+            if (!JsonMode) return;
+            FieldInfo prop = typeof(SearchSessionPropertyValuesProvider).GetField("m_versionPropertyValue", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            OnlineMultiplayerSessionPropertySearchValue m_versionPropertyValue = (OnlineMultiplayerSessionPropertySearchValue)prop.GetValue(null);
+            m_versionPropertyValue.m_value = REPORTED_ONLINE_VERSION;
+            m_versionPropertyValue.m_valueMinRange = REPORTED_ONLINE_VERSION;
+            m_versionPropertyValue.m_valueMaxRange = REPORTED_ONLINE_VERSION;
+            prop.SetValue(null, m_versionPropertyValue);
         }
     }
 }
