@@ -11,6 +11,7 @@ namespace OC2Modding
     {
         static int removedPlates = 0;
         static bool finishedFirstPass = false;
+        static float originalWashTime = 0.0f;
         static List<PlayerInputLookup.Player> PlayersWearingBackpacks = new List<PlayerInputLookup.Player>();
 
         public static void Awake()
@@ -25,6 +26,7 @@ namespace OC2Modding
             removedPlates = 0;
             finishedFirstPass = false;
             PlayersWearingBackpacks.Clear();
+            originalWashTime = 0.0f;
         }
 
         private static bool ShouldPlace(ref GameObject _objectToPlace, bool isServer=false)
@@ -333,7 +335,12 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void UpdateSynchronising(ref WashingStation ___m_washingStation)
         {
-            ___m_washingStation.m_cleanPlateTime = 2.0f * OC2Config.WashTimeMultiplier;
+            if (originalWashTime == 0.0f)
+            {
+                originalWashTime = ___m_washingStation.m_cleanPlateTime;
+            }
+
+            ___m_washingStation.m_cleanPlateTime = originalWashTime * OC2Config.WashTimeMultiplier;
         }
 
         [HarmonyPatch(typeof(ServerCookingHandler), nameof(ServerCookingHandler.Cook))]
