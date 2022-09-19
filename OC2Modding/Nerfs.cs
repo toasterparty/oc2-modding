@@ -353,12 +353,25 @@ namespace OC2Modding
             __result = ___m_activeOrders.Count >= ___m_maxOrdersAllowed + OC2Config.MaxOrdersOnScreenOffset;
         }
 
+        private static int GetStages()
+        {
+            return Math.Max((int)(8.0f * OC2Config.ChoppingTimeScale), 2);
+        }
+
         [HarmonyPatch(typeof(ServerWorkableItem), nameof(ServerWorkableItem.DoWork))]
         [HarmonyPatch(new Type[] { typeof(ServerAttachStation), typeof(GameObject) })]
         [HarmonyPrefix]
-        private static void DoWork(ref WorkableItem ___m_workable)
+        private static void DoWork_Server(ref WorkableItem ___m_workable)
         {
-            ___m_workable.m_stages = Math.Max((int)(8.0f * OC2Config.ChoppingTimeScale), 2);
+            ___m_workable.m_stages = GetStages();
+        }
+
+        [HarmonyPatch(typeof(ClientWorkableItem), nameof(ClientWorkableItem.DoWork))]
+        [HarmonyPatch(new Type[] { typeof(ClientAttachStation), typeof(GameObject), typeof(int) })]
+        [HarmonyPrefix]
+        private static void DoWork_Client(ref WorkableItem ___m_workable)
+        {
+            ___m_workable.m_stages = GetStages();
         }
 
         [HarmonyPatch(typeof(ServerEmoteWheel), "StartEmote")]
