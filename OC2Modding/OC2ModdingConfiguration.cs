@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
@@ -127,7 +128,19 @@ namespace OC2Modding
             OC2Modding.Log.LogInfo($"Using REPORTED_ONLINE_VERSION={REPORTED_ONLINE_VERSION} (Normally {OnlineMultiplayerConfig.CodeVersion})");
         }
 
-        public static void InitConfig(bool newGame) {
+        public static void Update()
+        {
+            if (PendingFlushConfig)
+            {
+                PendingFlushConfig = false;
+                FlushConfig(immediate: true);
+            }
+        }
+
+        public static void InitConfig(bool newGame)
+        {
+            Update(); // flush config if needed
+
             // Everything gets update except for the SaveFolderName
             string oldSaveFolderName = SaveFolderName;
 
@@ -136,28 +149,32 @@ namespace OC2Modding
 
             /* short circuit if globally disabled */
             if (DisableAllMods) return;
-            
+
             /* Initialize using locally supplied configuration (optional) */
             InitJsonFile("OC2Modding.json");
 
             /* short circuit if globally disabled */
             if (DisableAllMods) return;
 
-            if (oldSaveFolderName != "") {
+            if (oldSaveFolderName != "")
+            {
                 SaveFolderName = oldSaveFolderName;
             }
 
-            if (SaveFolderName != "") {
+            if (SaveFolderName != "")
+            {
                 /* Apply starting inventory */
                 InitJsonFile(OC2Helpers.getCustomSaveDirectory() + "OC2Modding-INIT.json");
 
                 /* Apply saved game inventory */
-                if (!newGame) {
+                if (!newGame)
+                {
                     InitJsonFile(OC2Helpers.getCustomSaveDirectory() + "/OC2Modding.json");
                 }
             }
 
-            if (newGame) {
+            if (newGame)
+            {
                 ItemIndex = 0; // When starting a new game, reset the remote items that have been received
                 OC2Config.PseudoSave.Clear(); // don't bring any completed levels over
                 ArchipelagoClient.SendPseudoSave(); // Force an update of slot data (completed levels)
@@ -167,22 +184,48 @@ namespace OC2Modding
             FlushConfig();
         }
 
-        public static void FlushConfig()
+        private static bool PendingFlushConfig = false;
+
+        public static void FlushConfig(bool immediate = false)
         {
             if (!JsonMode)
             {
                 return;
             }
 
-            string save_dir = OC2Helpers.getCustomSaveDirectory();
-            if (!Directory.Exists(save_dir))
+            if (!immediate)
             {
-                Directory.CreateDirectory(save_dir);
+                PendingFlushConfig = true;
+                return;
             }
-            string filepath = save_dir + "/OC2Modding.json";
-            string text = SerializeConfig();
-            OC2Modding.Log.LogInfo($"Flushing config to '{filepath}'...");
-            File.WriteAllText(filepath, text);
+
+            ThreadPool.QueueUserWorkItem((o) => FlushConfigTask());
+        }
+
+        private static Mutex FlushConfigMut = new Mutex();
+
+        private static void FlushConfigTask()
+        {
+            FlushConfigMut.WaitOne();
+
+            try
+            {
+                string save_dir = OC2Helpers.getCustomSaveDirectory();
+                if (!Directory.Exists(save_dir))
+                {
+                    Directory.CreateDirectory(save_dir);
+                }
+                string filepath = save_dir + "/OC2Modding.json";
+                string text = SerializeConfig();
+                File.WriteAllText(filepath, text);
+                OC2Modding.Log.LogInfo($"Flushed config to '{filepath}'...");
+            }
+            catch
+            {
+                OC2Modding.Log.LogError("Failed to flush config");
+            }
+
+            FlushConfigMut.ReleaseMutex();
         }
 
         // Forgive me, for I have spaghetti code
@@ -971,7 +1014,7 @@ namespace OC2Modding
                 // Read the client version
                 int idx = ___m_transportBitStreamReader.CurrentIndex;
                 uint requesterVersion = ___m_transportBitStreamReader.ReadUInt32(32);
-                
+
                 // Repair Stream
                 ___m_transportBitStreamReader.SkipToByteIndex(idx);
 

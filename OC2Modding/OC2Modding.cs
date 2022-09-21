@@ -1,4 +1,4 @@
-﻿using BepInEx;
+using BepInEx;
 using BepInEx.Logging;
 
 namespace OC2Modding
@@ -54,6 +54,7 @@ namespace OC2Modding
         private void Update()
         {
             if (OC2Config.DisableAllMods) return;
+            OC2Config.Update();
             LeaderboardMod.Update();
             DisplayFPS.Update();
             DisplayModsOnResultsScreen.Update();

@@ -70,7 +70,12 @@ namespace OC2Modding
         };
 
         private static int LastVisitedLocationsCount = 0;
-        
+
+        private static bool PendingItemUpdate()
+        {
+            return OC2Config.ItemIndex < session.Items.AllItemsReceived.Count;
+        }
+
         public static void Update()
         {
             if (!IsConnected)
@@ -78,50 +83,102 @@ namespace OC2Modding
                 return;
             }
 
-            bool flushConfig = false;
-            while (OC2Config.ItemIndex < session.Items.AllItemsReceived.Count)
+            if (PendingLocationUpdate || PendingPseudoSaveUpdate || PendingSendCompletion || PendingItemUpdate())
             {
-                flushConfig = true;
-                NetworkItem item = session.Items.AllItemsReceived[OC2Config.ItemIndex];
-                OC2Config.ItemIndex++;
-
-                long itemId = item.Item - 59812623889202; // "oc2" in ascii
-                if (!GiveItem((int)itemId))
-                {
-                    OC2Modding.Log.LogError("Archipelago sent an item which goes above our inventory limits");
-                }
-            }
-
-            if (flushConfig)
-            {
-                OC2Config.FlushConfig();
-            }
-
-            if (PendingLocationUpdate || DoPseudoSave)
-            {
-                LocationsAndOrPseudoSaveTask(); // was going to put this in a thread, but then forgot to before testing
+                ThreadPool.QueueUserWorkItem((o) => UpdateTask());
             }
         }
 
-        private static void LocationsAndOrPseudoSaveTask()
-        {
-            if (PendingLocationUpdate)
-            {
-                PendingLocationUpdate = false;
+        private static Mutex UpdateMut = new Mutex();
 
-                int count = VisitedLocations.Count;
-                if (count != 0 && count != LastVisitedLocationsCount)
+        private static void UpdateTask()
+        {
+            if (!UpdateMut.WaitOne(millisecondsTimeout: 0))
+            {
+                return; // mutex was taken
+            }
+
+            UpdateItems();
+            UpdateVisitedLocations();
+            UpdatePseudoSave();
+            UpdateCompletion();
+
+            UpdateMut.ReleaseMutex();
+        }
+
+        private static void UpdateItems()
+        {
+            bool doFlush = false;
+            while (PendingItemUpdate())
+            {
+                try
                 {
-                    LastVisitedLocationsCount = count;
-                    OC2Modding.Log.LogInfo($"Syncing Collected Locations with remote...");
-                    session.Locations.CompleteLocationChecks(VisitedLocations.ToArray());
+                    doFlush = true;
+                    NetworkItem item = session.Items.AllItemsReceived[OC2Config.ItemIndex];
+                    OC2Config.ItemIndex++;
+
+                    long itemId = item.Item - 59812623889202; // "oc2" in ascii
+                    if (!GiveItem((int)itemId))
+                    {
+                        OC2Modding.Log.LogError("Archipelago sent an item which goes above our inventory limits");
+                    }
+                }
+                catch
+                {
+                    GameLog.LogMessage($"Error when receiving item at network index {OC2Config.ItemIndex}");
+                    OC2Config.ItemIndex++;
                 }
             }
 
-            if (DoPseudoSave)
+            if (doFlush)
             {
-                DoPseudoSave = false;
-                UpdatePseudoSave();
+                OC2Config.FlushConfig();
+            }
+        }
+
+        private static void UpdateVisitedLocations()
+        {
+            if (!PendingLocationUpdate || !OC2Helpers.IsHostPlayer())
+            {
+                return;
+            }
+
+            PendingLocationUpdate = false;
+
+            int count = VisitedLocations.Count;
+            if (count == 0 || count == LastVisitedLocationsCount)
+            {
+                return; // no new data to send
+            }
+
+            LastVisitedLocationsCount = count;
+            OC2Modding.Log.LogInfo($"Syncing Collected Locations with remote...");
+            try
+            {
+                session.Locations.CompleteLocationChecks(VisitedLocations.ToArray());
+            }
+            catch
+            {
+                OC2Modding.Log.LogError("CompleteLocationChecks failed");
+            }
+        }
+
+        private static void UpdateCompletion()
+        {
+            if (!PendingSendCompletion || !OC2Helpers.IsHostPlayer())
+            {
+                return;
+            }
+
+            try
+            {
+                var statusUpdatePacket = new StatusUpdatePacket();
+                statusUpdatePacket.Status = ArchipelagoClientState.ClientGoal;
+                session.Socket.SendPacket(statusUpdatePacket);
+            }
+            catch
+            {
+                GameLog.LogMessage("Error: Failed to send game completion!");
             }
         }
 
@@ -162,29 +219,29 @@ namespace OC2Modding
             ThreadPool.QueueUserWorkItem((o) => ConnectTask(server, user, pass));
         }
 
+        private static bool PendingSendCompletion = false;
         public static void SendCompletion()
         {
             if (!IsConnected) return;
-
-            if (!OC2Helpers.IsHostPlayer())
-            {
-                return;
-            }
-
-            var statusUpdatePacket = new StatusUpdatePacket();
-            statusUpdatePacket.Status = ArchipelagoClientState.ClientGoal;
-            session.Socket.SendPacket(statusUpdatePacket);
+            PendingSendCompletion = true;
         }
 
-        private static bool DoPseudoSave = false;
+        private static bool PendingPseudoSaveUpdate = false;
         public static void SendPseudoSave()
         {
             if (!IsConnected) return;
-            DoPseudoSave = true;
+            PendingPseudoSaveUpdate = true;
         }
 
         private static void UpdatePseudoSave()
         {
+            if (!PendingPseudoSaveUpdate)
+            {
+                return;
+            }
+
+            PendingPseudoSaveUpdate = false;
+
             // Fetch the existing
             Dictionary<int, int> PseudoSave = session.DataStorage["PseudoSave"].To<Dictionary<int, int>>();
 
@@ -267,7 +324,7 @@ namespace OC2Modding
             IsConnecting = true;
 
             try
-            {                
+            {
                 // Derrive the full uri without breaking it
                 serverUrl = server.Replace("ws://", "");
                 if (!serverUrl.Contains(":"))
@@ -284,7 +341,7 @@ namespace OC2Modding
                 session = ArchipelagoSessionFactory.CreateSession(uri);
 
                 session.Socket.PacketReceived += OnPacketReceived;
-                
+
 
                 var result = session.TryConnectAndLogin(
                     "Overcooked! 2",
@@ -295,7 +352,7 @@ namespace OC2Modding
                     uuid: null,
                     password: password
                 );
-                
+
                 if (result is LoginSuccessful loginSuccess)
                 {
                     /* Login was successful */
@@ -347,7 +404,8 @@ namespace OC2Modding
                 {
                     // Set of completed levels and their completed star counts
                     session.DataStorage["PseudoSave"].Initialize(JObject.FromObject(new Dictionary<int, int>()));
-                    session.DataStorage["PseudoSave"].OnValueChanged += (_old, _new) => {
+                    session.DataStorage["PseudoSave"].OnValueChanged += (_old, _new) =>
+                    {
                         OnPseudoSaveChanged(_new.ToObject<Dictionary<int, int>>());
                     };
                 }
@@ -355,9 +413,9 @@ namespace OC2Modding
                 {
                     GameLog.LogMessage($"Failed to initialize psuedo cloud save: {e.Message}");
                 }
-                
-                UpdatePseudoSave();
-                UpdateLocations();
+
+                PendingPseudoSaveUpdate = true;
+                PendingLocationUpdate = true;
             }
 
             IsConnecting = false;
@@ -404,7 +462,6 @@ namespace OC2Modding
             UpdateLocations();
         }
 
-
         private static bool PendingLocationUpdate = false;
 
         private static void UpdateLocations()
@@ -427,55 +484,61 @@ namespace OC2Modding
 
         public static void OnPacketReceived(ArchipelagoPacketBase packet)
         {
-            string text = "";
-            switch (packet.PacketType)
+            try
             {
-                case ArchipelagoPacketType.Print:
-                    {
-                        var p = packet as PrintPacket;
-                        text = p.Text;
-                        break;
-                    }
-                case ArchipelagoPacketType.PrintJSON:
-                    {
-                        var p = packet as PrintJsonPacket;
-                        foreach (var messagePart in p.Data)
+                string text = "";
+                switch (packet.PacketType)
+                {
+                    case ArchipelagoPacketType.Print:
                         {
-                            switch (messagePart.Type)
-                            {
-                                case JsonMessagePartType.PlayerId:
-                                    {
-                                        text += Int32.TryParse(messagePart.Text, out var PlayerSlot)
-                                            ? session.Players.GetPlayerAlias(PlayerSlot) ?? $"Slot: {PlayerSlot}"
-                                            : messagePart.Text;
-                                        break;
-                                    }
-                                case JsonMessagePartType.ItemId:
-                                    {
-                                        text += Int64.TryParse(messagePart.Text, out var itemID)
-                                            ? session.Items.GetItemName(itemID) ?? $"Item: {itemID}" : messagePart.Text;
-                                        break;
-                                    }
-                                case JsonMessagePartType.LocationId:
-                                    {
-                                        text += Int64.TryParse(messagePart.Text, out var locationID)
-                                            ? session.Locations.GetLocationNameFromId(locationID) ?? $"Location: {locationID}"
-                                            : messagePart.Text;
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        text += messagePart.Text;
-                                        break;
-                                    }
-                            }
+                            var p = packet as PrintPacket;
+                            text = p.Text;
+                            break;
                         }
+                    case ArchipelagoPacketType.PrintJSON:
+                        {
+                            var p = packet as PrintJsonPacket;
+                            foreach (var messagePart in p.Data)
+                            {
+                                switch (messagePart.Type)
+                                {
+                                    case JsonMessagePartType.PlayerId:
+                                        {
+                                            text += Int32.TryParse(messagePart.Text, out var PlayerSlot)
+                                                ? session.Players.GetPlayerAlias(PlayerSlot) ?? $"Slot: {PlayerSlot}"
+                                                : messagePart.Text;
+                                            break;
+                                        }
+                                    case JsonMessagePartType.ItemId:
+                                        {
+                                            text += Int64.TryParse(messagePart.Text, out var itemID)
+                                                ? session.Items.GetItemName(itemID) ?? $"Item: {itemID}" : messagePart.Text;
+                                            break;
+                                        }
+                                    case JsonMessagePartType.LocationId:
+                                        {
+                                            text += Int64.TryParse(messagePart.Text, out var locationID)
+                                                ? session.Locations.GetLocationNameFromId(locationID) ?? $"Location: {locationID}"
+                                                : messagePart.Text;
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            text += messagePart.Text;
+                                            break;
+                                        }
+                                }
+                            }
 
-                        break;
-                    }
+                            break;
+                        }
+                }
+                GameLog.LogMessage(text);
             }
-
-            GameLog.LogMessage(text);
+            catch (Exception e)
+            {
+                OC2Modding.Log.LogError($"Error when parsing received packet {e}");
+            }
         }
 
         /* Updates the current inventory with this item id.
