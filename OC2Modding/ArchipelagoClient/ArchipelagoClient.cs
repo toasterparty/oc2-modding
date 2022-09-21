@@ -452,11 +452,6 @@ namespace OC2Modding
                 return; // It's already been sent
             }
 
-            if (!OC2Helpers.IsHostPlayer())
-            {
-                return;
-            }
-
             OC2Modding.Log.LogInfo($"Adding Collected Location: {location}...");
             VisitedLocations.Add(location);
             UpdateLocations();

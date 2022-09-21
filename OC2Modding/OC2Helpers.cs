@@ -22,12 +22,22 @@ namespace OC2Modding
             Harmony.CreateAndPatchAll(typeof(CurrentDLC));
             Harmony.CreateAndPatchAll(typeof(CurrentDLC.DLCMenu));
             Harmony.CreateAndPatchAll(typeof(CurrentDLC.CampaignMenu));
+
+            /* Register callback handler to cache game state */
+            UserSystemUtils.OnServerChangedGameState = (GenericVoid<GameState, GameStateMessage.GameStatePayload>)Delegate.Combine(UserSystemUtils.OnServerChangedGameState, new GenericVoid<GameState, GameStateMessage.GameStatePayload>(OnServerChangedGameState));
         }
         
         public static bool IsEpicGames()
         {
             // at the time or writing, epic games is ver=22 and steam is ver=17
             return Team17.Online.OnlineMultiplayerConfig.CodeVersion >= 22;
+        }
+
+        private static GameState CachedGameState = GameState.NotSet;
+        private static void OnServerChangedGameState(GameState state, GameStateMessage.GameStatePayload payload)
+        {
+            // GameLog.LogMessage($"{CachedGameState} -> {state}");
+            CachedGameState = state;
         }
 
         public static bool IsHostPlayer()
