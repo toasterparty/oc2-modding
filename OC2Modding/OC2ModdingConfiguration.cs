@@ -159,6 +159,7 @@ namespace OC2Modding
 
             if (newGame) {
                 ItemIndex = 0; // When starting a new game, reset the remote items that have been received
+                OC2Config.PseudoSave.Clear(); // don't bring any completed levels over
                 ArchipelagoClient.SendPseudoSave(); // Force an update of slot data (completed levels)
             }
 

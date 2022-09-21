@@ -27,19 +27,6 @@ namespace OC2Modding
         public static bool IsConnected = false;
         public static bool IsConnecting = false;
 
-        public static Permissions ForfeitPermissions => session.RoomState.ForfeitPermissions;
-        public static Permissions CollectPermissions => session.RoomState.CollectPermissions;
-
-        public static string ConnectionId => session.ConnectionInfo.Uuid;
-
-        public static string SeedString => session.RoomState.Seed;
-
-        public static string GetCurrentPlayerName() => session.Players.GetPlayerAliasAndName(session.ConnectionInfo.Slot);
-
-        public static LocationCheckHelper LocationCheckHelper => session.Locations;
-
-        public static DataStorageHelper DataStorage => session.DataStorage;
-
         // must follow: https://github.com/toasterparty/Archipelago/blob/overcooked2/worlds/overcooked2/Items.py
         private enum Oc2Item
         {
@@ -134,8 +121,27 @@ namespace OC2Modding
             if (DoPseudoSave)
             {
                 DoPseudoSave = false;
-                SendPseudoSaveTask();
+                UpdatePseudoSave();
             }
+        }
+
+        /* Apply to end of save directory to garuntee uniqueness across rooms of the same seed */
+        public static string SaveDirSuffix()
+        {
+            try
+            {
+                int value = session.DataStorage["SaveDirSuffix"];
+                return $"-{value}";
+            }
+            catch
+            {
+                if (IsConnected)
+                {
+                    OC2Modding.Log.LogWarning("Error when reading SaveDirSuffix");
+                }
+            }
+
+            return "";
         }
 
         private static Version CreateVersion()
@@ -177,7 +183,7 @@ namespace OC2Modding
             DoPseudoSave = true;
         }
 
-        private static void SendPseudoSaveTask()
+        private static void UpdatePseudoSave()
         {
             // Fetch the existing
             Dictionary<int, int> PseudoSave = session.DataStorage["PseudoSave"].To<Dictionary<int, int>>();
@@ -294,22 +300,28 @@ namespace OC2Modding
                 {
                     /* Login was successful */
 
+                    // non-seeded random number unique to this instance of this seed + slot
+                    session.DataStorage["SaveDirSuffix"].Initialize((new Random()).Next(minValue: 0, maxValue: 10000));
+
                     if (loginSuccess.SlotData.TryGetValue("SaveFolderName", out var saveFolder))
                     {
                         /* SlotData contains a save folder directory */
 
                         string json = JsonConvert.SerializeObject(loginSuccess.SlotData);
                         OC2Config.SaveFolderName = (string)saveFolder;
+
                         string saveDirectory = OC2Helpers.getCustomSaveDirectory();
                         if (!Directory.Exists(saveDirectory))
                         {
                             Directory.CreateDirectory(saveDirectory);
+                            OC2Modding.Log.LogInfo($"Created directory {saveDirectory}");
                         }
 
                         string saveName = saveDirectory + "/OC2Modding-INIT.json";
                         if (!File.Exists(saveName))
                         {
                             File.WriteAllText(saveName, json);
+                            OC2Modding.Log.LogInfo($"Flushed to {saveName}");
                         }
 
                         OC2Config.InitConfig(false); // init starting inventory -> saved inventory
@@ -333,6 +345,7 @@ namespace OC2Modding
             {
                 try
                 {
+                    // Set of completed levels and their completed star counts
                     session.DataStorage["PseudoSave"].Initialize(JObject.FromObject(new Dictionary<int, int>()));
                     session.DataStorage["PseudoSave"].OnValueChanged += (_old, _new) => {
                         OnPseudoSaveChanged(_new.ToObject<Dictionary<int, int>>());
@@ -343,6 +356,7 @@ namespace OC2Modding
                     GameLog.LogMessage($"Failed to initialize psuedo cloud save: {e.Message}");
                 }
                 
+                UpdatePseudoSave();
                 UpdateLocations();
             }
 

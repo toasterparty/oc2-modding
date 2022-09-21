@@ -226,7 +226,7 @@ namespace OC2Modding
 
         public static string getCustomSaveDirectory()
         {
-            string saveFolderName = OC2Config.SaveFolderName == "" ? "_default" : OC2Config.SaveFolderName;
+            string saveFolderName = OC2Config.SaveFolderName == "" ? "_default" : (OC2Config.SaveFolderName + ArchipelagoClient.SaveDirSuffix());
             return Application.persistentDataPath + "/OC2Modding/" + saveFolderName + "/";
         }
 
