@@ -1,15 +1,11 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
 using System.Threading;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
 using Team17.Online;
-using BitStream;
-using Steamworks;
 
 namespace OC2Modding
 {

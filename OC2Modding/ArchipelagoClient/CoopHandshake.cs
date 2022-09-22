@@ -11,8 +11,15 @@ namespace OC2Modding
     {
         public static void Awake()
         {
-            Harmony.CreateAndPatchAll(typeof(CoopHandshake));
-            Harmony.CreateAndPatchAll(typeof(ReceiveJoinRequestMessage_Patch));
+            try
+            {
+                Harmony.CreateAndPatchAll(typeof(CoopHandshake));
+                Harmony.CreateAndPatchAll(typeof(ReceiveJoinRequestMessage_Patch));
+            }
+            catch
+            {
+                OC2Modding.Log.LogError("Critically failed to patch for CoOp handshake");
+            }
         }
 
         [HarmonyPatch(typeof(JoinSessionBaseTask), nameof(JoinSessionBaseTask.Start))]
