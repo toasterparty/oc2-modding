@@ -11,6 +11,7 @@ namespace OC2Modding
     public static class Nerfs
     {
         static int removedPlates = 0;
+        static int removedPlatesClient = 0;
         static bool finishedFirstPass = false;
         static bool finishedFirstPassServer = false;
         static float originalWashTime = 0.0f;
@@ -26,6 +27,7 @@ namespace OC2Modding
         private static void LoadScene()
         {
             removedPlates = 0;
+            removedPlatesClient = 0;
             finishedFirstPass = false;
             finishedFirstPassServer = false;
             PlayersWearingBackpacks.Clear();
@@ -45,7 +47,8 @@ namespace OC2Modding
             {
                 return true;
             }
-            else if (isServer && finishedFirstPassServer)
+
+            if (isServer && finishedFirstPassServer)
             {
                 return true;
             }
@@ -83,12 +86,26 @@ namespace OC2Modding
                     {
                         removedPlates++;
                     }
+                    else
+                    {
+                        removedPlatesClient++;
+                    }
+
                     return false;
                 }
-                else if (OC2Config.DisableOnePlate && removedPlates == 0 && isServer)
+                else if (OC2Config.DisableOnePlate)
                 {
-                    removedPlates++;
-                    return false;
+                    if (isServer && removedPlates == 0)
+                    {
+                        removedPlates++;
+                        return false;
+                    }
+
+                    if (!isServer && removedPlatesClient == 0)
+                    {
+                        removedPlatesClient++;
+                        return false;
+                    }
                 }
             }
 
