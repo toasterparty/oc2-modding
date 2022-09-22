@@ -80,6 +80,7 @@ namespace OC2Modding
         // Randomizer requirements
         public static bool ForbidDLC = false;
         public static bool ForceSingleSaveSlot = false;
+        public static bool DisableNGP = false;
 
         // <UnlockerLevelId, LockedLevelId>
         public static Dictionary<int, int> LevelUnlockRequirements;
@@ -271,6 +272,7 @@ namespace OC2Modding
             data += $"\"DisableArchipelagoLogin\":{DisableArchipelagoLogin},";
             data += $"\"ForbidDLC\":{ForbidDLC},";
             data += $"\"ForceSingleSaveSlot\":{ForceSingleSaveSlot},";
+            data += $"\"DisableNGP\":{DisableNGP},";
 
             data += $"\"LevelUnlockRequirements\":{{";
             bool first = true;
@@ -705,6 +707,7 @@ namespace OC2Modding
             try { if (config.HasKey("DisableArchipelagoLogin"        )) DisableArchipelagoLogin        = config["DisableArchipelagoLogin"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableArchipelagoLogin'"        ); }
             try { if (config.HasKey("ForbidDLC"                      )) ForbidDLC                      = config["ForbidDLC"                      ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ForbidDLC'"                      ); }
             try { if (config.HasKey("ForceSingleSaveSlot"            )) ForceSingleSaveSlot            = config["ForceSingleSaveSlot"            ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ForceSingleSaveSlot'"            ); }
+            try { if (config.HasKey("DisableNGP"                     )) DisableNGP                     = config["DisableNGP"                     ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableNGP'"                     ); }
 
             try
             {
@@ -970,6 +973,56 @@ namespace OC2Modding
         private static void UpdatePostfix(ref SaveSlotElement[] ___m_saveElements)
         {
             DisableExtraSaveSlots(ref ___m_saveElements);
+        }
+
+        [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.IsNGPEnabledForAnyLevel))]
+        [HarmonyPostfix]
+        private static void IsNGPEnabledForAnyLevel(ref bool __result)
+        {
+            if (DisableNGP)
+            {
+                __result = false;
+            }
+        }
+
+        [HarmonyPatch(typeof(GameProgress.GameProgressData), nameof(GameProgress.GameProgressData.IsNGPEnabledForLevel))]
+        [HarmonyPostfix]
+        private static void IsNGPEnabledForLevel(ref bool __result)
+        {
+            if (DisableNGP)
+            {
+                __result = false;
+            }
+        }
+
+        [HarmonyPatch(typeof(GameProgress), "CanUnlockNewGamePlusForChainEnd")]
+        [HarmonyPostfix]
+        private static void CanUnlockNewGamePlusForChainEnd(ref bool __result)
+        {
+            if (DisableNGP)
+            {
+                __result = false;
+            }
+        }
+
+        [HarmonyPatch(typeof(GameProgress), nameof(GameProgress.CanUnlockNewGamePlus))]
+        [HarmonyPostfix]
+        private static void CanUnlockNewGamePlus(ref bool __result)
+        {
+            if (DisableNGP)
+            {
+                __result = false;
+            }
+        }
+
+        [HarmonyPatch(typeof(WorldMapKitchenLevelIconUI), nameof(WorldMapKitchenLevelIconUI.UpdateStarVisibility))]
+        [HarmonyPrefix]
+        private static void UpdateStarVisibility(ref GameProgress.GameProgressData.LevelProgress _levelProgress)
+        {
+            if (DisableNGP)
+            {
+                _levelProgress.NGPEnabled = false;
+            }
         }
     }
 }
