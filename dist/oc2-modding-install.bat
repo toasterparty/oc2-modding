@@ -32,8 +32,8 @@ goto :EOF
 
 :blank
 
-echo Please select your game executable
-echo Typically ".../steam/steamapps/common/Overcooked! 2/Overcooked2.exe"
+echo Please find and double click your game executable...
+echo Typically "C:\Program Files\Steam\steamapps\common\Overcooked! 2\Overcooked2.exe"
 echo.
 
 for /f "delims=" %%I in ('powershell -noprofile "iex (${%~f0} | out-string)"') do call :install "%%~I"
@@ -57,6 +57,7 @@ xcopy %DIST_DIR%\curl %GAME_DIR% /y /q /s /e
 
 echo.
 echo Successfully installed 'OC2 Modding'
+echo (You may now close this window)
 echo.
 
 if "%NO_PAUSE%" == "nopause" goto :EOF
