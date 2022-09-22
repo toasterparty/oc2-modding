@@ -85,12 +85,9 @@ namespace OC2Modding
                     }
                     return false;
                 }
-                else if (OC2Config.DisableOnePlate && removedPlates == 0)
+                else if (OC2Config.DisableOnePlate && removedPlates == 0 && isServer)
                 {
-                    if (isServer)
-                    {
-                        removedPlates++;
-                    }
+                    removedPlates++;
                     return false;
                 }
             }
