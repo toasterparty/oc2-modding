@@ -471,7 +471,7 @@ namespace OC2Modding
         {
             try
             {
-                return session.DataStorage["CoopJoin"] > 0;
+                return !IsConnected || session.DataStorage["CoopJoin"] > 0;
             }
             catch (Exception e)
             {

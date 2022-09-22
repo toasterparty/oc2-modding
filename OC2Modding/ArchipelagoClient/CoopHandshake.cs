@@ -55,7 +55,7 @@ namespace OC2Modding
                 ref SteamOnlineMultiplayerSessionTransportCoordinator ___m_transportCoordinator
             )
             {
-                if (!OC2Config.JsonMode)
+                if (!OC2Config.ForceSingleSaveSlot)
                 {
                     return true; // Just some QoL options
                 }
@@ -76,7 +76,10 @@ namespace OC2Modding
 
                 // TODO: add fromSteamId to list of known good IDs in network DataStorage
 
-                OC2Modding.Log.LogInfo("Successfully handshook with another modded client");
+                if (ArchipelagoClient.IsConnected)
+                {
+                    OC2Modding.Log.LogInfo("Successfully handshook with another modded client");
+                }
 
                 return true;
             }

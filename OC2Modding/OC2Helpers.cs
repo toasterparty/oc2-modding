@@ -605,9 +605,9 @@ namespace OC2Modding
                 [HarmonyPrefix]
                 private static bool LoadDLC(ref DLCFrontendData dlcData)
                 {
-                    if (OC2Config.JsonMode)
+                    if (OC2Config.ForbidDLC)
                     {
-                        GameLog.LogMessage("Loading DLC is not supported when playing randomizer!");
+                        GameLog.LogMessage("Loading DLC is not supported when playing this mod!");
                         return false;
                     }
 

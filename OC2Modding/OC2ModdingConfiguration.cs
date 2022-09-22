@@ -18,7 +18,6 @@ namespace OC2Modding
         public const int REPORTED_ONLINE_VERSION = 100;
 
         public static string SaveFolderName = "";
-        public static bool JsonMode = false;
         public static bool DisableArchipelagoLogin = false;
 
         /* Globally Accessible Config Values */
@@ -77,6 +76,10 @@ namespace OC2Modding
         // Guitine Cooldown
         // Custom Knockback Force (Bellows, Squirt Gun, Dashing, Throwing)
         // 6-6 Timer Advantage (progressive?) 
+
+        // Randomizer requirements
+        public static bool ForbidDLC = false;
+        public static bool ForceSingleSaveSlot = false;
 
         // <UnlockerLevelId, LockedLevelId>
         public static Dictionary<int, int> LevelUnlockRequirements;
@@ -179,11 +182,6 @@ namespace OC2Modding
 
         public static void FlushConfig(bool immediate = false)
         {
-            if (!JsonMode)
-            {
-                return;
-            }
-
             if (!immediate)
             {
                 PendingFlushConfig = true;
@@ -271,6 +269,8 @@ namespace OC2Modding
             data += $"\"LevelTimerScale\":{LevelTimerScale},";
             data += $"\"ImpossibleTutorial\":{ImpossibleTutorial},";
             data += $"\"DisableArchipelagoLogin\":{DisableArchipelagoLogin},";
+            data += $"\"ForbidDLC\":{ForbidDLC},";
+            data += $"\"ForceSingleSaveSlot\":{ForceSingleSaveSlot},";
 
             data += $"\"LevelUnlockRequirements\":{{";
             bool first = true;
@@ -639,7 +639,6 @@ namespace OC2Modding
                     json = reader.ReadToEnd();
                 }
 
-                JsonMode = true;
                 UpdateConfig(json);
             }
             catch
@@ -704,6 +703,8 @@ namespace OC2Modding
             try { if (config.HasKey("ItemIndex"                      )) ItemIndex                      = config["ItemIndex"                      ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ItemIndex'"                      ); }
             try { if (config.HasKey("LevelTimerScale"                )) LevelTimerScale                = config["LevelTimerScale"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'LevelTimerScale'"                ); }
             try { if (config.HasKey("DisableArchipelagoLogin"        )) DisableArchipelagoLogin        = config["DisableArchipelagoLogin"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableArchipelagoLogin'"        ); }
+            try { if (config.HasKey("ForbidDLC"                      )) ForbidDLC                      = config["ForbidDLC"                      ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ForbidDLC'"                      ); }
+            try { if (config.HasKey("ForceSingleSaveSlot"            )) ForceSingleSaveSlot            = config["ForceSingleSaveSlot"            ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ForceSingleSaveSlot'"            ); }
 
             try
             {
@@ -941,7 +942,7 @@ namespace OC2Modding
 
         private static void DisableExtraSaveSlots(ref SaveSlotElement[] ___m_saveElements)
         {
-            if (!JsonMode)
+            if (!ForceSingleSaveSlot)
             {
                 return; // vanilla with QoL
             }
