@@ -495,7 +495,7 @@ namespace OC2Modding
                     ___m_controls.SetMovementScale(OC2Config.BackpackMovementScale);
                 }
             }
-            else if (___m_controls.MovementScale != 1.0f)
+            else if (___m_controls.MovementScale != 1.0f && ___m_controls.MovementScale != 0.0f)
             {
                 OC2Modding.Log.LogInfo($"Restored {player}'s speed to normal");
                 ___m_controls.SetMovementScale(1.0f);

@@ -25,29 +25,34 @@ namespace OC2Modding
             /* Inject Mods */
             OC2Helpers.Awake(); // This MUST go first
 
-            FixBugs.Awake();
+            // Architecture Mods
+            GameLog.Awake();
             CustomSaveDirectory.Awake();
-            UnlockAllChefs.Awake();
+            ArchipelagoLoginGUI.Awake();
+            CoopHandshake.Awake();
+            OnLevelCompleted.Awake();
             LevelProgression.Awake();
+            CustomLevelOrder.Awake();
+            
+            // Visual Mods
+            LeaderboardMod.Awake();
+            DisplayFPS.Awake();
+            
+            // Gameplay Mods
+            FixBugs.Awake();
+            UnlockAllChefs.Awake();
             UnlockAllDLC.Awake();
             TimerAlwaysStarts.Awake();
             SkipTutorialPopups.Awake();
             PreserveCookProgress.Awake();
-            LeaderboardMod.Awake();
-            DisplayFPS.Awake();
             CustomOrderLifetime.Awake();
             AlwaysServeOldestOrder.Awake();
             Cheats.Awake();
-            CustomLevelOrder.Awake();
             IngredientCrates.Awake();
             Nerfs.Awake();
-            OnLevelCompleted.Awake();
-            GameLog.Awake();
-            ArchipelagoLoginGUI.Awake();
             AggressiveHorde.Awake();
             CustomOrderTimeoutPenalty.Awake();
             IncreasedKnockback.Awake();
-            CoopHandshake.Awake();
 
             DisplayModsOnResultsScreen.Awake();
         }
