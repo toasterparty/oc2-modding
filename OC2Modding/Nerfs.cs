@@ -352,7 +352,19 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(ServerWashingStation), nameof(ServerWashable.UpdateSynchronising))]
         [HarmonyPrefix]
-        private static void UpdateSynchronising(ref WashingStation ___m_washingStation)
+        private static void UpdateSynchronising_Server(ref WashingStation ___m_washingStation)
+        {
+            if (originalWashTime == 0.0f)
+            {
+                originalWashTime = ___m_washingStation.m_cleanPlateTime;
+            }
+
+            ___m_washingStation.m_cleanPlateTime = originalWashTime * OC2Config.WashTimeMultiplier;
+        }
+
+        [HarmonyPatch(typeof(ClientWashingStation), nameof(ClientWashingStation.UpdateSynchronising))]
+        [HarmonyPrefix]
+        private static void UpdateSynchronising_Client(ref WashingStation ___m_washingStation)
         {
             if (originalWashTime == 0.0f)
             {
