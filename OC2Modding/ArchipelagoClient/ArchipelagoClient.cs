@@ -408,6 +408,9 @@ namespace OC2Modding
                     {
                         OnPseudoSaveChanged(_new.ToObject<Dictionary<int, int>>());
                     };
+
+                    // Reverse semaphore for ensuring connections are between the right people
+                    session.DataStorage["CoopJoin"].Initialize(0);
                 }
                 catch (Exception e)
                 {
@@ -421,6 +424,60 @@ namespace OC2Modding
             IsConnecting = false;
 
             return cachedConnectionResult;
+        }
+
+        private static bool ThisClientHasOpenRequest = false;
+
+        public static void SetCoopJoinRequest()
+        {
+            try
+            {
+
+                if (ThisClientHasOpenRequest)
+                {
+                    OC2Modding.Log.LogWarning("SetCoopJoinRequest when pending request");
+                    session.DataStorage["CoopJoin"]--;
+                }
+
+                session.DataStorage["CoopJoin"]++;
+                ThisClientHasOpenRequest = true;
+            }
+            catch (Exception e)
+            {
+                GameLog.LogMessage($"Failed to set co-op join request : {e.Message}");
+            }
+        }
+
+        public static void ClearCoopJoinRequest()
+        {
+            try
+            {
+                if (session.DataStorage["CoopJoin"] == 0)
+                {
+                    OC2Modding.Log.LogWarning("CoopJoin was 0 when clearing");
+                    ThisClientHasOpenRequest = false;
+                    return;
+                }
+                session.DataStorage["CoopJoin"]--;
+                ThisClientHasOpenRequest = false;
+            }
+            catch (Exception e)
+            {
+                GameLog.LogMessage($"Failed to clear co-op join request : {e.Message}");
+            }
+        }
+
+        public static bool CoopJoinRequest()
+        {
+            try
+            {
+                return session.DataStorage["CoopJoin"] > 0;
+            }
+            catch (Exception e)
+            {
+                GameLog.LogMessage($"Failed to read co-op join request : {e.Message}");
+                return true;
+            }
         }
 
         public static void Disconnect()

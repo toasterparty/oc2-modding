@@ -1,4 +1,4 @@
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Logging;
 
 namespace OC2Modding
@@ -47,6 +47,7 @@ namespace OC2Modding
             AggressiveHorde.Awake();
             CustomOrderTimeoutPenalty.Awake();
             IncreasedKnockback.Awake();
+            CoopHandshake.Awake();
 
             DisplayModsOnResultsScreen.Awake();
         }
