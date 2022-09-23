@@ -38,7 +38,7 @@ goto :EOF
 
 :blank
 
-echo Please find and double click your game executable...
+echo Please select your game executable...
 echo Typically "C:\Program Files\Steam\steamapps\common\Overcooked! 2\Overcooked2.exe"
 echo.
 
@@ -83,9 +83,9 @@ goto :EOF
 
 Add-Type -AssemblyName System.Windows.Forms
 $f = new-object Windows.Forms.OpenFileDialog
-$f.InitialDirectory = pwd
+$f.InitialDirectory = "C:\Program Files\Steam\steamapps\common\Overcooked! 2\"
 $f.Filter = "Overcooked! 2 (*.exe)|*.exe|All Files (*.*)|*.*"
-$f.ShowHelp = $true
-$f.Multiselect = $true
+$f.ShowHelp = $false
+$f.Multiselect = $false
 [void]$f.ShowDialog()
 if ($f.Multiselect) { $f.FileNames } else { $f.FileName }
