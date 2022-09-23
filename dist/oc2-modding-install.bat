@@ -14,7 +14,8 @@ echo.
 echo Overcooked! 2 Mod Installer
 echo.
 
-if not exist %DIST_DIR%\com.github.toasterparty.OC2Modding.dll goto fail
+if not exist %DIST_DIR%\com.github.toasterparty.oc2modding.steam.dll goto fail
+if not exist %DIST_DIR%\com.github.toasterparty.oc2modding.epic.dll goto fail
 if not exist %DIST_DIR%\curl\curl\curl.exe goto fail
 if not exist %DIST_DIR%\%STEAM_BEPINEX_VER% goto fail
 if not exist %DIST_DIR%\%EPIC_BEPINEX_VER% goto fail
@@ -61,6 +62,9 @@ if not exist "%~dp1\UnityCrashHandler64.exe" xcopy %DIST_DIR%\%STEAM_BEPINEX_VER
 xcopy %DIST_DIR%\*.dll %PLUGINS_DIR% /y /q
 xcopy %DIST_DIR%\oc2-modding-uninstall.bat %GAME_DIR% /y /q
 xcopy %DIST_DIR%\curl %GAME_DIR% /y /q /s /e
+
+if     exist "%~dp1\UnityCrashHandler64.exe" del /f /q %PLUGINS_DIR%\com.github.toasterparty.oc2modding.steam.dll
+if not exist "%~dp1\UnityCrashHandler64.exe" del /f /q %PLUGINS_DIR%\com.github.toasterparty.oc2modding.epic.dll
 
 if not exist "%~dp1\UnityCrashHandler64.exe" xcopy %DIST_DIR%\steam_doorstop_config.ini %GAME_DIR%\doorstop_config.ini /y /q
 
