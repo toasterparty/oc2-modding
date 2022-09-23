@@ -45,20 +45,23 @@ This will create a folder called `dist` and populate it with the plugin dll file
 
 4. Extract the contents of [BepInEx_x64_5.4.21.0](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.21) into the `dist` folder
 
-5. Extract the contents of [curl/bin](https://curl.se/download.html) into the `dist` folder
+5. Extract the contents of [BepInEx_x64_5.4.21.0](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.21) into the `dist` folder
+
+6. Extract the contents of [curl/bin](https://curl.se/download.html) into the `dist` folder
 
 If done right, your directory should look like this:
 
 ```
 \dist\
     BepInEx_x86_5.4.21.0
+    BepInEx_UnityMono_x64_6.0.0-pre.1
     curl
     com.github.toasterparty.OC2Modding.dll
-    doorstop_config.ini
+    steam_doorstop_config.ini
     oc2-modding-install.bat
     oc2-modding-uninstall.bat
 
-\dist\BepInEx_x86_5.4.21.0\
+\dist\BepInEx_*\
     BepInEx
     changelog.txt
     doorstop_config.ini

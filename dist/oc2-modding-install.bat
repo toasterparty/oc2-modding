@@ -6,25 +6,30 @@ setlocal
 
 set DIST_DIR="%~dp0"
 set NO_PAUSE=%~1
-set BEPINEX_VER=BepInEx_x86_5.4.21.0
+
+set STEAM_BEPINEX_VER=BepInEx_x86_5.4.21.0
+set EPIC_BEPINEX_VER=BepInEx_UnityMono_x64_6.0.0-pre.1
 
 echo.
 echo Overcooked! 2 Mod Installer
 echo.
 
-if not exist %DIST_DIR%\com.github.toasterparty.OC2Modding.dll echo Error: You must build the plugin first
-if not exist %DIST_DIR%\curl\curl\curl.exe echo Error: curl not found
-if not exist %DIST_DIR%\%BEPINEX_VER% echo Error: %BEPINEX_VER% not found
+if not exist %DIST_DIR%\com.github.toasterparty.OC2Modding.dll goto fail
+if not exist %DIST_DIR%\curl\curl\curl.exe goto fail
+if not exist %DIST_DIR%\%STEAM_BEPINEX_VER% goto fail
+if not exist %DIST_DIR%\%EPIC_BEPINEX_VER% goto fail
 
+goto check_params
+
+:fail
+
+echo Corrupt installation package. If you are a developer, please refer to the README.
 echo.
 
-if not exist %DIST_DIR%\com.github.toasterparty.OC2Modding.dll pause
-if not exist %DIST_DIR%\curl\curl\curl.exe pause
-if not exist %DIST_DIR%\%BEPINEX_VER% pause
+pause
+exit 1
 
-if not exist %DIST_DIR%\com.github.toasterparty.OC2Modding.dll exit 1
-if not exist %DIST_DIR%\curl\curl\curl.exe exit 1
-if not exist %DIST_DIR%\%BEPINEX_VER% exit 1
+:check_params
 
 if "%~2" == "" goto blank
 call :install %2
@@ -44,16 +49,20 @@ set GAME_DIR="%~dp1"
 set BEPINEX_DIR="%~dp1\BepInEx\"
 set PLUGINS_DIR="%~dp1\BepInEx\plugins"
 
-if not exist %PLUGINS_DIR% mkdir %PLUGINS_DIR%
-
 echo Installing 'OC2 Modding' into %PLUGINS_DIR%...
 echo.
 
+if not exist %BEPINEX_DIR% mkdir %BEPINEX_DIR%
+if not exist %PLUGINS_DIR% mkdir %PLUGINS_DIR%
+
+if     exist "%~dp1\UnityCrashHandler64.exe" xcopy %DIST_DIR%\%EPIC_BEPINEX_VER%  %GAME_DIR% /y /q /s /e
+if not exist "%~dp1\UnityCrashHandler64.exe" xcopy %DIST_DIR%\%STEAM_BEPINEX_VER% %GAME_DIR% /y /q /s /e
+
 xcopy %DIST_DIR%\*.dll %PLUGINS_DIR% /y /q
 xcopy %DIST_DIR%\oc2-modding-uninstall.bat %GAME_DIR% /y /q
-xcopy %DIST_DIR%\%BEPINEX_VER% %GAME_DIR% /y /q /s /e
-xcopy %DIST_DIR%\doorstop_config.ini %GAME_DIR% /y /q
 xcopy %DIST_DIR%\curl %GAME_DIR% /y /q /s /e
+
+if not exist "%~dp1\UnityCrashHandler64.exe" xcopy %DIST_DIR%\steam_doorstop_config.ini %GAME_DIR%\doorstop_config.ini /y /q
 
 echo.
 echo Successfully installed 'OC2 Modding'
