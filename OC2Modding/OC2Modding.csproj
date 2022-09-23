@@ -4,7 +4,7 @@
     <TargetFramework>net35</TargetFramework>
     <AssemblyName>com.github.toasterparty.OC2Modding</AssemblyName>
     <Description>Overcooked! 2 Modding</Description>
-    <Version>1.1.2</Version>
+    <Version>1.1.3</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
