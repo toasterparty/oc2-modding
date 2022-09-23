@@ -11,8 +11,6 @@ namespace OC2Modding
 {
     public static class OC2Config
     {
-        public const int REPORTED_ONLINE_VERSION = 100;
-
         public static string SaveFolderName = "";
         public static bool DisableArchipelagoLogin = false;
 
@@ -115,8 +113,6 @@ namespace OC2Modding
             InitConfig(false);
 
             Harmony.CreateAndPatchAll(typeof(OC2Config));
-
-            OC2Modding.Log.LogInfo($"Using REPORTED_ONLINE_VERSION={REPORTED_ONLINE_VERSION} (Normally {OnlineMultiplayerConfig.CodeVersion})");
         }
 
         public static void Update()

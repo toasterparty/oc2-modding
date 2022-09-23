@@ -2,4 +2,5 @@
 */obj/*
 dist/curl/*
 dist/BepInEx*
-*/com.github.toasterparty.OC2Modding.dll
+*/com.github.toasterparty.*.dll
+OC2Modding/OC2Modding.csproj

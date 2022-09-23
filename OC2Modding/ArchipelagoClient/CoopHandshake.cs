@@ -1,9 +1,17 @@
+#if NET35
+    #define STEAM
+#elif NET46
+    #define EPIC
+#endif
+
+#if STEAM
 using System.Collections.Generic;
 using HarmonyLib;
 using Team17.Online;
 using Steamworks;
 using BitStream;
 using System.Reflection;
+#endif
 
 namespace OC2Modding
 {
@@ -11,6 +19,7 @@ namespace OC2Modding
     {
         public static void Awake()
         {
+#if STEAM
             try
             {
                 Harmony.CreateAndPatchAll(typeof(CoopHandshake));
@@ -20,8 +29,10 @@ namespace OC2Modding
             {
                 OC2Modding.Log.LogError("Critically failed to patch for CoOp handshake");
             }
+#endif
         }
 
+#if STEAM
         [HarmonyPatch(typeof(JoinSessionBaseTask), nameof(JoinSessionBaseTask.Start))]
         [HarmonyPrefix]
         private static void Start()
@@ -91,5 +102,6 @@ namespace OC2Modding
                 return true;
             }
         }
+#endif
     }
 }
