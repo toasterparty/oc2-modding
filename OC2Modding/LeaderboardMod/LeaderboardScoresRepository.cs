@@ -82,6 +82,7 @@ namespace OC2Modding
                     downloadProcess.StartInfo.Arguments = $"{API_URL}/{level} --output leaderboard_scores.json";
                     downloadProcess.StartInfo.CreateNoWindow = true;
                     downloadProcess.Start();
+                    downloadProcess.WaitForExit();
                 }
                 catch (Exception e)
                 {
