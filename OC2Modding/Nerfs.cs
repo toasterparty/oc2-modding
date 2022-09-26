@@ -277,12 +277,28 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool Update_Movement(ref ServerThrowableItem __instance)
         {
+            // GameLog.LogMessage($"Piloting: {__instance.gameObject.name}");
+
             if (__instance.gameObject.name.Contains("Pushable_Object") && OC2Config.DisableWokDrag)
             {
                 return false;
             }
 
             if (__instance.gameObject.name == "MovingSection" && OC2Config.DisableControlStick)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        [HarmonyPatch(typeof(ServerPilotRotation), "UpdateRotation")]
+        [HarmonyPrefix]
+        private static bool UpdateRotation(ref ServerThrowableItem __instance)
+        {
+            // GameLog.LogMessage($"Rotating: {__instance.gameObject.name}");
+
+            if (__instance.gameObject.name.Contains("cannon") && OC2Config.DisableControlStick)
             {
                 return false;
             }
