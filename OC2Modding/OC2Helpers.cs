@@ -295,7 +295,7 @@ namespace OC2Modding
             }
             else if (dlc == "Campfire Cook Off" || dlc == "Carnival of Chaos" || dlc == "Surf 'n' Turf")
             {
-                if (levelId > 12)
+                if (levelId >= 12)
                 {
                     level = $"Kevin {(levelId - 12) + 1}";
                 }
@@ -457,6 +457,11 @@ namespace OC2Modding
                     if (dlcId == 3) // seasonal needs additional identifiers
                     {
                         level = $"{dlc} {level}";
+                    }
+
+                    if (level == "Kevin")
+                    {
+                        level = "Kevin 1";
                     }
 
                     uint playerCount = UInt32.Parse(values[3]);
