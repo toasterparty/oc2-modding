@@ -69,7 +69,7 @@ namespace OC2Modding
             }
 
             levelConfig.m_orderLifetime = (OC2Config.CustomOrderLifetime / 100.0f) * OriginalOrderLifetime;
-            GameLog.LogMessage($"Before={OriginalOrderLifetime}s, After={levelConfig.m_orderLifetime}s");
+            OC2Modding.Log.LogMessage($"Before={OriginalOrderLifetime}s, After={levelConfig.m_orderLifetime}s");
             levelConfig.GetRoundData().m_roundTimer = GetScaledTime(levelConfig.GetRoundData().m_roundTimer, levelConfig.name);
         }
 
