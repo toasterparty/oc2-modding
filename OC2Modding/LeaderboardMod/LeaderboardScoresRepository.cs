@@ -73,12 +73,12 @@ namespace OC2Modding
 
             try
             {
-                Process downloadProcess = new Process();
-
                 try
                 {
+                    string curlPath = OC2Helpers.AssemblyDirectory + "\\..\\..\\curl\\curl.exe";
+                    Process downloadProcess = new Process();
                     downloadProcess.StartInfo.UseShellExecute = false;
-                    downloadProcess.StartInfo.FileName = ".\\curl\\curl.exe";
+                    downloadProcess.StartInfo.FileName = curlPath;
                     downloadProcess.StartInfo.Arguments = $"{API_URL}/{level} --output leaderboard_scores.json";
                     downloadProcess.StartInfo.CreateNoWindow = true;
                     downloadProcess.Start();

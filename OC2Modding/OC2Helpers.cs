@@ -613,14 +613,26 @@ namespace OC2Modding
             }
         }
 
+        public static string AssemblyDirectory
+        {
+            get
+            {
+                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+                UriBuilder uri = new UriBuilder(codeBase);
+                string path = Uri.UnescapeDataString(uri.Path);
+                return Path.GetDirectoryName(path);
+            }
+        }
+
         private static void downloadLeaderboardFile()
         {
-            Process downloadProcess = new Process();
-
             try
             {
+                string curlPath = AssemblyDirectory + "\\..\\..\\curl\\curl.exe";
+                GameLog.LogMessage(curlPath);
+                Process downloadProcess = new Process();
                 downloadProcess.StartInfo.UseShellExecute = false;
-                downloadProcess.StartInfo.FileName = ".\\curl\\curl.exe";
+                downloadProcess.StartInfo.FileName = curlPath;
                 downloadProcess.StartInfo.Arguments = "https://overcooked.greeny.dev/assets/data/data.csv --output leaderboard_scores.csv";
                 downloadProcess.StartInfo.CreateNoWindow = true;
                 downloadProcess.Start();
