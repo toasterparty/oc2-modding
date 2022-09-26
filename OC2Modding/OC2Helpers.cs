@@ -606,7 +606,7 @@ namespace OC2Modding
                 {
                     if (OC2Config.ForbidDLC)
                     {
-                        GameLog.LogMessage("Loading DLC is not supported when playing this mod!");
+                        GameLog.LogMessage("Loading DLC is not permitted when playing this mod");
                         return false;
                     }
 

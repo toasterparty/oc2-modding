@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Threading;
+using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
@@ -113,6 +114,7 @@ namespace OC2Modding
             InitConfig(false);
 
             Harmony.CreateAndPatchAll(typeof(OC2Config));
+            Harmony.CreateAndPatchAll(typeof(DisableArcadeVersus));
         }
 
         public static void Update()
@@ -1014,6 +1016,33 @@ namespace OC2Modding
             if (DisableNGP)
             {
                 _levelProgress.NGPEnabled = false;
+            }
+        }
+
+        public static class DisableArcadeVersus
+        {
+            private static IEnumerable<MethodBase> TargetMethods()
+            {
+                yield return AccessTools.Method(typeof(FrontendVersusTabOptions), nameof(FrontendVersusTabOptions.OnLocalPlayClicked));
+                yield return AccessTools.Method(typeof(FrontendVersusTabOptions), nameof(FrontendVersusTabOptions.OnCouchPlayClicked));
+                yield return AccessTools.Method(typeof(FrontendVersusTabOptions), nameof(FrontendVersusTabOptions.OnOnlinePrivateClicked));
+                yield return AccessTools.Method(typeof(FrontendVersusTabOptions), nameof(FrontendVersusTabOptions.OnOnlinePublicClicked));
+                yield return AccessTools.Method(typeof(FrontendCoopTabOptions), nameof(FrontendCoopTabOptions.OnLocalPlayClicked));
+                yield return AccessTools.Method(typeof(FrontendCoopTabOptions), nameof(FrontendCoopTabOptions.OnCouchPlayClicked));
+                yield return AccessTools.Method(typeof(FrontendCoopTabOptions), nameof(FrontendCoopTabOptions.OnOnlinePrivateClicked));
+                yield return AccessTools.Method(typeof(FrontendCoopTabOptions), nameof(FrontendCoopTabOptions.OnOnlinePublicClicked));
+            }
+
+            [HarmonyPrefix]
+            private static bool InterceptArcadeVersus()
+            {
+                if (ForbidDLC)
+                {
+                    GameLog.LogMessage("Error: Arcade/Versus is not permitted when playing this mod");
+                    return false;
+                }
+
+                return true;
             }
         }
     }
