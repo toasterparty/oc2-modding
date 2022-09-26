@@ -634,7 +634,6 @@ namespace OC2Modding
             try
             {
                 string curlPath = AssemblyDirectory + "\\..\\..\\curl\\curl.exe";
-                GameLog.LogMessage(curlPath);
                 Process downloadProcess = new Process();
                 downloadProcess.StartInfo.UseShellExecute = false;
                 downloadProcess.StartInfo.FileName = curlPath;

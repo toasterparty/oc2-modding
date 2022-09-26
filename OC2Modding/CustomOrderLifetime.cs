@@ -11,6 +11,15 @@ namespace OC2Modding
         }
 
         private static Dictionary<string, float> ScaledLevelTime = new Dictionary<string, float>();
+        
+        private static float OriginalOrderLifetime = 0.0f;
+
+        [HarmonyPatch(typeof(LoadingScreenFlow), nameof(LoadingScreenFlow.LoadScene))]
+        [HarmonyPrefix]
+        private static void LoadScene()
+        {
+            OriginalOrderLifetime = 0.0f;
+        }
 
         private static float GetScaledTime(float inTime, string levelName)
         {
@@ -49,7 +58,18 @@ namespace OC2Modding
 
         private static void UpdateLevel(ref KitchenLevelConfigBase levelConfig)
         {
-            levelConfig.m_orderLifetime = OC2Config.CustomOrderLifetime;
+            if (levelConfig == null)
+            {
+                return;
+            }
+
+            if (OriginalOrderLifetime == 0.0f)
+            {
+                OriginalOrderLifetime = levelConfig.m_orderLifetime;
+            }
+
+            levelConfig.m_orderLifetime = (OC2Config.CustomOrderLifetime / 100.0f) * OriginalOrderLifetime;
+            GameLog.LogMessage($"Before={OriginalOrderLifetime}s, After={levelConfig.m_orderLifetime}s");
             levelConfig.GetRoundData().m_roundTimer = GetScaledTime(levelConfig.GetRoundData().m_roundTimer, levelConfig.name);
         }
 
