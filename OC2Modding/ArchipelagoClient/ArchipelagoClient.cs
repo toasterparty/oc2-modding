@@ -98,10 +98,10 @@ namespace OC2Modding
                 return; // mutex was taken
             }
 
+            UpdateCompletion();
             UpdateItems();
             UpdateVisitedLocations();
             UpdatePseudoSave();
-            UpdateCompletion();
 
             UpdateMut.ReleaseMutex();
         }
@@ -163,10 +163,25 @@ namespace OC2Modding
             }
         }
 
+        private static bool AlreadyReportedCompletion = false;
         private static void UpdateCompletion()
         {
-            if (!PendingSendCompletion || !OC2Helpers.IsHostPlayer())
+            if (!PendingSendCompletion)
             {
+                return;
+            }
+
+            PendingSendCompletion = false;
+
+            if (AlreadyReportedCompletion)
+            {
+                OC2Modding.Log.LogInfo("Skipped sending completion message because we already reported it");
+                return;
+            }
+
+            if (!OC2Helpers.IsHostPlayer())
+            {
+                OC2Modding.Log.LogInfo("Skipped sending completion message because we are not the host");
                 return;
             }
 
@@ -175,6 +190,8 @@ namespace OC2Modding
                 var statusUpdatePacket = new StatusUpdatePacket();
                 statusUpdatePacket.Status = ArchipelagoClientState.ClientGoal;
                 session.Socket.SendPacket(statusUpdatePacket);
+                AlreadyReportedCompletion = true;
+                GameLog.LogMessage("Victory Achieved!");
             }
             catch
             {
@@ -220,11 +237,6 @@ namespace OC2Modding
         }
 
         private static bool PendingSendCompletion = false;
-        public static void SendCompletion()
-        {
-            if (!IsConnected) return;
-            PendingSendCompletion = true;
-        }
 
         private static bool PendingPseudoSaveUpdate = false;
         public static void SendPseudoSave()
@@ -505,6 +517,11 @@ namespace OC2Modding
 
         public static void VisitLocation(long location)
         {
+            if (location == 36)
+            {
+                PendingSendCompletion = true;
+            }
+
             if (location < 1 || location > 44)
             {
                 return; // Don't care about this level
