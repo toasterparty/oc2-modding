@@ -31,9 +31,17 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void FindBestOrderForRecipe(ref AssembledDefinitionNode _order, ref PlatingStepData _plateType, ref OrderID o_orderID, ref float _timePropRemainingPercentage, ref bool __result, ref List<ServerOrderData> ___m_activeOrders)
         {
-            if (!OC2Config.AlwaysServeOldestOrder)
+            // bool cheatServe = OC2Config.CheatsEnabled;
+            bool cheatServe = false;
+
+            if (!OC2Config.AlwaysServeOldestOrder && !cheatServe)
             {
                 return;
+            }
+
+            if (cheatServe)
+            {
+                __result = true;
             }
 
             if (!__result)
@@ -46,7 +54,7 @@ namespace OC2Modding
             for (int i = ___m_activeOrders.Count - 1; i >= 0; i--)
             {
                 ServerOrderData order = ___m_activeOrders[i];
-                if (Matches(order.RecipeListEntry.m_order, _order, _plateType))
+                if (Matches(order.RecipeListEntry.m_order, _order, _plateType) || cheatServe)
                 {
                     o_orderID = order.ID;
                     _timePropRemainingPercentage = Mathf.Clamp01(order.Remaining / order.Lifetime);
