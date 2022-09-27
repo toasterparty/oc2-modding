@@ -448,9 +448,13 @@ namespace OC2Modding
 
         public static void SetCoopJoinRequest()
         {
+            if (!IsConnected)
+            {
+                return;
+            }
+
             try
             {
-
                 if (ThisClientHasOpenRequest)
                 {
                     OC2Modding.Log.LogWarning("SetCoopJoinRequest when pending request");
@@ -468,6 +472,11 @@ namespace OC2Modding
 
         public static void ClearCoopJoinRequest()
         {
+            if (!IsConnected)
+            {
+                return;
+            }
+
             try
             {
                 if (session.DataStorage["CoopJoin"] == 0)
@@ -487,9 +496,14 @@ namespace OC2Modding
 
         public static bool CoopJoinRequest()
         {
+            if (!IsConnected)
+            {
+                return true;
+            }
+
             try
             {
-                return !IsConnected || session.DataStorage["CoopJoin"] > 0;
+                return session.DataStorage["CoopJoin"] > 0;
             }
             catch (Exception e)
             {
