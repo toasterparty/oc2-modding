@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
+using UnityEngine;
 
 namespace OC2Modding
 {
@@ -69,6 +70,11 @@ namespace OC2Modding
             AutoCompleteLevel.Update();
             ArchipelagoClient.Update();
             ArchipelagoLoginGUI.Update();
+        }
+
+        private void FixedUpdate()
+        {
+            Time.fixedDeltaTime = OC2Config.FixedDeltaTime;
         }
 
         private void OnGUI()

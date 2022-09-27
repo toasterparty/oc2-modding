@@ -36,6 +36,7 @@ namespace OC2Modding
         public static bool SkipTutorial;
         public static float ServerTickRate;
         public static float ServerTickRateUrgent;
+        public static float FixedDeltaTime;
         public static bool CheatsEnabled = false;
         public static bool SkipAllOnionKing = false;
         public static bool ImpossibleTutorial = false;
@@ -593,7 +594,7 @@ namespace OC2Modding
             SkipTutorial = configSkipTutorial.Value;
 
             ConfigEntry<float> configServerTickRate = configFile.Bind(
-                "QualityOfLife", // Config Category
+                "Performance", // Config Category
                 "ServerTickRate", // Config key name
                 10.0f, // Default Config value
                 "Server Tick Rate in Hz (If you are unsure as to what this is, do not touch!!!)" // Friendly description
@@ -601,12 +602,20 @@ namespace OC2Modding
             ServerTickRate = configServerTickRate.Value;
 
             ConfigEntry<float> configServerTickRateUrgent = configFile.Bind(
-                "QualityOfLife", // Config Category
+                "Performance", // Config Category
                 "ServerTickRateUrgent", // Config key name
                 10.0f, // Default Config value
                 "Server Tick Rate in Hz for 'urgent' synchronization requests (If you are unsure as to what this is, do not touch!!!)" // Friendly description
             );
             ServerTickRateUrgent = configServerTickRateUrgent.Value;
+
+            ConfigEntry<float> configFixedDeltaTime = configFile.Bind(
+                "Performance", // Config Category
+                "FixedDeltaTime", // Config key name
+                0.02f, // Default Config value
+                "Physics Update Period in Seconds. Also the rate at which clients report their position to the server (If you are unsure as to what this is, do not touch!!!)" // Friendly description
+            );
+            FixedDeltaTime = configFixedDeltaTime.Value;
 
             ConfigEntry<bool> configFixDoubleServing = configFile.Bind(
                 "Bugfixes", // Config Category
