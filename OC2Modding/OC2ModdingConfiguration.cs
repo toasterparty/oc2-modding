@@ -6,7 +6,6 @@ using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
-using Team17.Online;
 
 namespace OC2Modding
 {
@@ -35,6 +34,8 @@ namespace OC2Modding
         public static bool RevealAllLevels;
         public static bool PurchaseAllLevels;
         public static bool SkipTutorial;
+        public static float ServerTickRate;
+        public static float ServerTickRateUrgent;
         public static bool CheatsEnabled = false;
         public static bool SkipAllOnionKing = false;
         public static bool ImpossibleTutorial = false;
@@ -590,6 +591,22 @@ namespace OC2Modding
                 "Set to true to skip the mandatory tutorial when starting a new game" // Friendly description
             );
             SkipTutorial = configSkipTutorial.Value;
+
+            ConfigEntry<float> configServerTickRate = configFile.Bind(
+                "QualityOfLife", // Config Category
+                "ServerTickRate", // Config key name
+                10.0f, // Default Config value
+                "Server Tick Rate in Hz (If you are unsure as to what this is, do not touch!!!)" // Friendly description
+            );
+            ServerTickRate = configServerTickRate.Value;
+
+            ConfigEntry<float> configServerTickRateUrgent = configFile.Bind(
+                "QualityOfLife", // Config Category
+                "ServerTickRateUrgent", // Config key name
+                10.0f, // Default Config value
+                "Server Tick Rate in Hz for 'urgent' synchronization requests (If you are unsure as to what this is, do not touch!!!)" // Friendly description
+            );
+            ServerTickRateUrgent = configServerTickRateUrgent.Value;
 
             ConfigEntry<bool> configFixDoubleServing = configFile.Bind(
                 "Bugfixes", // Config Category

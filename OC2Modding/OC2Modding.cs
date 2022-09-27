@@ -53,6 +53,7 @@ namespace OC2Modding
             AggressiveHorde.Awake();
             CustomOrderTimeoutPenalty.Awake();
             IncreasedKnockback.Awake();
+            ServerTickRate.Awake();
 
             DisplayModsOnResultsScreen.Awake();
         }
