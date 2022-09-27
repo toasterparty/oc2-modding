@@ -11,15 +11,6 @@ namespace OC2Modding
         }
 
         private static Dictionary<string, float> ScaledLevelTime = new Dictionary<string, float>();
-        
-        private static float OriginalOrderLifetime = 0.0f;
-
-        [HarmonyPatch(typeof(LoadingScreenFlow), nameof(LoadingScreenFlow.LoadScene))]
-        [HarmonyPrefix]
-        private static void LoadScene()
-        {
-            OriginalOrderLifetime = 0.0f;
-        }
 
         private static float GetScaledTime(float inTime, string levelName)
         {
@@ -52,7 +43,31 @@ namespace OC2Modding
             }
 
             ScaledLevelTime[levelName] = time; // Cache result
-            OC2Modding.Log.LogInfo($"Scaled Level Time from {((int)inTime)/60}:{inTime%60} to {((int)time)/60}:{time%60}");
+
+            if (inTime != time)
+            {
+                OC2Modding.Log.LogInfo($"Scaled Level Time of {levelName} from {((int)inTime)/60}:{inTime%60} to {((int)time)/60}:{time%60}");
+            }
+
+            return time;
+        }
+
+        private static Dictionary<string, float> OriginalTicketTime = new Dictionary<string, float>();
+        private static float GetScaledTicketTime(float inTime, string levelName)
+        {
+            if (!OriginalTicketTime.ContainsKey(levelName))
+            {
+                OriginalTicketTime[levelName] = inTime;
+            }
+
+            float originalTime = OriginalTicketTime[levelName];
+            float time = (OC2Config.CustomOrderLifetime / 100.0f) * originalTime;
+
+            if (originalTime != time)
+            {
+                OC2Modding.Log.LogInfo($"Scaled Ticket Time of {levelName} from {originalTime}s to {time}s");
+            }
+
             return time;
         }
 
@@ -63,14 +78,8 @@ namespace OC2Modding
                 return;
             }
 
-            if (OriginalOrderLifetime == 0.0f)
-            {
-                OriginalOrderLifetime = levelConfig.m_orderLifetime;
-            }
-
-            levelConfig.m_orderLifetime = (OC2Config.CustomOrderLifetime / 100.0f) * OriginalOrderLifetime;
-            OC2Modding.Log.LogMessage($"Before={OriginalOrderLifetime}s, After={levelConfig.m_orderLifetime}s");
             levelConfig.GetRoundData().m_roundTimer = GetScaledTime(levelConfig.GetRoundData().m_roundTimer, levelConfig.name);
+            levelConfig.m_orderLifetime = GetScaledTicketTime(levelConfig.m_orderLifetime, levelConfig.name);
         }
 
         [HarmonyPatch(typeof(GameSession), nameof(GameSession.GetGameModeServer))]

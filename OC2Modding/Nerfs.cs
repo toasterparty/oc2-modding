@@ -31,7 +31,6 @@ namespace OC2Modding
             finishedFirstPass = false;
             finishedFirstPassServer = false;
             PlayersWearingBackpacks.Clear();
-            originalWashTime = 0.0f;
         }
 
         private static bool ShouldPlace(ref GameObject _objectToPlace, bool isServer=false)
