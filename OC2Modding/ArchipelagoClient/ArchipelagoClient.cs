@@ -117,7 +117,7 @@ namespace OC2Modding
                     NetworkItem item = session.Items.AllItemsReceived[OC2Config.ItemIndex];
                     OC2Config.ItemIndex++;
 
-                    long itemId = item.Item - 59812623889202; // "oc2" in ascii
+                    long itemId = item.Item - 213700; // "oc2" in ascii
                     if (!GiveItem((int)itemId))
                     {
                         OC2Modding.Log.LogError("Archipelago sent an item which goes above our inventory limits");
@@ -883,7 +883,7 @@ namespace OC2Modding
 
             try
             {
-                string itemName = session.Items.GetItemName(id + 59812623889202);
+                string itemName = session.Items.GetItemName(id + 213700);
                 GameLog.LogMessage($"Received {itemName}");
             }
             catch
