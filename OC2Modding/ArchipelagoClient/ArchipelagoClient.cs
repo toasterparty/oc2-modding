@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
-using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.Models;
 using Archipelago.MultiClient.Net.Packets;
 using Newtonsoft.Json;
@@ -22,10 +21,34 @@ namespace OC2Modding
         static string userName = "";
         static string password = "";
 
-        static LoginResult cachedConnectionResult;
+        static LoginResult cachedConnectionResult = null;
 
         public static bool IsConnected = false;
         public static bool IsConnecting = false;
+
+        private static string PlayerName
+        {
+            get
+            {
+                return session.Players.GetPlayerName(session.ConnectionInfo.Slot);
+            }
+        }
+
+        private static string PseudoSaveKey
+        {
+            get
+            {
+                return "PseudoSave_" + PlayerName;
+            }
+        }
+
+        private static string CoopJoinKey
+        {
+            get
+            {
+                return "CoopJoin_" + PlayerName;
+            }
+        }
 
         // must follow: https://github.com/toasterparty/Archipelago/blob/overcooked2/worlds/overcooked2/Items.py
         private enum Oc2Item
@@ -255,7 +278,7 @@ namespace OC2Modding
             PendingPseudoSaveUpdate = false;
 
             // Fetch the existing
-            Dictionary<int, int> PseudoSave = session.DataStorage["PseudoSave"].To<Dictionary<int, int>>();
+            Dictionary<int, int> PseudoSave = session.DataStorage[PseudoSaveKey].To<Dictionary<int, int>>();
 
             // Update us
             MergeDicts(OC2Config.PseudoSave, PseudoSave);
@@ -271,7 +294,7 @@ namespace OC2Modding
             // Write back
             if (updateRemote)
             {
-                session.DataStorage["PseudoSave"] = JObject.FromObject(PseudoSave);
+                session.DataStorage[PseudoSaveKey] = JObject.FromObject(PseudoSave);
             }
         }
 
@@ -421,18 +444,18 @@ namespace OC2Modding
                 try
                 {
                     // Set of completed levels and their completed star counts
-                    session.DataStorage["PseudoSave"].Initialize(JObject.FromObject(new Dictionary<int, int>()));
-                    session.DataStorage["PseudoSave"].OnValueChanged += (_old, _new) =>
+                    session.DataStorage[PseudoSaveKey].Initialize(JObject.FromObject(new Dictionary<int, int>()));
+                    session.DataStorage[PseudoSaveKey].OnValueChanged += (_old, _new) =>
                     {
                         OnPseudoSaveChanged(_new.ToObject<Dictionary<int, int>>());
                     };
 
                     // Reverse semaphore for ensuring connections are between the right people
-                    session.DataStorage["CoopJoin"].Initialize(0);
+                    session.DataStorage[CoopJoinKey].Initialize(0);
                 }
                 catch (Exception e)
                 {
-                    GameLog.LogMessage($"Failed to initialize psuedo cloud save: {e.Message}");
+                    GameLog.LogMessage($"Failed to initialize pseudo cloud save: {e.Message}");
                 }
 
                 PendingPseudoSaveUpdate = true;
@@ -458,10 +481,10 @@ namespace OC2Modding
                 if (ThisClientHasOpenRequest)
                 {
                     OC2Modding.Log.LogWarning("SetCoopJoinRequest when pending request");
-                    session.DataStorage["CoopJoin"]--;
+                    session.DataStorage[CoopJoinKey]--;
                 }
 
-                session.DataStorage["CoopJoin"]++;
+                session.DataStorage[CoopJoinKey]++;
                 ThisClientHasOpenRequest = true;
             }
             catch (Exception e)
@@ -479,13 +502,13 @@ namespace OC2Modding
 
             try
             {
-                if (session.DataStorage["CoopJoin"] == 0)
+                if (session.DataStorage[CoopJoinKey] == 0)
                 {
                     OC2Modding.Log.LogWarning("CoopJoin was 0 when clearing");
                     ThisClientHasOpenRequest = false;
                     return;
                 }
-                session.DataStorage["CoopJoin"]--;
+                session.DataStorage[CoopJoinKey]--;
                 ThisClientHasOpenRequest = false;
             }
             catch (Exception e)
@@ -503,7 +526,7 @@ namespace OC2Modding
 
             try
             {
-                return session.DataStorage["CoopJoin"] > 0;
+                return session.DataStorage[CoopJoinKey] > 0;
             }
             catch (Exception e)
             {
