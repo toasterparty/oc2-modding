@@ -101,6 +101,13 @@ namespace OC2Modding
 
         public static void Update()
         {
+            if (IsConnected && (session == null || !session.Socket.Connected))
+            {
+                IsConnected = false;
+                GameLog.isHidden = false;
+                GameLog.LogMessage($"Error: Unexpectedly disconnected from {serverUrl}. Please reconnect");
+            }
+
             if (!IsConnected)
             {
                 return;
