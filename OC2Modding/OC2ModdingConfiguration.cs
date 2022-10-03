@@ -573,7 +573,7 @@ namespace OC2Modding
                 "QualityOfLife", // Config Category
                 "UnlockAllDLC", // Config key name
                 true, // Default Config value
-                "Set to true to unlock all DLC, I don't know if this works, because I own all DLC -toasterparty" // Friendly description
+                "Set to true to unlock all DLC" // Friendly description
             );
             UnlockAllDLC = configUnlockAllDLC.Value;
 

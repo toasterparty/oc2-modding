@@ -9,11 +9,11 @@ namespace OC2Modding
             Harmony.CreateAndPatchAll(typeof(UnlockAllDLC));
         }
 
-        [HarmonyPatch(typeof(DebugManager), nameof(DebugManager.GetOption))]
+        [HarmonyPatch(typeof(DLCManagerBase), nameof(DLCManagerBase.IsDLCAvailable))]
         [HarmonyPostfix]
-        private static void GetOption(ref string optionName, ref bool __result)
+        private static void IsDLCAvailable(ref bool __result)
         {
-            if (OC2Config.UnlockAllDLC && optionName == "Unlock All DLC Packs")
+            if (OC2Config.UnlockAllDLC)
             {
                 __result = true;
             }
