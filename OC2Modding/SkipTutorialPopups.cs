@@ -1,3 +1,4 @@
+using System.Collections;
 using HarmonyLib;
 
 namespace OC2Modding
@@ -9,24 +10,23 @@ namespace OC2Modding
             Harmony.CreateAndPatchAll(typeof(SkipTutorialPopups));
         }
 
-        [HarmonyPatch(typeof(TutorialPopup), nameof(TutorialPopup.CanSpawn))]
-        [HarmonyPostfix]
-        private static void CanSpawn(ref bool __result)
+        private static IEnumerator YieldBreak()
         {
-            if (OC2Config.SkipTutorialPopups)
-            {
-                __result = false;
-            }
+            yield break;
         }
 
-        [HarmonyPatch(typeof(TutorialPopupController), nameof(TutorialPopupController.RegisterDismissCallback))]
-        [HarmonyPostfix]
-        private static void RegisterDismissCallback(ref CallbackVoid ___m_dismissedCallback)
+        [HarmonyPatch(typeof(LevelIntroFlowroutine), "TutorialDismissRoutine")]
+        [HarmonyPrefix]
+        private static bool TutorialDismissRoutine(ref IEnumerator __result)
         {
-            if (OC2Config.SkipTutorialPopups)
+            if (!OC2Config.SkipTutorialPopups)
             {
-                ___m_dismissedCallback();
+                return true;
             }
+
+            __result = YieldBreak();
+
+            return false;
         }
 
         [HarmonyPatch(typeof(ServerWorldMapInfoPopup), nameof(ServerWorldMapInfoPopup.PopupRoutine))]
