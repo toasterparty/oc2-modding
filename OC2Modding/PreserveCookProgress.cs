@@ -1,3 +1,4 @@
+using System.Reflection;
 using HarmonyLib;
 using UnityEngine;
 
@@ -10,12 +11,77 @@ namespace OC2Modding
             Harmony.CreateAndPatchAll(typeof(PreserveCookProgress));
         }
 
-        // [HarmonyPatch(typeof(ServerCookingHandler), nameof(ServerCookingHandler.SetCookingProgress))]
-        // [HarmonyPrefix]
-        // private static bool SetCookingProgress(ref float _cookingProgress)
-        // {
-        //     return !OC2Config.PreserveCookingProgress || _cookingProgress != 0f; // skip function if cooking containers being told to reset their cooking progress for no reason
-        // }
+        private static bool InAddOrderContents = false;
+
+        private static CookedCompositeAssembledNode GetAsCookedCompositeAssembledNode(ref ServerCookablePreparationContainer instance)
+        {
+            MethodInfo dynMethod = instance.GetType().GetMethod("GetAsOrderComposite", BindingFlags.NonPublic | BindingFlags.Instance);
+            return ((CompositeAssembledNode) dynMethod.Invoke(instance, new object[] {})) as CookedCompositeAssembledNode;
+        }
+
+        [HarmonyPatch(typeof(ServerCookablePreparationContainer), "CanAddIngredient")]
+        [HarmonyPrefix]
+        private static bool CanAddIngredient_Prefix(ref ServerCookablePreparationContainer __instance, ref AssembledDefinitionNode _toAdd, ref bool __result)
+        {
+            if (!OC2Config.PreserveCookingProgress)
+            {
+                // we aren't doing this patch
+                return true;
+            }
+
+            CookedCompositeAssembledNode cookedCompositeAssembledNode = GetAsCookedCompositeAssembledNode(ref __instance);
+            if (cookedCompositeAssembledNode != null && cookedCompositeAssembledNode.m_progress == CookedCompositeOrderNode.CookingProgress.Burnt)
+            {
+                // can't add items to burnt container
+                __result = false;
+                return false;
+            }
+
+            __result = cookedCompositeAssembledNode.CanAddOrderNode(_toAdd, true);
+
+            // Obsoletes the original method
+            return false;
+        }
+
+        [HarmonyPatch(typeof(ServerCookablePreparationContainer), nameof(ServerCookablePreparationContainer.AddOrderContents))]
+        [HarmonyPrefix]
+        private static void AddOrderContents_Prefix()
+        {
+            InAddOrderContents = true;
+        }
+
+        [HarmonyPatch(typeof(ServerCookablePreparationContainer), nameof(ServerCookablePreparationContainer.AddOrderContents))]
+        [HarmonyPostfix]
+        private static void AddOrderContents_Postfix()
+        {
+            InAddOrderContents = false;
+        }
+
+        [HarmonyPatch(typeof(ServerCookingHandler), nameof(ServerCookingHandler.SetCookingProgress))]
+        [HarmonyPrefix]
+        private static bool SetCookingProgress(ref float _cookingProgress)
+        {
+            if (!OC2Config.PreserveCookingProgress)
+            {
+                // We're not doing this patch
+                return true;
+            }
+
+            if (_cookingProgress != 0.0f)
+            {
+                // It's not a hard reset
+                return true;
+            }
+
+            if (!InAddOrderContents)
+            {
+                // This call came from somewhere where it should reset to 0
+                return true;
+            }
+
+            // Skip because this call wrongfully intends to undo cooking progress
+            return false;
+        }
 
         private static float CalculateCombinedProgress(float recipientProgress, int recipientContents, float receivedProgress, int receivedContents, float AccessCookingTime)
         {
