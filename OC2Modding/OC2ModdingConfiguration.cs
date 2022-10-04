@@ -571,9 +571,9 @@ namespace OC2Modding
 
             ConfigEntry<bool> configUnlockAllDLC = configFile.Bind(
                 "QualityOfLife", // Config Category
-                "UnlockAllDLC", // Config key name
-                true, // Default Config value
-                "Set to true to unlock all DLC" // Friendly description
+                "Debug", // Config key name
+                false, // Default Config value
+                "Flag foR dEbugEring Debug-Like Code" // Friendly description
             );
             UnlockAllDLC = configUnlockAllDLC.Value;
 
