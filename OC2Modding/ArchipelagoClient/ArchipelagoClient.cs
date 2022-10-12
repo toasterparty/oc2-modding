@@ -13,6 +13,7 @@ namespace OC2Modding
 {
     public static class ArchipelagoClient
     {
+        private static Version MinimumProtocolVersion = new Version(0, 3, 5);
         public const bool REMOTE_INVENTORY = true;
 
         private static ArchipelagoSession session = null;
@@ -248,17 +249,6 @@ namespace OC2Modding
             return "";
         }
 
-        private static Version CreateVersion()
-        {
-            string[] version_str = PluginInfo.PLUGIN_VERSION.Split('.');
-            int major = Int32.Parse(version_str[0]);
-            int minor = Int32.Parse(version_str[1]);
-            int patch = Int32.Parse(version_str[2]);
-            return new Version(major, minor, patch);
-        }
-
-        private static Version Version = CreateVersion();
-
         public static void Connect(string server, string user, string pass)
         {
             if (IsConnected) return;
@@ -395,7 +385,7 @@ namespace OC2Modding
                     "Overcooked! 2",
                     userName,
                     REMOTE_INVENTORY ? ItemsHandlingFlags.AllItems : ItemsHandlingFlags.RemoteItems,
-                    Version,
+                    MinimumProtocolVersion,
                     tags: new string[0],
                     uuid: null,
                     password: password
