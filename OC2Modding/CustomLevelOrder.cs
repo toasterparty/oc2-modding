@@ -199,7 +199,14 @@ namespace OC2Modding
                         }
 
                         SceneDirectoryData.StarBoundaries starBoundariesOverride = new SceneDirectoryData.StarBoundaries();
-                        float timeScale = OC2Helpers.IsDynamicLevel(scene.Label) ? 1.0f : OC2Config.LevelTimerScale;
+
+                        /* If the level is a dynamic level, we don't ever scale the level timer, however, these levels are almost exclusively statistical
+                        outliers in terms of the gap between a good player and the current world record. This difficulty spike, in combination with the extended level
+                        duration, means that a well balanced randomizer should still grant some leniency in these cases (cut WR score by 15%).
+                        
+                        If the level is not a dynamic level, then cut the world record by the same ammount that the level duration is cut by. */
+                        float timeScale = OC2Helpers.IsDynamicLevel(variant.LevelConfig.name) ? 0.85f : OC2Config.LevelTimerScale;
+
                         starBoundariesOverride.m_FourStarScore  = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[4], timeScale);
                         starBoundariesOverride.m_ThreeStarScore = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[3], timeScale);
                         starBoundariesOverride.m_TwoStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[2], timeScale);
