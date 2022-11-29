@@ -231,11 +231,18 @@ namespace OC2Modding
         }
 
         /* Apply to end of save directory to garuntee uniqueness across rooms of the same seed */
+        private static int CachedSaveDirSuffix = -1;
         public static string SaveDirSuffix()
         {
+            if (CachedSaveDirSuffix != -1)
+            {
+                return $"-{CachedSaveDirSuffix}";
+            }
+
             try
             {
                 int value = session.DataStorage["SaveDirSuffix"];
+                CachedSaveDirSuffix = value;
                 return $"-{value}";
             }
             catch
