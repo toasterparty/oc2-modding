@@ -168,7 +168,7 @@ namespace OC2Modding
             }
             if (OC2Config.FixDoubleServing)
             {
-                modsDisplay.m_Text += "\nDouble Servering Bugfix";
+                modsDisplay.m_Text += "\nDouble Serving Bugfix";
             }
             if (OC2Config.FixSinkBug)
             {
