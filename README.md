@@ -1,6 +1,6 @@
 # Overcooked! 2 Mods
 
-OC2-Modding is a general-purpose modding framework for Team 17's hit game *Overcooked! 2*.
+OC2-Modding is a general-purpose modding framework for PC version of *Overcooked! 2*.
 
 There are two main uses for it right now:
 - [Archipelago Randomizer/MultiWorld](https://archipelago.gg/games/Overcooked!%202/info/en)
@@ -14,7 +14,7 @@ This has only been tested on Steam, but in theory it *should* work with Epic.
 
 1. Download and extract the [Latest Release](https://github.com/toasterparty/oc2-modding/releases)
 
-2. Double click `oc2-modding-install.bat` and use the file picker window to select your Game's .exe file
+2. Double click `oc2-modding-install.bat` and use the file picker window to select your game's .exe file
 
 3. Run the game once, wait until you reach the main menu, and then close it
 
@@ -24,7 +24,7 @@ This has only been tested on Steam, but in theory it *should* work with Epic.
 
 1. Install latest [.NET sdk](https://dotnet.microsoft.com/en-us/)
 
-2. Copy the following DLLs to `/lib/`:
+2. Copy the following DLLs to `\lib\`:
 
 ```
 UnityEngine.dll
@@ -37,6 +37,9 @@ Assembly-CSharp.dll
 ```
 
 3. Build
+
+Run
+
 ```
 tools\build.bat
 ```
@@ -45,11 +48,11 @@ This will create a folder called `dist` and populate it with the plugin dll file
 
 4. Extract the contents of [BepInEx_x64_5.4.21.0](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.21) into the `dist` folder
 
-5. Extract the contents of [BepInEx_x64_5.4.21.0](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.21) into the `dist` folder
+5. Extract the contents of [BepInEx 6.0.0-pre.1](https://github.com/BepInEx/BepInEx/releases/tag/v6.0.0-pre.1) into the `dist` folder
 
 6. Extract the contents of [curl/bin](https://curl.se/download.html) into the `dist` folder
 
-If done right, your directory should look like this:
+If done right, your dist directory tree should look like this:
 
 ```
 \dist\
@@ -78,8 +81,11 @@ If done right, your directory should look like this:
 ```
 
 6. Install
+
+Run
+
 ```
-dist\oc2-modding-install.bat
+\dist\oc2-modding-install.bat
 ```
 
 and follow the instructions.
