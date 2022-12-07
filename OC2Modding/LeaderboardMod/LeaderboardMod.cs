@@ -23,7 +23,7 @@ namespace OC2Modding
 
         public static void Update()
         {
-            if (!OC2Config.DisplayLeaderboardScores) return;
+            if (!OC2Config.Config.DisplayLeaderboardScores) return;
 
             int? original = numPlayersOverride;
             if (playerCountSwitchButton1.IsDown())
@@ -239,7 +239,7 @@ namespace OC2Modding
             WorldMapKitchenLevelIconUI __instance
             )
         {
-            if (!OC2Config.DisplayLeaderboardScores) return;
+            if (!OC2Config.Config.DisplayLeaderboardScores) return;
 
             var m_userScoreUis = field_m_userScoreUis.GetValue(__instance) as Array;
             var existingUserScoreContainer = RearrangeLevelPreviewLayout(__instance.gameObject);

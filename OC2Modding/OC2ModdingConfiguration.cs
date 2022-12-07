@@ -6,68 +6,69 @@ using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Newtonsoft.Json;
 
 namespace OC2Modding
 {
-    public static class OC2Config
+    public class ModConfig
     {
-        public static string SaveFolderName = "";
-        public static bool DisableArchipelagoLogin = false;
+        public string SaveFolderName = "";
+        public bool DisableArchipelagoLogin = false;
 
         /* Globally Accessible Config Values */
         // QoL + Cheats
-        public static bool DisableAllMods;
-        public static bool DisplayLeaderboardScores;
-        public static bool AlwaysServeOldestOrder;
-        public static float CustomOrderLifetime;
-        public static float Custom66TimerScale = 1.0f;
-        public static bool DisplayFPS;
-        public static bool FixDoubleServing;
-        public static bool FixSinkBug;
-        public static bool FixControlStickThrowBug;
-        public static bool FixEmptyBurnerThrow;
-        public static bool PreserveCookingProgress;
-        public static bool SkipTutorialPopups;
-        public static bool TimerAlwaysStarts;
-        public static bool UnlockAllChefs;
-        public static bool UnlockAllDLC;
-        public static bool RevealAllLevels;
-        public static bool PurchaseAllLevels;
-        public static bool SkipTutorial;
-        public static float ServerTickRate;
-        public static float ServerTickRateUrgent;
-        public static float FixedDeltaTime;
-        public static bool CheatsEnabled = false;
-        public static bool SkipAllOnionKing = false;
-        public static bool ImpossibleTutorial = false;
-        public static float LevelTimerScale = 1.0f;
+        public bool DisableAllMods;
+        public bool DisplayLeaderboardScores;
+        public bool AlwaysServeOldestOrder;
+        public float CustomOrderLifetime;
+        public float Custom66TimerScale = 1.0f;
+        public bool DisplayFPS;
+        public bool FixDoubleServing;
+        public bool FixSinkBug;
+        public bool FixControlStickThrowBug;
+        public bool FixEmptyBurnerThrow;
+        public bool AlwaysPreserveCookingProgress;
+        public bool SkipTutorialPopups;
+        public bool TimerAlwaysStarts;
+        public bool UnlockAllChefs;
+        public bool UnlockAllDLC;
+        public bool RevealAllLevels;
+        public bool PurchaseAllLevels;
+        public bool SkipTutorial;
+        public float ServerTickRate;
+        public float ServerTickRateUrgent;
+        public float FixedDeltaTime;
+        public bool CheatsEnabled = false;
+        public bool SkipAllOnionKing = false;
+        public bool ImpossibleTutorial = false;
+        public float LevelTimerScale = 1.0f;
 
         // Unlockable Items
-        public static bool DisableWood = false;
-        public static bool DisableCoal = false;
-        public static bool DisableOnePlate = false;
-        public static bool DisableFireExtinguisher = false;
-        public static bool DisableBellows = false;
-        public static bool PlatesStartDirty = false;
-        public static int MaxTipCombo = 4;
-        public static bool DisableDash = false;
-        public static bool WeakDash = false;
-        public static bool DisableThrow = false;
-        public static bool DisableCatch = false;
-        public static bool DisableControlStick = false;
-        public static bool DisableWokDrag = false;
-        public static float WashTimeMultiplier = 1.0f;
-        public static float BurnSpeedMultiplier = 1.0f;
-        public static int MaxOrdersOnScreenOffset = 0;
-        public static float ChoppingTimeScale = 1.0f;
-        public static float BackpackMovementScale = 1.0f;
-        public static float RespawnTime = 5.0f;
-        public static float CarnivalDispenserRefactoryTime = 0.0f;
-        public static int StarOffset = 0;
-        public static bool DisableRampButton = false;
-        public static bool DisableEarnHordeMoney = false;
-        public static bool AggressiveHorde = false;
-        public static int CustomOrderTimeoutPenalty = -1;
+        public bool DisableWood = false;
+        public bool DisableCoal = false;
+        public bool DisableOnePlate = false;
+        public bool DisableFireExtinguisher = false;
+        public bool DisableBellows = false;
+        public bool PlatesStartDirty = false;
+        public int MaxTipCombo = 4;
+        public bool DisableDash = false;
+        public bool WeakDash = false;
+        public bool DisableThrow = false;
+        public bool DisableCatch = false;
+        public bool DisableControlStick = false;
+        public bool DisableWokDrag = false;
+        public float WashTimeMultiplier = 1.0f;
+        public float BurnSpeedMultiplier = 1.0f;
+        public int MaxOrdersOnScreenOffset = 0;
+        public float ChoppingTimeScale = 1.0f;
+        public float BackpackMovementScale = 1.0f;
+        public float RespawnTime = 5.0f;
+        public float CarnivalDispenserRefactoryTime = 0.0f;
+        public int StarOffset = 0;
+        public bool DisableRampButton = false;
+        public bool DisableEarnHordeMoney = false;
+        public bool AggressiveHorde = false;
+        public int CustomOrderTimeoutPenalty = -1;
         // Pick up plate stacks 1 at a time
         // Squirt Gun Distance
         // Guitine Cooldown
@@ -75,21 +76,21 @@ namespace OC2Modding
         // 6-6 Timer Advantage (progressive?) 
 
         // Randomizer requirements
-        public static bool ForbidDLC = false;
-        public static bool ForceSingleSaveSlot = false;
-        public static bool DisableNGP = false;
+        public bool ForbidDLC = false;
+        public bool ForceSingleSaveSlot = false;
+        public bool DisableNGP = false;
 
         // <UnlockerLevelId, LockedLevelId>
-        public static Dictionary<int, int> LevelUnlockRequirements;
-        public static Dictionary<int, int> LevelPurchaseRequirements;
-        public static List<int> LevelForceReveal;
-        public static List<int> LevelForceHide;
-        public static Dictionary<int, float> LeaderboardScoreScale = null;
-        public static Dictionary<string, Dictionary<int, DlcIdAndLevelId>> CustomLevelOrder = null;
-        public static List<int> LockedEmotes;
-        public static Dictionary<int, List<OnLevelCompletedEvent>> OnLevelCompleted = new Dictionary<int, List<OnLevelCompletedEvent>>();
-        public static Dictionary<int, int> PseudoSave = new Dictionary<int, int>(); // levelId, stars
-        public static int ItemIndex = 0;
+        public Dictionary<int, int> LevelUnlockRequirements;
+        public Dictionary<int, int> LevelPurchaseRequirements;
+        public List<int> LevelForceReveal;
+        public List<int> LevelForceHide;
+        public Dictionary<int, float> LeaderboardScoreScale = null;
+        public Dictionary<string, Dictionary<int, DlcIdAndLevelId>> CustomLevelOrder = null;
+        public List<int> LockedEmotes;
+        public Dictionary<int, List<OnLevelCompletedEvent>> OnLevelCompleted = new Dictionary<int, List<OnLevelCompletedEvent>>();
+        public Dictionary<int, int> PseudoSave = new Dictionary<int, int>(); // levelId, stars
+        public int ItemIndex = 0;
 
         public struct OnLevelCompletedEvent
         {
@@ -100,376 +101,16 @@ namespace OC2Modding
 
         public struct DlcIdAndLevelId
         {
-            public int Dlc;
-            public int LevelId;
-        }
+            public string DLC;
+            public int LevelID;
 
-        public static void Awake()
-        {
-            /* Initialize Memory */
-            LevelUnlockRequirements = new Dictionary<int, int>();
-            LevelPurchaseRequirements = new Dictionary<int, int>();
-            LevelForceReveal = new List<int>();
-            LevelForceHide = new List<int>();
-            LockedEmotes = new List<int>();
-
-            InitConfig(false);
-
-            Harmony.CreateAndPatchAll(typeof(OC2Config));
-            Harmony.CreateAndPatchAll(typeof(DisableArcadeVersus));
-        }
-
-        public static void Update()
-        {
-            if (PendingFlushConfig)
-            {
-                PendingFlushConfig = false;
-                FlushConfig(immediate: true);
-            }
-        }
-
-        public static void InitConfig(bool newGame)
-        {
-            Update(); // flush config if needed
-
-            // Everything gets update except for the SaveFolderName
-            string oldSaveFolderName = SaveFolderName;
-
-            /* Initialize with standalone config */
-            InitConfigStandalone();
-
-            /* short circuit if globally disabled */
-            if (DisableAllMods) return;
-
-            /* Initialize using locally supplied configuration (optional) */
-            InitJsonFile("OC2Modding.json");
-
-            /* short circuit if globally disabled */
-            if (DisableAllMods) return;
-
-            if (oldSaveFolderName != "")
-            {
-                SaveFolderName = oldSaveFolderName;
-            }
-
-            if (SaveFolderName != "")
-            {
-                /* Apply starting inventory */
-                InitJsonFile(OC2Helpers.getCustomSaveDirectory() + "OC2Modding-INIT.json");
-
-                /* Apply saved game inventory */
-                if (!newGame)
-                {
-                    InitJsonFile(OC2Helpers.getCustomSaveDirectory() + "/OC2Modding.json");
-                }
-            }
-
-            if (newGame)
-            {
-                ItemIndex = 0; // When starting a new game, reset the remote items that have been received
-                OC2Config.PseudoSave.Clear(); // don't bring any completed levels over
-                ArchipelagoClient.SendPseudoSave(); // Force an update of slot data (completed levels)
-            }
-
-            /* Ensure save game inventory is saved to disk */
-            FlushConfig();
-        }
-
-        private static bool PendingFlushConfig = false;
-
-        public static void FlushConfig(bool immediate = false)
-        {
-            if (!immediate)
-            {
-                PendingFlushConfig = true;
-                return;
-            }
-
-            ThreadPool.QueueUserWorkItem((o) => FlushConfigTask());
-        }
-
-        private static Mutex FlushConfigMut = new Mutex();
-
-        private static void FlushConfigTask()
-        {
-            FlushConfigMut.WaitOne();
-
-            try
-            {
-                string save_dir = OC2Helpers.getCustomSaveDirectory();
-                if (!Directory.Exists(save_dir))
-                {
-                    Directory.CreateDirectory(save_dir);
-                }
-                string filepath = save_dir + "/OC2Modding.json";
-                string text = SerializeConfig();
-                File.WriteAllText(filepath, text);
-                OC2Modding.Log.LogInfo($"Flushed config to '{filepath}'...");
-            }
-            catch
-            {
-                OC2Modding.Log.LogError("Failed to flush config");
-            }
-
-            FlushConfigMut.ReleaseMutex();
-        }
-
-        // Forgive me, for I have spaghetti code
-        private static string SerializeConfig()
-        {
-            string data = "{";
-            data += $"\"DisplayLeaderboardScores\":{DisplayLeaderboardScores},";
-            data += $"\"AlwaysServeOldestOrder\":{AlwaysServeOldestOrder},";
-            data += $"\"CustomOrderLifetime\":{CustomOrderLifetime},";
-            data += $"\"Custom66TimerScale\":{Custom66TimerScale},";
-            data += $"\"DisplayFPS\":{DisplayFPS},";
-            data += $"\"FixDoubleServing\":{FixDoubleServing},";
-            data += $"\"FixSinkBug\":{FixSinkBug},";
-            data += $"\"FixControlStickThrowBug\":{FixControlStickThrowBug},";
-            data += $"\"FixEmptyBurnerThrow\":{FixEmptyBurnerThrow},";
-            data += $"\"PreserveCookingProgress\":{PreserveCookingProgress},";
-            data += $"\"SkipTutorialPopups\":{SkipTutorialPopups},";
-            data += $"\"TimerAlwaysStarts\":{TimerAlwaysStarts},";
-            data += $"\"UnlockAllChefs\":{UnlockAllChefs},";
-            data += $"\"UnlockAllDLC\":{UnlockAllDLC},";
-            data += $"\"RevealAllLevels\":{RevealAllLevels},";
-            data += $"\"PurchaseAllLevels\":{PurchaseAllLevels},";
-            data += $"\"SkipTutorial\":{SkipTutorial},";
-            data += $"\"CheatsEnabled\":{CheatsEnabled},";
-            data += $"\"SkipAllOnionKing\":{SkipAllOnionKing},";
-            data += $"\"DisableWood\":{DisableWood},";
-            data += $"\"DisableCoal\":{DisableCoal},";
-            data += $"\"DisableOnePlate\":{DisableOnePlate},";
-            data += $"\"DisableFireExtinguisher\":{DisableFireExtinguisher},";
-            data += $"\"DisableBellows\":{DisableBellows},";
-            data += $"\"PlatesStartDirty\":{PlatesStartDirty},";
-            data += $"\"MaxTipCombo\":{MaxTipCombo},";
-            data += $"\"DisableDash\":{DisableDash},";
-            data += $"\"WeakDash\":{WeakDash},";
-            data += $"\"DisableThrow\":{DisableThrow},";
-            data += $"\"DisableCatch\":{DisableCatch},";
-            data += $"\"DisableControlStick\":{DisableControlStick},";
-            data += $"\"DisableWokDrag\":{DisableWokDrag},";
-            data += $"\"WashTimeMultiplier\":{WashTimeMultiplier},";
-            data += $"\"BurnSpeedMultiplier\":{BurnSpeedMultiplier},";
-            data += $"\"MaxOrdersOnScreenOffset\":{MaxOrdersOnScreenOffset},";
-            data += $"\"ChoppingTimeScale\":{ChoppingTimeScale},";
-            data += $"\"BackpackMovementScale\":{BackpackMovementScale},";
-            data += $"\"RespawnTime\":{RespawnTime},";
-            data += $"\"CarnivalDispenserRefactoryTime\":{CarnivalDispenserRefactoryTime},";
-            data += $"\"StarOffset\":{StarOffset},";
-            data += $"\"DisableRampButton\":{DisableRampButton},";
-            data += $"\"DisableEarnHordeMoney\":{DisableEarnHordeMoney},";
-            data += $"\"AggressiveHorde\":{AggressiveHorde},";
-            data += $"\"CustomOrderTimeoutPenalty\":{CustomOrderTimeoutPenalty},";
-            data += $"\"ItemIndex\":{ItemIndex},";
-            data += $"\"LevelTimerScale\":{LevelTimerScale},";
-            data += $"\"ImpossibleTutorial\":{ImpossibleTutorial},";
-            data += $"\"DisableArchipelagoLogin\":{DisableArchipelagoLogin},";
-            data += $"\"ForbidDLC\":{ForbidDLC},";
-            data += $"\"ForceSingleSaveSlot\":{ForceSingleSaveSlot},";
-            data += $"\"DisableNGP\":{DisableNGP},";
-
-            data += $"\"LevelUnlockRequirements\":{{";
-            bool first = true;
-            foreach (KeyValuePair<int, int> kvp in LevelUnlockRequirements)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    data += ",";
-                }
-                data += $"\"{kvp.Key}\":{kvp.Value}";
-            }
-            data += "},";
-
-            data += $"\"LevelPurchaseRequirements\":{{";
-            first = true;
-            foreach (KeyValuePair<int, int> kvp in LevelPurchaseRequirements)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    data += ",";
-                }
-                data += $"\"{kvp.Key}\":{kvp.Value}";
-            }
-            data += "},";
-
-            data += $"\"PseudoSave\":{{";
-            first = true;
-            foreach (KeyValuePair<int, int> kvp in PseudoSave)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    data += ",";
-                }
-                data += $"\"{kvp.Key}\":{kvp.Value}";
-            }
-            data += "},";
-
-            data += $"\"LevelForceReveal\":[";
-            first = true;
-            foreach (int value in LevelForceReveal)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    data += ",";
-                }
-                data += $"{value}";
-            }
-            data += "],";
-
-            data += $"\"LevelForceHide\":[";
-            first = true;
-            foreach (int value in LevelForceHide)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    data += ",";
-                }
-                data += $"{value}";
-            }
-            data += "],";
-
-            if (LeaderboardScoreScale != null)
-            {
-                data += $"\"LeaderboardScoreScale\":{{";
-                first = true;
-                foreach (KeyValuePair<int, float> kvp in LeaderboardScoreScale)
-                {
-                    if (first)
-                    {
-                        first = false;
-                    }
-                    else
-                    {
-                        data += ",";
-                    }
-
-                    string key;
-                    switch (kvp.Key)
-                    {
-                        case 1:
-                            {
-                                key = "OneStar";
-                                break;
-                            }
-                        case 2:
-                            {
-                                key = "TwoStars";
-                                break;
-                            }
-                        case 3:
-                            {
-                                key = "ThreeStars";
-                                break;
-                            }
-                        case 4:
-                            {
-                                key = "FourStars";
-                                break;
-                            }
-                        default:
-                            {
-                                key = "something went terrible wrong";
-                                break;
-                            }
-                    }
-
-                    data += $"\"{key}\":{kvp.Value.ToString("F4")}";
-                }
-                data += "},";
-            }
-
-            if (CustomLevelOrder != null)
-            {
-                data += $"\"CustomLevelOrder\":{{";
-                first = true;
-                foreach (KeyValuePair<string, Dictionary<int, DlcIdAndLevelId>> kvp in CustomLevelOrder)
-                {
-                    if (first)
-                    {
-                        first = false;
-                    }
-                    else
-                    {
-                        data += ",";
-                    }
-                    data += $"\"{kvp.Key}\":";
-                    data += "{";
-
-                    bool first2 = true;
-                    foreach (KeyValuePair<int, DlcIdAndLevelId> kvp2 in kvp.Value)
-                    {
-                        if (first2)
-                        {
-                            first2 = false;
-                        }
-                        else
-                        {
-                            data += ",";
-                        }
-
-                        string DLC = OC2Helpers.DLCFromDLCID(kvp2.Value.Dlc);
-                        int LevelID = kvp2.Value.LevelId;
-                        data += $"\"{kvp2.Key}\":";
-                        data += "{";
-                        data += $"\"DLC\":\"{DLC}\",";
-                        data += $"\"LevelID\":{LevelID}";
-                        data += "}";
-                    }
-
-                    data += "}";
-                }
-                data += "},";
-            }
-
-            data += $"\"LockedEmotes\":[";
-            first = true;
-            foreach (int value in LockedEmotes)
-            {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    data += ",";
-                }
-                data += $"{value}";
-            }
-            data += "]";
-
-            data += "}";
-
-            data = data.Replace("True", "true");
-            data = data.Replace("False", "false");
-
-            return data;
+            [JsonIgnore]
+            public int dlc;
         }
 
         /* Create OC2Modding.cfg if it doesn't exist and populate it 
            with all possible config options. Load the file and set all */
-        private static void InitConfigStandalone()
+        public void InitConfigStandalone()
         {
             ConfigFile configFile = new ConfigFile(Path.Combine(Paths.ConfigPath, "OC2Modding.cfg"), true);
 
@@ -511,7 +152,7 @@ namespace OC2Modding
                 false, // Default Config value
                 "In the base game, certain cooking vessels reset their cooking progress to 0% or 50% when a new item is added. Enabling this option makes the behavior consistent across all vessels (Adding uncooked items to cooked ones preserves always preserves cooked progress)" // Friendly description
             );
-            PreserveCookingProgress = configPreserveCookingProgress.Value;
+            AlwaysPreserveCookingProgress = configPreserveCookingProgress.Value;
 
             ConfigEntry<bool> configTimerAlwaysStarts = configFile.Bind(
                 "GameModifications", // Config Category
@@ -650,26 +291,7 @@ namespace OC2Modding
             FixEmptyBurnerThrow = configFixEmptyBurnerThrow.Value;
         }
 
-        private static void InitJsonFile(string filename)
-        {
-            try
-            {
-                OC2Modding.Log.LogInfo($"Loading config from '{filename}'...");
-                string json;
-                using (StreamReader reader = new StreamReader(filename))
-                {
-                    json = reader.ReadToEnd();
-                }
-
-                UpdateConfig(json);
-            }
-            catch
-            {
-                OC2Modding.Log.LogWarning($"Failed to parse json from {filename}");
-            }
-        }
-
-        public static void UpdateConfig(string text)
+        public void UpdateConfig(string text)
         {
             // OC2Modding.Log.LogInfo($"Applying Config:\n{text}");
 
@@ -685,7 +307,7 @@ namespace OC2Modding
             try { if (config.HasKey("FixSinkBug"                     )) FixSinkBug                     = config["FixSinkBug"                     ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'FixSinkBug'"                     ); }
             try { if (config.HasKey("FixControlStickThrowBug"        )) FixControlStickThrowBug        = config["FixControlStickThrowBug"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'FixControlStickThrowBug'"        ); }
             try { if (config.HasKey("FixEmptyBurnerThrow"            )) FixEmptyBurnerThrow            = config["FixEmptyBurnerThrow"            ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'FixEmptyBurnerThrow'"            ); }
-            try { if (config.HasKey("PreserveCookingProgress"        )) PreserveCookingProgress        = config["PreserveCookingProgress"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'PreserveCookingProgress'"        ); }
+            try { if (config.HasKey("AlwaysPreserveCookingProgress"  )) AlwaysPreserveCookingProgress  = config["AlwaysPreserveCookingProgress"  ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'AlwaysPreserveCookingProgress'"  ); }
             try { if (config.HasKey("SkipTutorialPopups"             )) SkipTutorialPopups             = config["SkipTutorialPopups"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SkipTutorialPopups'"             ); }
             try { if (config.HasKey("TimerAlwaysStarts"              )) TimerAlwaysStarts              = config["TimerAlwaysStarts"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'TimerAlwaysStarts'"              ); }
             try { if (config.HasKey("UnlockAllChefs"                 )) UnlockAllChefs                 = config["UnlockAllChefs"                 ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'UnlockAllChefs'"                 ); }
@@ -829,8 +451,9 @@ namespace OC2Modding
                         foreach (KeyValuePair<string, SimpleJSON.JSONNode> kvp in config["CustomLevelOrder"].AsObject["Story"].AsObject)
                         {
                             DlcIdAndLevelId dlcIdAndLevelId = new DlcIdAndLevelId();
-                            dlcIdAndLevelId.Dlc = OC2Helpers.DLCFromString(kvp.Value.AsObject["DLC"]);
-                            dlcIdAndLevelId.LevelId = kvp.Value.AsObject["LevelID"];
+                            dlcIdAndLevelId.DLC = kvp.Value.AsObject["DLC"];
+                            dlcIdAndLevelId.dlc = OC2Helpers.DLCFromString(dlcIdAndLevelId.DLC);
+                            dlcIdAndLevelId.LevelID = kvp.Value.AsObject["LevelID"];
                             tempDictDlc.Add(int.Parse(kvp.Key), dlcIdAndLevelId);
                         }
                         tempDict.Add("Story", tempDictDlc);
@@ -954,6 +577,233 @@ namespace OC2Modding
                 OC2Modding.Log.LogWarning($"Failed to parse key 'OnLevelCompleted'\n:{e}");
             }
         }
+    }
+    public static class OC2Config
+    {
+        public static ModConfig Config = new ModConfig();
+
+        public static void Awake()
+        {
+            /* Initialize Memory */
+            Config.LevelUnlockRequirements = new Dictionary<int, int>();
+            Config.LevelPurchaseRequirements = new Dictionary<int, int>();
+            Config.LevelForceReveal = new List<int>();
+            Config.LevelForceHide = new List<int>();
+            Config.LockedEmotes = new List<int>();
+
+            InitConfig(false);
+
+            Harmony.CreateAndPatchAll(typeof(OC2Config));
+            Harmony.CreateAndPatchAll(typeof(DisableArcadeVersus));
+        }
+
+        public static void Update()
+        {
+            if (PendingFlushConfig)
+            {
+                PendingFlushConfig = false;
+                FlushConfig(immediate: true);
+            }
+        }
+
+        public static void InitConfig(bool newGame)
+        {
+            Update(); // flush config if needed
+
+            // Everything gets update except for the SaveFolderName
+            string oldSaveFolderName = Config.SaveFolderName;
+
+            /* Initialize with standalone config */
+            Config.InitConfigStandalone();
+
+            /* short circuit if globally disabled */
+            if (Config.DisableAllMods) return;
+
+            /* Initialize using locally supplied configuration (optional) */
+            InitJsonFile("OC2Modding.json");
+
+            /* short circuit if globally disabled */
+            if (Config.DisableAllMods) return;
+
+            if (oldSaveFolderName != "")
+            {
+                Config.SaveFolderName = oldSaveFolderName;
+            }
+
+            if (Config.SaveFolderName != "")
+            {
+                /* Apply starting inventory */
+                InitJsonFile(OC2Helpers.getCustomSaveDirectory() + "OC2Modding-INIT.json");
+
+                /* Apply saved game inventory */
+                if (!newGame)
+                {
+                    InitJsonFile(OC2Helpers.getCustomSaveDirectory() + "/OC2Modding.json");
+                }
+            }
+
+            if (newGame)
+            {
+                Config.ItemIndex = 0; // When starting a new game, reset the remote items that have been received
+                Config.PseudoSave.Clear(); // don't bring any completed levels over
+                ArchipelagoClient.SendPseudoSave(); // Force an update of slot data (completed levels)
+            }
+
+            /* Ensure save game inventory is saved to disk */
+            FlushConfig();
+        }
+
+        public static void UpdateConfig(string text)
+        {
+            Config.UpdateConfig(text);
+        }
+
+        public static void LevelCompleted(int level_id)
+        {
+            if (!Config.OnLevelCompleted.ContainsKey(level_id))
+            {
+                return;
+            }
+
+            foreach (ModConfig.OnLevelCompletedEvent e in Config.OnLevelCompleted[level_id])
+            {
+                try
+                {
+                    if (e.action == "SET_VALUE")
+                    {
+                        var tokens = e.payload.Split('=');
+                        string payload = $"{{\"{tokens[0]}\":{tokens[1]}}}";
+                        UpdateConfig(payload);
+                    }
+                    else if (e.action == "UNLOCK_LEVEL")
+                    {
+                        int id = Int32.Parse(e.payload);
+                        if (!Config.LevelForceReveal.Contains(id))
+                        {
+                            Config.LevelForceReveal.Add(id);
+                        }
+                    }
+                    else if (e.action == "UNLOCK_EMOTE")
+                    {
+                        int id = Int32.Parse(e.payload);
+                        if (Config.LockedEmotes.Contains(id))
+                        {
+                            Config.LockedEmotes.Remove(id);
+                        }
+                    }
+                    else if (e.action == "INC_TIP_COMBO")
+                    {
+                        if (Config.MaxTipCombo < 4)
+                        {
+                            Config.MaxTipCombo++;
+                        }
+                    }
+                    else if (e.action == "INC_ORDERS_ON_SCREEN")
+                    {
+                        if (Config.MaxOrdersOnScreenOffset < 0)
+                        {
+                            Config.MaxOrdersOnScreenOffset++;
+                        }
+                    }
+                    else if (e.action == "INC_STAR_COUNT")
+                    {
+                        int count = Int32.Parse(e.payload);
+                        Config.StarOffset += count;
+                    }
+                    else if (e.action == "INC_DASH")
+                    {
+                        if (Config.DisableDash)
+                        {
+                            Config.DisableDash = false;
+                        }
+                        else
+                        {
+                            Config.WeakDash = false;
+                        }
+                    }
+                    else if (e.action == "INC_THROW")
+                    {
+                        if (Config.DisableThrow)
+                        {
+                            Config.DisableThrow = false;
+                        }
+                        else
+                        {
+                            Config.DisableCatch = false;
+                        }
+                    }
+
+                    if (e.message != "")
+                    {
+                        GameLog.LogMessage(e.message);
+                    }
+                }
+                catch (Exception _e)
+                {
+                    OC2Modding.Log.LogError($"Failed to process post-complete event for level #{level_id}: action={e.action}, payload={e.payload}, message={e.message}\n{_e}");
+                }
+            }
+
+            FlushConfig();
+        }
+
+        private static bool PendingFlushConfig = false;
+
+        public static void FlushConfig(bool immediate = false)
+        {
+            if (!immediate)
+            {
+                PendingFlushConfig = true;
+                return;
+            }
+
+            ThreadPool.QueueUserWorkItem((o) => FlushConfigTask());
+        }
+
+        private static Mutex FlushConfigMut = new Mutex();
+
+        private static void FlushConfigTask()
+        {
+            FlushConfigMut.WaitOne();
+
+            try
+            {
+                string save_dir = OC2Helpers.getCustomSaveDirectory();
+                if (!Directory.Exists(save_dir))
+                {
+                    Directory.CreateDirectory(save_dir);
+                }
+                string filepath = save_dir + "/OC2Modding.json";
+                string text = JsonConvert.SerializeObject(Config);
+                File.WriteAllText(filepath, text);
+                OC2Modding.Log.LogInfo($"Flushed config to '{filepath}'...");
+            }
+            catch
+            {
+                OC2Modding.Log.LogError("Failed to flush config");
+            }
+
+            FlushConfigMut.ReleaseMutex();
+        }
+
+        private static void InitJsonFile(string filename)
+        {
+            try
+            {
+                OC2Modding.Log.LogInfo($"Loading config from '{filename}'...");
+                string json;
+                using (StreamReader reader = new StreamReader(filename))
+                {
+                    json = reader.ReadToEnd();
+                }
+
+                UpdateConfig(json);
+            }
+            catch
+            {
+                OC2Modding.Log.LogWarning($"Failed to parse json from {filename}");
+            }
+        }
 
         /* In the event that the player presses "New Game" try your hardest to reset the configuration */
         [HarmonyPatch(typeof(SaveSlotElement), "SaveNewGame")]
@@ -965,7 +815,7 @@ namespace OC2Modding
 
         private static void DisableExtraSaveSlots(ref SaveSlotElement[] ___m_saveElements)
         {
-            if (!ForceSingleSaveSlot)
+            if (!Config.ForceSingleSaveSlot)
             {
                 return; // vanilla with QoL
             }
@@ -999,7 +849,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void IsNGPEnabledForAnyLevel(ref bool __result)
         {
-            if (DisableNGP)
+            if (Config.DisableNGP)
             {
                 __result = false;
             }
@@ -1009,7 +859,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void IsNGPEnabledForLevel(ref bool __result)
         {
-            if (DisableNGP)
+            if (Config.DisableNGP)
             {
                 __result = false;
             }
@@ -1019,7 +869,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void CanUnlockNewGamePlusForChainEnd(ref bool __result)
         {
-            if (DisableNGP)
+            if (Config.DisableNGP)
             {
                 __result = false;
             }
@@ -1029,7 +879,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void CanUnlockNewGamePlus(ref bool __result)
         {
-            if (DisableNGP)
+            if (Config.DisableNGP)
             {
                 __result = false;
             }
@@ -1039,7 +889,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void UpdateStarVisibility(ref GameProgress.GameProgressData.LevelProgress _levelProgress)
         {
-            if (DisableNGP)
+            if (Config.DisableNGP)
             {
                 _levelProgress.NGPEnabled = false;
             }
@@ -1062,7 +912,7 @@ namespace OC2Modding
             [HarmonyPrefix]
             private static bool InterceptArcadeVersus()
             {
-                if (ForbidDLC)
+                if (Config.ForbidDLC)
                 {
                     GameLog.LogMessage("Error: Arcade/Versus is not permitted when playing this mod");
                     return false;

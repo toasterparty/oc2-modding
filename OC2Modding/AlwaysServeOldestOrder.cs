@@ -31,10 +31,10 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void FindBestOrderForRecipe(ref AssembledDefinitionNode _order, ref PlatingStepData _plateType, ref OrderID o_orderID, ref float _timePropRemainingPercentage, ref bool __result, ref List<ServerOrderData> ___m_activeOrders)
         {
-            // bool cheatServe = OC2Config.CheatsEnabled;
+            // bool cheatServe = OC2Config.Config.CheatsEnabled;
             bool cheatServe = false;
 
-            if (!OC2Config.AlwaysServeOldestOrder && !cheatServe)
+            if (!OC2Config.Config.AlwaysServeOldestOrder && !cheatServe)
             {
                 return;
             }

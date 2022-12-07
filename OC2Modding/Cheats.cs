@@ -15,7 +15,7 @@ namespace OC2Modding
 
         public static void Update()
         {
-            if (!OC2Config.CheatsEnabled)
+            if (!OC2Config.Config.CheatsEnabled)
             {
                 return;
             }

@@ -11,7 +11,7 @@ namespace OC2Modding
 
         private static bool CanPickup(string name)
         {
-            if (OC2Config.DisableWood && name == "DLC05_Wood")
+            if (OC2Config.Config.DisableWood && name == "DLC05_Wood")
             {
                 OC2Helpers.PlayErrorSfx();
                 return false;

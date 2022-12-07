@@ -23,7 +23,7 @@ namespace OC2Modding
         {
             get
             {
-                return 1.0f / OC2Config.ServerTickRate;
+                return 1.0f / OC2Config.Config.ServerTickRate;
             }
         }
 
@@ -31,7 +31,7 @@ namespace OC2Modding
         {
             get
             {
-                return 1.0f / OC2Config.ServerTickRateUrgent;
+                return 1.0f / OC2Config.Config.ServerTickRateUrgent;
             }
         }
 

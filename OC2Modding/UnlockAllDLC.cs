@@ -13,7 +13,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void IsDLCAvailable(ref bool __result)
         {
-            if (OC2Config.UnlockAllDLC)
+            if (OC2Config.Config.UnlockAllDLC)
             {
                 __result = true;
             }

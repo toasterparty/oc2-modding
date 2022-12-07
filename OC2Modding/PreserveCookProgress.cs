@@ -23,7 +23,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool CanAddIngredient_Prefix(ref ServerCookablePreparationContainer __instance, ref AssembledDefinitionNode _toAdd, ref bool __result)
         {
-            if (!OC2Config.PreserveCookingProgress)
+            if (!OC2Config.Config.AlwaysPreserveCookingProgress)
             {
                 // we aren't doing this patch
                 return true;
@@ -61,7 +61,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool SetCookingProgress(ref float _cookingProgress)
         {
-            if (!OC2Config.PreserveCookingProgress)
+            if (!OC2Config.Config.AlwaysPreserveCookingProgress)
             {
                 // We're not doing this patch
                 return true;
@@ -110,7 +110,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void AddOrderContentsPostfix(ref ServerCookingHandler ___m_cookingHandler, ref ServerIngredientContainer ___m_itemContainer, ref AssembledDefinitionNode[] _contents)
         {
-            if (OC2Config.PreserveCookingProgress)
+            if (OC2Config.Config.AlwaysPreserveCookingProgress)
             {
                 int receivedContents = _contents.Length;
                 int recipientContents = ___m_itemContainer.GetContentsCount();
@@ -125,7 +125,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void CalculateCombinedMixingProgress(ref float recipientProgress, ref int recipientContents, ref float receivedProgress, ref int receivedContents, ref float __result, ref ServerMixingHandler ___m_MixingHandler)
         {
-            if (OC2Config.PreserveCookingProgress)
+            if (OC2Config.Config.AlwaysPreserveCookingProgress)
             {
                 __result = CalculateCombinedProgress(recipientProgress, recipientContents, receivedProgress, receivedContents, ___m_MixingHandler.AccessMixingTime);
             }
@@ -136,7 +136,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void CalculateCombinedCookingProgress(ref float recipientProgress, ref int recipientContents, ref float receivedProgress, ref int receivedContents, ref float __result, ref ServerCookingHandler ___m_cookingHandler)
         {
-            if (OC2Config.PreserveCookingProgress)
+            if (OC2Config.Config.AlwaysPreserveCookingProgress)
             {
                 __result = CalculateCombinedProgress(recipientProgress, recipientContents, receivedProgress, receivedContents, ___m_cookingHandler.AccessCookingTime);
             }

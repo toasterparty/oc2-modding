@@ -97,7 +97,7 @@ namespace OC2Modding
 
         private static bool PendingItemUpdate()
         {
-            return OC2Config.ItemIndex < session.Items.AllItemsReceived.Count;
+            return OC2Config.Config.ItemIndex < session.Items.AllItemsReceived.Count;
         }
 
         public static void Update()
@@ -145,8 +145,8 @@ namespace OC2Modding
                 try
                 {
                     doFlush = true;
-                    NetworkItem item = session.Items.AllItemsReceived[OC2Config.ItemIndex];
-                    OC2Config.ItemIndex++;
+                    NetworkItem item = session.Items.AllItemsReceived[OC2Config.Config.ItemIndex];
+                    OC2Config.Config.ItemIndex++;
 
                     long itemId = item.Item - 213700; // "oc2" in ascii
                     if (!GiveItem((int)itemId))
@@ -156,8 +156,8 @@ namespace OC2Modding
                 }
                 catch
                 {
-                    GameLog.LogMessage($"Error when receiving item at network index {OC2Config.ItemIndex}");
-                    OC2Config.ItemIndex++;
+                    GameLog.LogMessage($"Error when receiving item at network index {OC2Config.Config.ItemIndex}");
+                    OC2Config.Config.ItemIndex++;
                 }
             }
 
@@ -285,7 +285,7 @@ namespace OC2Modding
             Dictionary<int, int> PseudoSave = session.DataStorage[PseudoSaveKey].To<Dictionary<int, int>>();
 
             // Update us
-            MergeDicts(OC2Config.PseudoSave, PseudoSave);
+            MergeDicts(OC2Config.Config.PseudoSave, PseudoSave);
 
             if (!OC2Helpers.IsHostPlayer())
             {
@@ -293,7 +293,7 @@ namespace OC2Modding
             }
 
             // Update them
-            bool updateRemote = MergeDicts(PseudoSave, OC2Config.PseudoSave);
+            bool updateRemote = MergeDicts(PseudoSave, OC2Config.Config.PseudoSave);
 
             // Write back
             if (updateRemote)
@@ -304,7 +304,7 @@ namespace OC2Modding
 
         private static void OnPseudoSaveChanged(Dictionary<int, int> PseudoSave)
         {
-            MergeDicts(OC2Config.PseudoSave, PseudoSave);
+            MergeDicts(OC2Config.Config.PseudoSave, PseudoSave);
         }
 
         private static bool MergeDicts(Dictionary<int, int> main, Dictionary<int, int> update)
@@ -410,7 +410,7 @@ namespace OC2Modding
                         /* SlotData contains a save folder directory */
 
                         string json = JsonConvert.SerializeObject(loginSuccess.SlotData);
-                        OC2Config.SaveFolderName = (string)saveFolder;
+                        OC2Config.Config.SaveFolderName = (string)saveFolder;
 
                         string saveDirectory = OC2Helpers.getCustomSaveDirectory();
                         if (!Directory.Exists(saveDirectory))
@@ -667,45 +667,45 @@ namespace OC2Modding
             {
                 case Oc2Item.Wood:
                     {
-                        if (!OC2Config.DisableWood) return false;
-                        OC2Config.DisableWood = false;
+                        if (!OC2Config.Config.DisableWood) return false;
+                        OC2Config.Config.DisableWood = false;
                         break;
                     }
                 case Oc2Item.CoalBucket:
                     {
-                        if (!OC2Config.DisableCoal) return false;
-                        OC2Config.DisableCoal = false;
+                        if (!OC2Config.Config.DisableCoal) return false;
+                        OC2Config.Config.DisableCoal = false;
                         break;
                     }
                 case Oc2Item.SparePlate:
                     {
-                        if (!OC2Config.DisableOnePlate) return false;
-                        OC2Config.DisableOnePlate = false;
+                        if (!OC2Config.Config.DisableOnePlate) return false;
+                        OC2Config.Config.DisableOnePlate = false;
                         break;
                     }
                 case Oc2Item.FireExtinguisher:
                     {
-                        if (!OC2Config.DisableFireExtinguisher) return false;
-                        OC2Config.DisableFireExtinguisher = false;
+                        if (!OC2Config.Config.DisableFireExtinguisher) return false;
+                        OC2Config.Config.DisableFireExtinguisher = false;
                         break;
                     }
                 case Oc2Item.Bellows:
                     {
-                        if (!OC2Config.DisableBellows) return false;
-                        OC2Config.DisableBellows = false;
+                        if (!OC2Config.Config.DisableBellows) return false;
+                        OC2Config.Config.DisableBellows = false;
                         break;
                     }
                 case Oc2Item.CleanDishes:
                     {
-                        if (!OC2Config.PlatesStartDirty) return false;
-                        OC2Config.PlatesStartDirty = false;
+                        if (!OC2Config.Config.PlatesStartDirty) return false;
+                        OC2Config.Config.PlatesStartDirty = false;
                         break;
                     }
                 case Oc2Item.LargerTipJar:
                     {
-                        if (OC2Config.MaxTipCombo < 4)
+                        if (OC2Config.Config.MaxTipCombo < 4)
                         {
-                            OC2Config.MaxTipCombo++;
+                            OC2Config.Config.MaxTipCombo++;
                         }
                         else
                         {
@@ -715,13 +715,13 @@ namespace OC2Modding
                     }
                 case Oc2Item.ProgressiveDash:
                     {
-                        if (OC2Config.DisableDash)
+                        if (OC2Config.Config.DisableDash)
                         {
-                            OC2Config.DisableDash = false;
+                            OC2Config.Config.DisableDash = false;
                         }
-                        else if (OC2Config.WeakDash)
+                        else if (OC2Config.Config.WeakDash)
                         {
-                            OC2Config.WeakDash = false;
+                            OC2Config.Config.WeakDash = false;
                         }
                         else
                         {
@@ -732,13 +732,13 @@ namespace OC2Modding
                     }
                 case Oc2Item.ProgressiveThrowCatch:
                     {
-                        if (OC2Config.DisableThrow)
+                        if (OC2Config.Config.DisableThrow)
                         {
-                            OC2Config.DisableThrow = false;
+                            OC2Config.Config.DisableThrow = false;
                         }
-                        else if (OC2Config.DisableCatch)
+                        else if (OC2Config.Config.DisableCatch)
                         {
-                            OC2Config.DisableCatch = false;
+                            OC2Config.Config.DisableCatch = false;
                         }
                         else
                         {
@@ -749,45 +749,45 @@ namespace OC2Modding
                     }
                 case Oc2Item.CoinPurse:
                     {
-                        if (!OC2Config.DisableEarnHordeMoney) return false;
-                        OC2Config.DisableEarnHordeMoney = false;
+                        if (!OC2Config.Config.DisableEarnHordeMoney) return false;
+                        OC2Config.Config.DisableEarnHordeMoney = false;
                         break;
                     }
                 case Oc2Item.RemoteControlBatteries:
                     {
-                        if (!OC2Config.DisableControlStick) return false;
-                        OC2Config.DisableControlStick = false;
+                        if (!OC2Config.Config.DisableControlStick) return false;
+                        OC2Config.Config.DisableControlStick = false;
                         break;
                     }
                 case Oc2Item.WokWheels:
                     {
-                        if (!OC2Config.DisableWokDrag) return false;
-                        OC2Config.DisableWokDrag = false;
+                        if (!OC2Config.Config.DisableWokDrag) return false;
+                        OC2Config.Config.DisableWokDrag = false;
                         break;
                     }
                 case Oc2Item.DishScrubber:
                     {
-                        if (OC2Config.WashTimeMultiplier == 1.0f) return false;
-                        OC2Config.WashTimeMultiplier = 1.0f;
+                        if (OC2Config.Config.WashTimeMultiplier == 1.0f) return false;
+                        OC2Config.Config.WashTimeMultiplier = 1.0f;
                         break;
                     }
                 case Oc2Item.BurnLeniency:
                     {
-                        if (OC2Config.BurnSpeedMultiplier == 1.0f) return false;
-                        OC2Config.BurnSpeedMultiplier = 1.0f;
+                        if (OC2Config.Config.BurnSpeedMultiplier == 1.0f) return false;
+                        OC2Config.Config.BurnSpeedMultiplier = 1.0f;
                         break;
                     }
                 case Oc2Item.SharpKnife:
                     {
-                        if (OC2Config.ChoppingTimeScale == 1.0f) return false;
-                        OC2Config.ChoppingTimeScale = 1.0f;
+                        if (OC2Config.Config.ChoppingTimeScale == 1.0f) return false;
+                        OC2Config.Config.ChoppingTimeScale = 1.0f;
                         break;
                     }
                 case Oc2Item.OrderLookahead:
                     {
-                        if (OC2Config.MaxOrdersOnScreenOffset < 0)
+                        if (OC2Config.Config.MaxOrdersOnScreenOffset < 0)
                         {
-                            OC2Config.MaxOrdersOnScreenOffset++;
+                            OC2Config.Config.MaxOrdersOnScreenOffset++;
                         }
                         else
                         {
@@ -797,26 +797,26 @@ namespace OC2Modding
                     }
                 case Oc2Item.LightweightBackpack:
                     {
-                        if (OC2Config.BackpackMovementScale == 1.0f) return false;
-                        OC2Config.BackpackMovementScale = 1.0f;
+                        if (OC2Config.Config.BackpackMovementScale == 1.0f) return false;
+                        OC2Config.Config.BackpackMovementScale = 1.0f;
                         break;
                     }
                 case Oc2Item.FasterRespawnTime:
                     {
-                        if (OC2Config.RespawnTime == 5.0f) return false;
-                        OC2Config.RespawnTime = 5.0f;
+                        if (OC2Config.Config.RespawnTime == 5.0f) return false;
+                        OC2Config.Config.RespawnTime = 5.0f;
                         break;
                     }
                 case Oc2Item.FasterCondimentDrinkSwitch:
                     {
-                        if (OC2Config.CarnivalDispenserRefactoryTime == 0.0f) return false;
-                        OC2Config.CarnivalDispenserRefactoryTime = 0.0f;
+                        if (OC2Config.Config.CarnivalDispenserRefactoryTime == 0.0f) return false;
+                        OC2Config.Config.CarnivalDispenserRefactoryTime = 0.0f;
                         break;
                     }
                 case Oc2Item.GuestPatience:
                     {
-                        if (OC2Config.CustomOrderLifetime == 100.0f) return false;
-                        OC2Config.CustomOrderLifetime = 100.0f;
+                        if (OC2Config.Config.CustomOrderLifetime == 100.0f) return false;
+                        OC2Config.Config.CustomOrderLifetime = 100.0f;
                         break;
                     }
                 case Oc2Item.Kevin1:
@@ -891,19 +891,19 @@ namespace OC2Modding
                     }
                 case Oc2Item.RampButton:
                     {
-                        if (!OC2Config.DisableRampButton) return false;
-                        OC2Config.DisableRampButton = false;
+                        if (!OC2Config.Config.DisableRampButton) return false;
+                        OC2Config.Config.DisableRampButton = false;
                         break;
                     }
                 case Oc2Item.AggressiveHorde:
                     {
-                        if (!OC2Config.AggressiveHorde) return false;
-                        OC2Config.AggressiveHorde = false;
+                        if (!OC2Config.Config.AggressiveHorde) return false;
+                        OC2Config.Config.AggressiveHorde = false;
                         break;
                     }
                 case Oc2Item.BonusStar:
                     {
-                        OC2Config.StarOffset++;
+                        OC2Config.Config.StarOffset++;
                         break;
                     }
             }
@@ -923,9 +923,9 @@ namespace OC2Modding
 
         private static bool UnlockLevel(int id)
         {
-            if (!OC2Config.LevelForceReveal.Contains(id))
+            if (!OC2Config.Config.LevelForceReveal.Contains(id))
             {
-                OC2Config.LevelForceReveal.Add(id);
+                OC2Config.Config.LevelForceReveal.Add(id);
                 return true;
             }
 
@@ -934,9 +934,9 @@ namespace OC2Modding
 
         private static bool UnlockEmote(int id)
         {
-            if (OC2Config.LockedEmotes.Contains(id))
+            if (OC2Config.Config.LockedEmotes.Contains(id))
             {
-                OC2Config.LockedEmotes.Remove(id);
+                OC2Config.Config.LockedEmotes.Remove(id);
                 return true;
             }
 

@@ -13,7 +13,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void Begin_Server(ref GameModes.ClientContext ___m_context)
         {
-            if (OC2Config.TimerAlwaysStarts)
+            if (OC2Config.Config.TimerAlwaysStarts)
             {
                 ___m_context.m_levelConfig.m_recipesBeforeTimerStarts = 0;
             }
@@ -23,7 +23,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void Begin_Client(ref GameModes.ClientContext ___m_context)
         {
-            if (OC2Config.TimerAlwaysStarts)
+            if (OC2Config.Config.TimerAlwaysStarts)
             {
                 ___m_context.m_levelConfig.m_recipesBeforeTimerStarts = 0;
             }

@@ -18,7 +18,7 @@ namespace OC2Modding
         {
             onScreenDebugDisplayFPS.Update();
 
-            if ((!OC2Config.DisplayFPS || Input.GetKeyDown(KeyCode.End)) && fPSCounter != null)
+            if ((!OC2Config.Config.DisplayFPS || Input.GetKeyDown(KeyCode.End)) && fPSCounter != null)
             {
                 onScreenDebugDisplayFPS.RemoveDisplay(fPSCounter);
                 fPSCounter.OnDestroy();

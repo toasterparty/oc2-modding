@@ -73,7 +73,7 @@ namespace OC2Modding
                 ref SteamOnlineMultiplayerSessionTransportCoordinator ___m_transportCoordinator
             )
             {
-                if (!OC2Config.ForceSingleSaveSlot)
+                if (!OC2Config.Config.ForceSingleSaveSlot)
                 {
                     return true; // Just some QoL options
                 }

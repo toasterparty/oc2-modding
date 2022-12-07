@@ -10,7 +10,7 @@ namespace OC2Modding
             Harmony.CreateAndPatchAll(typeof(CustomLevelOrder));
         }
 
-        private static Dictionary<OC2Config.DlcIdAndLevelId, SceneDirectoryData.SceneDirectoryEntry> replacementScenes = null;
+        private static Dictionary<ModConfig.DlcIdAndLevelId, SceneDirectoryData.SceneDirectoryEntry> replacementScenes = null;
 
         private static void UpdateReplacementScenes()
         {
@@ -19,31 +19,31 @@ namespace OC2Modding
                 return;
             }
 
-            replacementScenes = new Dictionary<OC2Config.DlcIdAndLevelId, SceneDirectoryData.SceneDirectoryEntry>();
+            replacementScenes = new Dictionary<ModConfig.DlcIdAndLevelId, SceneDirectoryData.SceneDirectoryEntry>();
 
-            if (OC2Config.CustomLevelOrder == null)
+            if (OC2Config.Config.CustomLevelOrder == null)
             {
                 return;
             }
 
-            if (!OC2Config.CustomLevelOrder.ContainsKey("Story"))
+            if (!OC2Config.Config.CustomLevelOrder.ContainsKey("Story"))
             {
                 return; // No levels in Story are shuffled
             }
 
-            foreach (KeyValuePair<int, OC2Config.DlcIdAndLevelId> kvp in OC2Config.CustomLevelOrder["Story"])
+            foreach (KeyValuePair<int, ModConfig.DlcIdAndLevelId> kvp in OC2Config.Config.CustomLevelOrder["Story"])
             {
-                SceneDirectoryData.SceneDirectoryEntry[] scenes = OC2Helpers.getScenesFromDLC(kvp.Value.Dlc);
+                SceneDirectoryData.SceneDirectoryEntry[] scenes = OC2Helpers.getScenesFromDLC(kvp.Value.dlc);
 
                 if (scenes == null)
                 {
                     continue;
                 }
 
-                int levelId = kvp.Value.LevelId;
+                int levelId = kvp.Value.LevelID;
                 if (levelId >= scenes.Length)
                 {
-                    OC2Modding.Log.LogError($"Out of range levelId={levelId}, dlc={OC2Helpers.DLCFromDLCID(kvp.Value.Dlc)}");
+                    OC2Modding.Log.LogError($"Out of range levelId={levelId}, dlc={OC2Helpers.DLCFromDLCID(kvp.Value.dlc)}");
                     continue;
                 }
 
@@ -96,11 +96,11 @@ namespace OC2Modding
             }
             lastDlc = currentDlc;
 
-            if (currentDlc == -1 && OC2Config.LevelPurchaseRequirements != null) // Story only
+            if (currentDlc == -1 && OC2Config.Config.LevelPurchaseRequirements != null) // Story only
             {
                 OC2Modding.Log.LogInfo("Modifying Level Purchase Requirements...");
 
-                foreach (KeyValuePair<int, int> kvp in OC2Config.LevelPurchaseRequirements)
+                foreach (KeyValuePair<int, int> kvp in OC2Config.Config.LevelPurchaseRequirements)
                 {
                     // OC2Modding.Log.LogInfo($"levelid={kvp.Key}'s star cost set to {kvp.Value}");
                     ___m_sceneDirectory.Scenes[kvp.Key].StarCost = kvp.Value;
@@ -108,7 +108,7 @@ namespace OC2Modding
             }
 
             Dictionary<int, int> storyLevelIdToDlc = new Dictionary<int, int>();
-            bool isCustomLevelOrder = OC2Config.CustomLevelOrder != null && currentDlc == -1 && OC2Config.CustomLevelOrder.ContainsKey("Story");
+            bool isCustomLevelOrder = OC2Config.Config.CustomLevelOrder != null && currentDlc == -1 && OC2Config.Config.CustomLevelOrder.ContainsKey("Story");
             if (isCustomLevelOrder)
             {
                 if (replacementScenes == null)
@@ -119,7 +119,7 @@ namespace OC2Modding
                 {
                     OC2Modding.Log.LogInfo("Modifying Scene Directory to change level order...");
 
-                    Dictionary<int, OC2Config.DlcIdAndLevelId> levelOrder = OC2Config.CustomLevelOrder["Story"];
+                    Dictionary<int, ModConfig.DlcIdAndLevelId> levelOrder = OC2Config.Config.CustomLevelOrder["Story"];
                     SceneDirectoryData.SceneDirectoryEntry[] originalScenes = (SceneDirectoryData.SceneDirectoryEntry[])___m_sceneDirectory.Scenes.Clone();
 
                     for (int levelId = 0; levelId < originalScenes.Length; levelId++)
@@ -130,20 +130,20 @@ namespace OC2Modding
                         }
 
                         SceneDirectoryData.SceneDirectoryEntry originalScene = originalScenes[levelId];
-                        OC2Config.DlcIdAndLevelId newDlcAndLevel = levelOrder[levelId];
+                        ModConfig.DlcIdAndLevelId newDlcAndLevel = levelOrder[levelId];
                         if (!replacementScenes.ContainsKey(newDlcAndLevel))
                         {
-                            OC2Modding.Log.LogError($"replacementScenes missing key {newDlcAndLevel.Dlc}:{newDlcAndLevel.LevelId}");
+                            OC2Modding.Log.LogError($"replacementScenes missing key {newDlcAndLevel.dlc}:{newDlcAndLevel.LevelID}");
                             continue;
                         }
                         SceneDirectoryData.SceneDirectoryEntry newScene = replacementScenes[newDlcAndLevel];
 
                         newScene.LevelChainEnd = originalScene.LevelChainEnd;
                         newScene.IsHidden = originalScene.IsHidden;
-                        if (OC2Config.LevelPurchaseRequirements != null && OC2Config.LevelPurchaseRequirements.ContainsKey(levelId))
+                        if (OC2Config.Config.LevelPurchaseRequirements != null && OC2Config.Config.LevelPurchaseRequirements.ContainsKey(levelId))
                         {
 
-                            newScene.StarCost = OC2Config.LevelPurchaseRequirements[levelId];
+                            newScene.StarCost = OC2Config.Config.LevelPurchaseRequirements[levelId];
                         }
                         else
                         {
@@ -154,12 +154,12 @@ namespace OC2Modding
                         ___m_sceneDirectory.Scenes[levelId] = newScene;
 
                         // Helper for determining DLC when patching scores
-                        storyLevelIdToDlc.Add(levelId, newDlcAndLevel.Dlc);
+                        storyLevelIdToDlc.Add(levelId, newDlcAndLevel.dlc);
                     }
                 }
             }
 
-            if (OC2Config.LeaderboardScoreScale != null)
+            if (OC2Config.Config.LeaderboardScoreScale != null)
             {
                 OC2Modding.Log.LogInfo("Filling out custom star boundaries...");
                 int levelId = 0;
@@ -179,9 +179,9 @@ namespace OC2Modding
 
                         int playerCount = variant.PlayerCount;
                         int actualLevelId;
-                        if (isCustomLevelOrder && OC2Config.CustomLevelOrder["Story"].ContainsKey(levelId))
+                        if (isCustomLevelOrder && OC2Config.Config.CustomLevelOrder["Story"].ContainsKey(levelId))
                         {
-                            actualLevelId = OC2Config.CustomLevelOrder["Story"][levelId].LevelId;
+                            actualLevelId = OC2Config.Config.CustomLevelOrder["Story"][levelId].LevelID;
                         }
                         else
                         {
@@ -205,12 +205,12 @@ namespace OC2Modding
                         duration, means that a well balanced randomizer should still grant some leniency in these cases (cut WR score by 15%).
                         
                         If the level is not a dynamic level, then cut the world record by the same ammount that the level duration is cut by. */
-                        float timeScale = OC2Helpers.IsDynamicLevel(variant.LevelConfig.name) ? 0.85f : OC2Config.LevelTimerScale;
+                        float timeScale = OC2Helpers.IsDynamicLevel(variant.LevelConfig.name) ? 0.85f : OC2Config.Config.LevelTimerScale;
 
-                        starBoundariesOverride.m_FourStarScore  = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[4], timeScale);
-                        starBoundariesOverride.m_ThreeStarScore = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[3], timeScale);
-                        starBoundariesOverride.m_TwoStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[2], timeScale);
-                        starBoundariesOverride.m_OneStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.LeaderboardScoreScale[1], timeScale);
+                        starBoundariesOverride.m_FourStarScore  = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale[4], timeScale);
+                        starBoundariesOverride.m_ThreeStarScore = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale[3], timeScale);
+                        starBoundariesOverride.m_TwoStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale[2], timeScale);
+                        starBoundariesOverride.m_OneStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale[1], timeScale);
 
                         // OC2Modding.Log.LogInfo($"{starBoundariesOverride.m_OneStarScore} / {starBoundariesOverride.m_TwoStarScore} / {starBoundariesOverride.m_ThreeStarScore} / {starBoundariesOverride.m_FourStarScore}");
 
@@ -220,7 +220,7 @@ namespace OC2Modding
                 }
             }
 
-            if (currentDlc == -1 && OC2Config.ImpossibleTutorial)
+            if (currentDlc == -1 && OC2Config.Config.ImpossibleTutorial)
             {
                 foreach (SceneDirectoryData.PerPlayerCountDirectoryEntry variant in ___m_sceneDirectory.Scenes[0].SceneVarients)
                 {

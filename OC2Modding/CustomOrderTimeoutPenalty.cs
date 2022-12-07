@@ -13,8 +13,8 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void GetGameConfig(ref GameConfig __result)
         {
-            if (__result != null && OC2Config.CustomOrderTimeoutPenalty >= 0) {
-                __result.RecipeTimeOutPointLoss = OC2Config.CustomOrderTimeoutPenalty;
+            if (__result != null && OC2Config.Config.CustomOrderTimeoutPenalty >= 0) {
+                __result.RecipeTimeOutPointLoss = OC2Config.Config.CustomOrderTimeoutPenalty;
             }
         }
     }

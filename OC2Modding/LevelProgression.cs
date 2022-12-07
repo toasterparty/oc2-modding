@@ -24,7 +24,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void ServerLoadCampaign(ref GameSession session)
         {
-            if (OC2Config.SkipTutorial)
+            if (OC2Config.Config.SkipTutorial)
             {
                 GameUtils.GetDebugConfig().m_skipTutorial = true;
             }
@@ -49,12 +49,12 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void GetLevelProgress(ref int _id, ref GameProgress.GameProgressData.LevelProgress __result)
         {
-            if (OC2Config.PurchaseAllLevels)
+            if (OC2Config.Config.PurchaseAllLevels)
             {
                 __result.Purchased = true;
             }
 
-            if (OC2Config.RevealAllLevels)
+            if (OC2Config.Config.RevealAllLevels)
             {
                 __result.Revealed = true;
                 __result.NGPEnabled = true;
@@ -63,20 +63,20 @@ namespace OC2Modding
 
             if (OC2Helpers.GetCurrentDLCID() == -1) // Story only
             {
-                if (OC2Config.SkipTutorial && _id == 0)
+                if (OC2Config.Config.SkipTutorial && _id == 0)
                 {
                     __result.Completed = true;
                     __result.ObjectivesCompleted = true;
                     // __result.ScoreStars = 3;
                 }
 
-                if (OC2Config.SkipTutorial && _id == 45) // Post-tutorial Onion King
+                if (OC2Config.Config.SkipTutorial && _id == 45) // Post-tutorial Onion King
                 {
                     __result.Completed = true;
                     __result.ObjectivesCompleted = true;
                 }
 
-                if (_id >= 45 && _id <= 51 && OC2Config.SkipAllOnionKing) // Onion King
+                if (_id >= 45 && _id <= 51 && OC2Config.Config.SkipAllOnionKing) // Onion King
                 {
                     __result.Completed = true;
                     __result.ObjectivesCompleted = true;
@@ -87,7 +87,7 @@ namespace OC2Modding
                     ArchipelagoClient.VisitLocation(_id);
                 }
 
-                if (OC2Config.PseudoSave.ContainsKey(_id))
+                if (OC2Config.Config.PseudoSave.ContainsKey(_id))
                 {
                     __result.Completed = true;
                     __result.Purchased = true;
@@ -96,7 +96,7 @@ namespace OC2Modding
                     {
                         __result.HighScore = 1;
                     }
-                    __result.ScoreStars = OC2Config.PseudoSave[_id];
+                    __result.ScoreStars = OC2Config.Config.PseudoSave[_id];
                 }
             }
         }
@@ -110,22 +110,22 @@ namespace OC2Modding
                 return;
             }
 
-            if (OC2Config.LevelUnlockRequirements.ContainsKey(_levelIndex))
+            if (OC2Config.Config.LevelUnlockRequirements.ContainsKey(_levelIndex))
             {
-                __result = IsLevelCompleted(OC2Config.LevelUnlockRequirements[_levelIndex]);
+                __result = IsLevelCompleted(OC2Config.Config.LevelUnlockRequirements[_levelIndex]);
             }
 
-            if (OC2Config.LevelForceHide.Contains(_levelIndex))
+            if (OC2Config.Config.LevelForceHide.Contains(_levelIndex))
             {
                 __result = false;
             }
 
-            if (OC2Config.LevelForceReveal.Contains(_levelIndex))
+            if (OC2Config.Config.LevelForceReveal.Contains(_levelIndex))
             {
                 __result = true;
             }
 
-            if (OC2Config.RevealAllLevels)
+            if (OC2Config.Config.RevealAllLevels)
             {
                 __result = true;
             }

@@ -19,7 +19,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool TutorialDismissRoutine(ref IEnumerator __result)
         {
-            if (!OC2Config.SkipTutorialPopups)
+            if (!OC2Config.Config.SkipTutorialPopups)
             {
                 return true;
             }
@@ -33,7 +33,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void PopupRoutine(ref WorldMapInfoPopup ___m_popupInfo)
         {
-            if (OC2Config.SkipTutorialPopups)
+            if (OC2Config.Config.SkipTutorialPopups)
             {
                 ___m_popupInfo.m_autoCancel = true;
                 ___m_popupInfo.m_autoCancelTime = 0.01f;

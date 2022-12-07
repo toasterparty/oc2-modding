@@ -27,7 +27,7 @@ namespace OC2Modding
         {
             static void Postfix(List<GameModes.Horde.HordeSpawnData> spawns, double waveTime, ref int __result)
             {
-                if (!OC2Config.AggressiveHorde)
+                if (!OC2Config.Config.AggressiveHorde)
                 {
                     return;
                 }
@@ -57,7 +57,7 @@ namespace OC2Modding
 
             float originalTime = OriginalAttkFreq[levelName];
 
-            if (!OC2Config.AggressiveHorde)
+            if (!OC2Config.Config.AggressiveHorde)
             {
                 return originalTime;
             }
@@ -75,7 +75,7 @@ namespace OC2Modding
 
             float originalTime = OrigMoveSpeed[levelName];
 
-            if (!OC2Config.AggressiveHorde)
+            if (!OC2Config.Config.AggressiveHorde)
             {
                 // like, my social security # is probably safe to put in this comment
                 return originalTime;

@@ -22,16 +22,16 @@ namespace OC2Modding
 
             /* Handle special case (Story 6-6) */
             float time = inTime;
-            if (OC2Config.Custom66TimerScale != 1.0f && levelName.StartsWith("s_dynamic_stage_04"))
+            if (OC2Config.Config.Custom66TimerScale != 1.0f && levelName.StartsWith("s_dynamic_stage_04"))
             {
-                time *= OC2Config.Custom66TimerScale;
+                time *= OC2Config.Config.Custom66TimerScale;
                 time -= (time % 30);
                 time += 30;
             }
             /* Otherwise Scale by global scale */
-            else if (OC2Config.LevelTimerScale != 1.0f && !OC2Helpers.IsDynamicLevel(levelName))
+            else if (OC2Config.Config.LevelTimerScale != 1.0f && !OC2Helpers.IsDynamicLevel(levelName))
             {
-                time *= OC2Config.LevelTimerScale;
+                time *= OC2Config.Config.LevelTimerScale;
                 if ((time % 10) >= 5)
                 {
                     time += 10 - (time % 10);
@@ -61,7 +61,7 @@ namespace OC2Modding
             }
 
             float originalTime = OriginalTicketTime[levelName];
-            float time = (OC2Config.CustomOrderLifetime / 100.0f) * originalTime;
+            float time = (OC2Config.Config.CustomOrderLifetime / 100.0f) * originalTime;
 
             if (originalTime != time)
             {

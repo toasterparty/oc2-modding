@@ -14,7 +14,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool GetUnlockedAvatars(ref AvatarDirectoryData[] ___m_allAvatarDirectories, ref ChefAvatarData[] __result)
         {
-            if (!OC2Config.UnlockAllChefs) return true;
+            if (!OC2Config.Config.UnlockAllChefs) return true;
 
             List<ChefAvatarData> list = new List<ChefAvatarData>();
 
@@ -39,7 +39,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void Run(ref ScoreScreenFlowroutineData ___m_flowroutineData)
         {
-            if (!OC2Config.UnlockAllChefs)
+            if (!OC2Config.Config.UnlockAllChefs)
             {
                 return;
             }

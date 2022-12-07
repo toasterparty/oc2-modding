@@ -18,7 +18,7 @@ namespace OC2Modding
 
             /* Initialize Configuration */
             OC2Config.Awake();
-            if (OC2Config.DisableAllMods) {
+            if (OC2Config.Config.DisableAllMods) {
                 OC2Modding.Log.LogInfo($"All mods DISABLED!");
                 return;
             }
@@ -61,7 +61,7 @@ namespace OC2Modding
 
         private void Update()
         {
-            if (OC2Config.DisableAllMods) return;
+            if (OC2Config.Config.DisableAllMods) return;
             OC2Config.Update();
             LeaderboardMod.Update();
             DisplayFPS.Update();
@@ -74,12 +74,12 @@ namespace OC2Modding
 
         private void FixedUpdate()
         {
-            Time.fixedDeltaTime = OC2Config.FixedDeltaTime;
+            Time.fixedDeltaTime = OC2Config.Config.FixedDeltaTime;
         }
 
         private void OnGUI()
         {
-            if (OC2Config.DisableAllMods) return;
+            if (OC2Config.Config.DisableAllMods) return;
             DisplayFPS.OnGUI();
             DisplayModsOnResultsScreen.OnGUI();
             GameLog.OnGUI();

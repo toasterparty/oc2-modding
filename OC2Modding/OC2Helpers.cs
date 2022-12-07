@@ -125,7 +125,7 @@ namespace OC2Modding
             // }
 
             LeaderboardScoresKey key = new LeaderboardScoresKey();
-            key.game = (timerLevel && OC2Config.TimerAlwaysStarts) ? "All You Can Eat" : "Overcooked 2";
+            key.game = (timerLevel && OC2Config.Config.TimerAlwaysStarts) ? "All You Can Eat" : "Overcooked 2";
             key.DLCID = dlcID;
             key.level = dlcAndLevel.level;
             key.playerCount = (uint)playerCount;
@@ -230,7 +230,7 @@ namespace OC2Modding
 
         public static string getCustomSaveDirectory()
         {
-            string saveFolderName = OC2Config.SaveFolderName == "" ? "_default" : (OC2Config.SaveFolderName + ArchipelagoClient.SaveDirSuffix());
+            string saveFolderName = OC2Config.Config.SaveFolderName == "" ? "_default" : (OC2Config.Config.SaveFolderName + ArchipelagoClient.SaveDirSuffix());
             return Application.persistentDataPath + "/OC2Modding/" + saveFolderName + "/";
         }
 
@@ -486,29 +486,29 @@ namespace OC2Modding
         }
 
         public static bool IsLevelHordeLevel(int _levelIndex) {
-            if (OC2Config.CustomLevelOrder == null)
+            if (OC2Config.Config.CustomLevelOrder == null)
             {
                 return false;
             }
 
-            if (!OC2Config.CustomLevelOrder.ContainsKey("Story"))
+            if (!OC2Config.Config.CustomLevelOrder.ContainsKey("Story"))
             {
                 return false;
             }
 
-            if (!OC2Config.CustomLevelOrder["Story"].ContainsKey(_levelIndex))
+            if (!OC2Config.Config.CustomLevelOrder["Story"].ContainsKey(_levelIndex))
             {
                 return false;
             }
 
-            OC2Config.DlcIdAndLevelId level = OC2Config.CustomLevelOrder["Story"][_levelIndex];
+            ModConfig.DlcIdAndLevelId level = OC2Config.Config.CustomLevelOrder["Story"][_levelIndex];
 
             int[] levels;
-            if (level.Dlc == 7) // horde
+            if (level.dlc == 7) // horde
             {
                 levels = new int[] { 12, 13, 14, 15, 16, 17, 18, 19 };
             }
-            else if (level.Dlc == 3) // seasonal
+            else if (level.dlc == 3) // seasonal
             {
                 levels = new int[] { 13, 15 };
             }
@@ -517,7 +517,7 @@ namespace OC2Modding
                 levels = new int[] {};
             }
 
-            return levels.Contains(level.LevelId);
+            return levels.Contains(level.LevelID);
         }
 
         public static int DLCFromString(string dlc)
@@ -604,7 +604,7 @@ namespace OC2Modding
                 [HarmonyPrefix]
                 private static bool LoadDLC(ref DLCFrontendData dlcData)
                 {
-                    if (OC2Config.ForbidDLC)
+                    if (OC2Config.Config.ForbidDLC)
                     {
                         GameLog.LogMessage("Loading DLC is not permitted when playing this mod");
                         return false;

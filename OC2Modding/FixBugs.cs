@@ -19,7 +19,7 @@ namespace OC2Modding
             [HarmonyPrefix]
             private static void IsHeldItemInsideStaticCollision(ref bool __result, ref int ___s_staticCollisionLayerMask)
             {
-                if (OC2Config.FixEmptyBurnerThrow && ___s_staticCollisionLayerMask == 0)
+                if (OC2Config.Config.FixEmptyBurnerThrow && ___s_staticCollisionLayerMask == 0)
                 {
                     ___s_staticCollisionLayerMask = LayerMask.GetMask(new string[] { "Default", "Ground", "Walls", "Worktops", "PlateStationBlock" });
                 }
@@ -32,7 +32,7 @@ namespace OC2Modding
             [HarmonyPrefix]
             private static void Update_Throw(ref bool isUsePressed, ref bool justReleased, ref bool isSuppressed, ref ICarrier ___m_iCarrier)
             {
-                if (OC2Config.FixControlStickThrowBug && !isUsePressed && justReleased && isSuppressed && ___m_iCarrier.InspectCarriedItem() != null)
+                if (OC2Config.Config.FixControlStickThrowBug && !isUsePressed && justReleased && isSuppressed && ___m_iCarrier.InspectCarriedItem() != null)
                 {
                     isSuppressed = false;
 
@@ -44,7 +44,7 @@ namespace OC2Modding
             [HarmonyPrefix]
             private static void Update_Aim(ref PlayerControls.ControlSchemeData ___m_controlScheme, ref ICarrier ___m_iCarrier, ref bool isUsePressed)
             {
-                if (OC2Config.FixControlStickThrowBug && ___m_controlScheme.m_worksurfaceUseButton.IsDown() && ___m_controlScheme.IsUseSuppressed() && !___m_controlScheme.IsUseJustReleased() && ___m_iCarrier.InspectCarriedItem() != null)
+                if (OC2Config.Config.FixControlStickThrowBug && ___m_controlScheme.m_worksurfaceUseButton.IsDown() && ___m_controlScheme.IsUseSuppressed() && !___m_controlScheme.IsUseJustReleased() && ___m_iCarrier.InspectCarriedItem() != null)
                 {
                     isUsePressed = true;
                 }
@@ -59,7 +59,7 @@ namespace OC2Modding
             [HarmonyPrefix]
             private static void DeliverCurrentPlate(ref ServerPlateStation __instance, ref ServerPlate ___m_plate, ref IKitchenOrderHandler ___m_orderHandler)
             {
-                if (OC2Config.FixDoubleServing && ___m_plate.IsReserved())
+                if (OC2Config.Config.FixDoubleServing && ___m_plate.IsReserved())
                 {
                     skipNext = true;
                 }
@@ -86,7 +86,7 @@ namespace OC2Modding
             [HarmonyPrefix]
             private static void OnItemAdded(ref IHandlePickup ___m_originalPickupReferee, ref ServerHandlePickupReferral ___m_handlePickupReferral)
             {
-                if (OC2Config.FixSinkBug && ___m_originalPickupReferee == null && ___m_handlePickupReferral != null)
+                if (OC2Config.Config.FixSinkBug && ___m_originalPickupReferee == null && ___m_handlePickupReferral != null)
                 {
                     ___m_originalPickupReferee = ___m_handlePickupReferral.GetHandlePickupReferree();
                 }
@@ -96,7 +96,7 @@ namespace OC2Modding
             [HarmonyPrefix]
             private static void OnItemAddedOntoSink(ref IClientHandlePickup ___m_pickupReferree, ref ClientHandlePickupReferral ___m_handlePickupreferral)
             {
-                if (OC2Config.FixSinkBug && ___m_pickupReferree == null && ___m_handlePickupreferral != null)
+                if (OC2Config.Config.FixSinkBug && ___m_pickupReferree == null && ___m_handlePickupreferral != null)
                 {
                     ___m_pickupReferree = ___m_handlePickupreferral.GetHandlePickupReferree();
                 }

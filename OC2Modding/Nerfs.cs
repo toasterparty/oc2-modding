@@ -37,7 +37,7 @@ namespace OC2Modding
         {
             string objectName = _objectToPlace.name;
 
-            if (OC2Config.DisableFireExtinguisher && objectName.Contains("utensil_fire_extinguisher"))
+            if (OC2Config.Config.DisableFireExtinguisher && objectName.Contains("utensil_fire_extinguisher"))
             {
                 return false;
             }
@@ -52,7 +52,7 @@ namespace OC2Modding
                 return true;
             }
 
-            if (OC2Config.DisableCoal && objectName == "utensil_coalbucket_01")
+            if (OC2Config.Config.DisableCoal && objectName == "utensil_coalbucket_01")
             {
                 return false;
             }
@@ -66,7 +66,7 @@ namespace OC2Modding
 
             if (isPlate)
             {
-                if (OC2Config.PlatesStartDirty)
+                if (OC2Config.Config.PlatesStartDirty)
                 {
                     string levelName = GameUtils.GetGameSession().LevelSettings.SceneDirectoryVarientEntry.LevelConfig.name;
 
@@ -92,7 +92,7 @@ namespace OC2Modding
 
                     return false;
                 }
-                else if (OC2Config.DisableOnePlate)
+                else if (OC2Config.Config.DisableOnePlate)
                 {
                     if (isServer && removedPlates == 0)
                     {
@@ -108,7 +108,7 @@ namespace OC2Modding
                 }
             }
 
-            if (OC2Config.DisableBellows && objectName == "utensil_bellows_01")
+            if (OC2Config.Config.DisableBellows && objectName == "utensil_bellows_01")
             {
                 return false;
             }
@@ -168,7 +168,7 @@ namespace OC2Modding
 
             ___m_returnStation.m_startingPlateNumber = removedPlates;
 
-            if (OC2Config.DisableOnePlate)
+            if (OC2Config.Config.DisableOnePlate)
             {
                 ___m_returnStation.m_startingPlateNumber -= 1;
             }
@@ -190,9 +190,9 @@ namespace OC2Modding
         private static void OnSuccessfulDelivery(ref ServerKitchenFlowControllerBase __instance)
         {
             var monitor = __instance.GetMonitorForTeam(0);
-            if (monitor.Score.TotalMultiplier > OC2Config.MaxTipCombo)
+            if (monitor.Score.TotalMultiplier > OC2Config.Config.MaxTipCombo)
             {
-                monitor.Score.TotalMultiplier = OC2Config.MaxTipCombo;
+                monitor.Score.TotalMultiplier = OC2Config.Config.MaxTipCombo;
             }
         }
 
@@ -201,9 +201,9 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void SetScoreData(ref TeamMonitor.TeamScoreStats ___m_teamScore)
         {
-            if (___m_teamScore.TotalMultiplier > OC2Config.MaxTipCombo)
+            if (___m_teamScore.TotalMultiplier > OC2Config.Config.MaxTipCombo)
             {
-                ___m_teamScore.TotalMultiplier = OC2Config.MaxTipCombo;
+                ___m_teamScore.TotalMultiplier = OC2Config.Config.MaxTipCombo;
             }
         }
 
@@ -219,15 +219,15 @@ namespace OC2Modding
                 case InputEventMessage.InputEventType.Dash:
                 case InputEventMessage.InputEventType.DashCollision:
                     {
-                        return !OC2Config.DisableDash;
+                        return !OC2Config.Config.DisableDash;
                     }
                 case InputEventMessage.InputEventType.Catch:
                     {
-                        return !OC2Config.DisableCatch;
+                        return !OC2Config.Config.DisableCatch;
                     }
                 case InputEventMessage.InputEventType.EndThrow:
                     {
-                        return !OC2Config.DisableThrow;
+                        return !OC2Config.Config.DisableThrow;
                     }
                 default:
                     {
@@ -258,7 +258,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void CanHandleThrow(ref bool __result)
         {
-            if (OC2Config.DisableThrow && __result)
+            if (OC2Config.Config.DisableThrow && __result)
             {
                 if (InReceiveThrowEvent)
                 {
@@ -278,12 +278,12 @@ namespace OC2Modding
         {
             // GameLog.LogMessage($"Piloting: {__instance.gameObject.name}");
 
-            if (__instance.gameObject.name.Contains("Pushable_Object") && OC2Config.DisableWokDrag)
+            if (__instance.gameObject.name.Contains("Pushable_Object") && OC2Config.Config.DisableWokDrag)
             {
                 return false;
             }
 
-            if (__instance.gameObject.name == "MovingSection" && OC2Config.DisableControlStick)
+            if (__instance.gameObject.name == "MovingSection" && OC2Config.Config.DisableControlStick)
             {
                 return false;
             }
@@ -297,7 +297,7 @@ namespace OC2Modding
         {
             // GameLog.LogMessage($"Rotating: {__instance.gameObject.name}");
 
-            if (__instance.gameObject.name.Contains("cannon") && OC2Config.DisableControlStick)
+            if (__instance.gameObject.name.Contains("cannon") && OC2Config.Config.DisableControlStick)
             {
                 return false;
             }
@@ -309,7 +309,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void ScanForCatch(ref ICatchable __result, ref PlayerControls __instance)
         {
-            if (__result != null && OC2Config.DisableCatch)
+            if (__result != null && OC2Config.Config.DisableCatch)
             {
                 __result = null;
             }
@@ -319,14 +319,14 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool StartDash()
         {
-            return !OC2Config.DisableDash;
+            return !OC2Config.Config.DisableDash;
         }
 
         [HarmonyPatch(typeof(ClientPlayerControlsImpl_Default), "Update_Movement")]
         [HarmonyPrefix]
         private static void Update_Movement(ref float ___m_dashTimer)
         {
-            if (___m_dashTimer > 0f && OC2Config.DisableDash)
+            if (___m_dashTimer > 0f && OC2Config.Config.DisableDash)
             {
                 ___m_dashTimer = 0f;
                 OC2Helpers.PlayErrorSfx();
@@ -337,7 +337,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void Init(ref PlayerControls ___m_controls)
         {
-            if (!OC2Config.WeakDash)
+            if (!OC2Config.Config.WeakDash)
             {
                 return;
             }
@@ -358,7 +358,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool DoDash()
         {
-            return !OC2Config.DisableDash;
+            return !OC2Config.Config.DisableDash;
         }
 
         [HarmonyPatch(typeof(ServerMapAvatarControls), "Update_Movement")]
@@ -366,7 +366,7 @@ namespace OC2Modding
         private static void Update_Movement__Prefix(ref ILogicalButton ___m_dashButton, ref ILogicalButton __state)
         {
             __state = ___m_dashButton;
-            if (OC2Config.DisableDash)
+            if (OC2Config.Config.DisableDash)
             {
                 ___m_dashButton = null;
             }
@@ -388,7 +388,7 @@ namespace OC2Modding
                 originalWashTime = ___m_washingStation.m_cleanPlateTime;
             }
 
-            ___m_washingStation.m_cleanPlateTime = originalWashTime * OC2Config.WashTimeMultiplier;
+            ___m_washingStation.m_cleanPlateTime = originalWashTime * OC2Config.Config.WashTimeMultiplier;
         }
 
         [HarmonyPatch(typeof(ClientWashingStation), nameof(ClientWashingStation.UpdateSynchronising))]
@@ -400,7 +400,7 @@ namespace OC2Modding
                 originalWashTime = ___m_washingStation.m_cleanPlateTime;
             }
 
-            ___m_washingStation.m_cleanPlateTime = originalWashTime * OC2Config.WashTimeMultiplier;
+            ___m_washingStation.m_cleanPlateTime = originalWashTime * OC2Config.Config.WashTimeMultiplier;
         }
 
         [HarmonyPatch(typeof(ServerCookingHandler), nameof(ServerCookingHandler.Cook))]
@@ -409,7 +409,7 @@ namespace OC2Modding
         {
             if (___m_ServerData.m_cookingState != CookingUIController.State.Idle && ___m_ServerData.m_cookingState != CookingUIController.State.Progressing)
             {
-                _cookingDeltatTime *= OC2Config.BurnSpeedMultiplier;
+                _cookingDeltatTime *= OC2Config.Config.BurnSpeedMultiplier;
             }
         }
 
@@ -417,12 +417,12 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void IsFull(ref bool __result, ref List<ServerOrderData> ___m_activeOrders, ref int ___m_maxOrdersAllowed)
         {
-            __result = ___m_activeOrders.Count >= ___m_maxOrdersAllowed + OC2Config.MaxOrdersOnScreenOffset;
+            __result = ___m_activeOrders.Count >= ___m_maxOrdersAllowed + OC2Config.Config.MaxOrdersOnScreenOffset;
         }
 
         private static int GetStages()
         {
-            return Math.Max((int)(8.0f * OC2Config.ChoppingTimeScale), 2);
+            return Math.Max((int)(8.0f * OC2Config.Config.ChoppingTimeScale), 2);
         }
 
         [HarmonyPatch(typeof(ServerWorkableItem), nameof(ServerWorkableItem.DoWork))]
@@ -445,7 +445,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool StartEmote(ref ServerEmoteWheel __instance, ref EmoteWheelMessage _message)
         {
-            if (OC2Config.LockedEmotes.Contains(_message.m_emoteIdx))
+            if (OC2Config.Config.LockedEmotes.Contains(_message.m_emoteIdx))
             {
                 return false;
             }
@@ -456,7 +456,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool StartEmoteClient(ref ClientEmoteWheel __instance, ref int _emoteIdx)
         {
-            if (OC2Config.LockedEmotes.Contains(_emoteIdx))
+            if (OC2Config.Config.LockedEmotes.Contains(_emoteIdx))
             {
                 return false;
             }
@@ -467,7 +467,7 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static bool RequestEmoteStart(ref int _emoteIdx)
         {
-            if (OC2Config.LockedEmotes.Contains(_emoteIdx))
+            if (OC2Config.Config.LockedEmotes.Contains(_emoteIdx))
             {
                 OC2Helpers.PlayErrorSfx();
                 return false;
@@ -504,10 +504,10 @@ namespace OC2Modding
 
             if (wearingBackpack)
             {
-                if (OC2Config.BackpackMovementScale != 1.0f && ___m_controls.MovementScale != OC2Config.BackpackMovementScale)
+                if (OC2Config.Config.BackpackMovementScale != 1.0f && ___m_controls.MovementScale != OC2Config.Config.BackpackMovementScale)
                 {
-                    OC2Modding.Log.LogInfo($"Player {player}'s speed set to {OC2Config.BackpackMovementScale}");
-                    ___m_controls.SetMovementScale(OC2Config.BackpackMovementScale);
+                    OC2Modding.Log.LogInfo($"Player {player}'s speed set to {OC2Config.Config.BackpackMovementScale}");
+                    ___m_controls.SetMovementScale(OC2Config.Config.BackpackMovementScale);
                 }
             }
             else if (___m_controls.MovementScale != 1.0f && ___m_controls.MovementScale != 0.0f)
@@ -521,14 +521,14 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void StartSynchronising(ref PlayerRespawnBehaviour ___m_PlayerRespawnBehaviour)
         {
-            ___m_PlayerRespawnBehaviour.m_respawnTime = OC2Config.RespawnTime;
+            ___m_PlayerRespawnBehaviour.m_respawnTime = OC2Config.Config.RespawnTime;
         }
 
         [HarmonyPatch(typeof(ClientPlayerRespawnBehaviour), nameof(ClientPlayerRespawnBehaviour.StartSynchronising))]
         [HarmonyPostfix]
         private static void StartSynchronisingClient(ref PlayerRespawnBehaviour ___m_PlayerRespawnBehaviour)
         {
-            ___m_PlayerRespawnBehaviour.m_respawnTime = OC2Config.RespawnTime;
+            ___m_PlayerRespawnBehaviour.m_respawnTime = OC2Config.Config.RespawnTime;
         }
 
         private static bool inReceiveTriggerInteractEvent = false;
@@ -551,7 +551,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void CanInteract(ref ServerInteractable __instance, ref bool __result)
         {
-            if (OC2Config.CarnivalDispenserRefactoryTime <= 0.001f)
+            if (OC2Config.Config.CarnivalDispenserRefactoryTime <= 0.001f)
             {
                 return; // This patch would have no effect
             }
@@ -578,7 +578,7 @@ namespace OC2Modding
             }
 
             float checkTime = Time.time;
-            if (checkTime > previousDrinkTime && checkTime - previousDrinkTime > OC2Config.CarnivalDispenserRefactoryTime)
+            if (checkTime > previousDrinkTime && checkTime - previousDrinkTime > OC2Config.Config.CarnivalDispenserRefactoryTime)
             {
                 // It has been beyond the cooldown time
                 previousDrinkTime = checkTime;
@@ -594,7 +594,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void CanBePressed(ref bool __result)
         {
-            if (OC2Config.DisableRampButton && __result)
+            if (OC2Config.Config.DisableRampButton && __result)
             {
                 // Reject the button push
                 OC2Helpers.PlayErrorSfx();
@@ -606,7 +606,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void GetTotalMoney(ref int __result, ref int ___TotalMoneyEarned)
         {
-            if (OC2Config.DisableEarnHordeMoney)
+            if (OC2Config.Config.DisableEarnHordeMoney)
             {
                 ___TotalMoneyEarned = 0;
                 __result = 0;

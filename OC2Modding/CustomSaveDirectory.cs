@@ -14,7 +14,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void GetFileAddress(ref string __result)
         {
-            if (OC2Config.SaveFolderName == "")
+            if (OC2Config.Config.SaveFolderName == "")
             {
                 return; // Use vanilla save dir
             }
