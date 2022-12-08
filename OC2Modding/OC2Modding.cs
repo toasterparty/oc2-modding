@@ -64,6 +64,7 @@ namespace OC2Modding
         {
             if (OC2Config.Config.DisableAllMods) return;
             OC2Config.Update();
+            OC2ModdingCache.Update();
             LeaderboardMod.Update();
             DisplayFPS.Update();
             DisplayModsOnResultsScreen.Update();
