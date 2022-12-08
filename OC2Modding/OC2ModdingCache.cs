@@ -12,10 +12,14 @@ namespace OC2Modding
             public string lastLoginHost = "";
             public string lastLoginUser = "";
             public string lastLoginPass = "";
+            public int lastResolution = -1;
+            public int lastVSync = -1;
+            public int lastWindowed = -1;
+            public int lastQuality = -1;
             public int lastMusicVolume = -1;
             public int lastSfxVolume = -1;
         }
-        
+
         public static Cache cache = new Cache();
 
         public static void Awake()
@@ -66,18 +70,12 @@ namespace OC2Modding
             applied = true;
         }
 
-        private static void ApplyCachedVolumes(ref IOption[] ___m_options)
+        private static void SetOptionHelper(ref IOption[] ___m_options, int option, int value)
         {
-            if (___m_options[4] != null && cache.lastMusicVolume != -1)
+            if (___m_options[option] != null && value != -1)
             {
-                ___m_options[4].SetOption(cache.lastMusicVolume);
-                ___m_options[4].Commit();
-            }
-
-            if (___m_options[5] != null && cache.lastSfxVolume != -1)
-            {
-                ___m_options[5].SetOption(cache.lastSfxVolume);
-                ___m_options[5].Commit();
+                ___m_options[option].SetOption(value);
+                ___m_options[option].Commit();
             }
         }
 
@@ -85,18 +83,22 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void LoadFromSave(ref IOption[] ___m_options)
         {
-            ApplyCachedVolumes(ref ___m_options);
+            // This is called when saving/loading settings
+            SetOptionHelper(ref ___m_options, 4, cache.lastMusicVolume);
+            SetOptionHelper(ref ___m_options, 5, cache.lastSfxVolume);
         }
 
         [HarmonyPatch(typeof(OptionsData), nameof(OptionsData.AddToSave))]
         [HarmonyPostfix]
         private static void AddToSave(ref IOption[] ___m_options)
         {
+            // This is called when saving settings
+            cache.lastResolution  = ___m_options[0].GetOption();
+            cache.lastVSync       = ___m_options[2].GetOption();
+            cache.lastWindowed    = ___m_options[1].GetOption();
+            cache.lastQuality     = ___m_options[3].GetOption();
             cache.lastMusicVolume = ___m_options[4].GetOption();
-            OC2Modding.Log.LogInfo($"Saved music volume ({cache.lastMusicVolume})");
-
-            cache.lastSfxVolume = ___m_options[5].GetOption();
-            OC2Modding.Log.LogInfo($"Saved sfx volume ({cache.lastSfxVolume})");
+            cache.lastSfxVolume   = ___m_options[5].GetOption();
 
             Flush();
         }
@@ -105,7 +107,13 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void Unload(ref IOption[] ___m_options)
         {
-            ApplyCachedVolumes(ref ___m_options);
+            // This is called only on new file creation
+            SetOptionHelper(ref ___m_options, 0, cache.lastResolution);
+            SetOptionHelper(ref ___m_options, 2, cache.lastVSync);
+            SetOptionHelper(ref ___m_options, 1, cache.lastWindowed);
+            SetOptionHelper(ref ___m_options, 3, cache.lastQuality);
+            SetOptionHelper(ref ___m_options, 4, cache.lastMusicVolume);
+            SetOptionHelper(ref ___m_options, 5, cache.lastSfxVolume);
         }
 
         private static string CachePath
