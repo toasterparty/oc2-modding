@@ -28,6 +28,7 @@ namespace OC2Modding
 
             // Architecture Mods
             GameLog.Awake();
+            OC2ModdingCache.Awake();
             CustomSaveDirectory.Awake();
             ArchipelagoLoginGUI.Awake();
             CoopHandshake.Awake();

@@ -26,6 +26,13 @@ namespace OC2Modding
         public static void Awake()
         {
             Harmony.CreateAndPatchAll(typeof(ArchipelagoLoginGUI));
+
+            if (OC2ModdingCache.cache.lastLoginHost != "")
+            {
+                serverUrl = OC2ModdingCache.cache.lastLoginHost;
+                userName = OC2ModdingCache.cache.lastLoginPass;
+                password = OC2ModdingCache.cache.lastLoginUser;
+            }
         }
 
         public static void Update()

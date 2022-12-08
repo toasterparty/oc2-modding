@@ -464,6 +464,11 @@ namespace OC2Modding
 
                 PendingPseudoSaveUpdate = true;
                 PendingLocationUpdate = true;
+
+                OC2ModdingCache.cache.lastLoginHost = server;
+                OC2ModdingCache.cache.lastLoginPass = user;
+                OC2ModdingCache.cache.lastLoginUser = pass;
+                OC2ModdingCache.Flush();
             }
 
             IsConnecting = false;
