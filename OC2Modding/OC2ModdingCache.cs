@@ -13,6 +13,7 @@ namespace OC2Modding
             public string lastLoginUser = "";
             public string lastLoginPass = "";
             public int lastMusicVolume = -1;
+            public int lastSfxVolume = -1;
         }
         
         public static Cache cache = new Cache();
@@ -28,17 +29,16 @@ namespace OC2Modding
         public static void Update()
         {
             if (applied) return;
-            ApplyCachedMusicVolume();
+            ApplyCachedVolumes();
         }
 
-        private static void ApplyCachedMusicVolume()
+        private static float VolumeTodB(int vol)
         {
-            if (cache.lastMusicVolume == -1)
-            {
-                applied = true;
-                return;
-            }
+            return (80.0f * ((float)vol)/10.0f) - 80.0f;
+        }
 
+        private static void ApplyCachedVolumes()
+        {
             var audioManager = GameUtils.RequireManager<AudioManager>();
             if (audioManager == null)
             {
@@ -51,19 +51,33 @@ namespace OC2Modding
                 return;
             }
 
-            OC2Modding.Log.LogInfo($"Set cached music volume to {cache.lastMusicVolume}");
-            float vol = 80.0f * ((float)cache.lastMusicVolume)/10.0f; // scale from 0-10 to 0-80
-            vol -= 80.0f; // offset to negative dB
-            mixer.SetFloat("MusicVolume", vol);
+            if (cache.lastMusicVolume != -1)
+            {
+                OC2Modding.Log.LogInfo($"Set music volume to {cache.lastMusicVolume}");
+                mixer.SetFloat("MusicVolume", VolumeTodB(cache.lastMusicVolume));
+            }
+
+            if (cache.lastSfxVolume != -1)
+            {
+                OC2Modding.Log.LogInfo($"Set sfx volume to {cache.lastSfxVolume}");
+                mixer.SetFloat("SFXVolume", VolumeTodB(cache.lastSfxVolume));
+            }
+
             applied = true;
         }
 
-        private static void ApplyCachedMusicVolume(ref IOption[] ___m_options)
+        private static void ApplyCachedVolumes(ref IOption[] ___m_options)
         {
             if (___m_options[4] != null && cache.lastMusicVolume != -1)
             {
                 ___m_options[4].SetOption(cache.lastMusicVolume);
                 ___m_options[4].Commit();
+            }
+
+            if (___m_options[5] != null && cache.lastSfxVolume != -1)
+            {
+                ___m_options[5].SetOption(cache.lastSfxVolume);
+                ___m_options[5].Commit();
             }
         }
 
@@ -71,7 +85,7 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void LoadFromSave(ref IOption[] ___m_options)
         {
-            ApplyCachedMusicVolume(ref ___m_options);
+            ApplyCachedVolumes(ref ___m_options);
         }
 
         [HarmonyPatch(typeof(OptionsData), nameof(OptionsData.AddToSave))]
@@ -80,6 +94,10 @@ namespace OC2Modding
         {
             cache.lastMusicVolume = ___m_options[4].GetOption();
             OC2Modding.Log.LogInfo($"Saved music volume ({cache.lastMusicVolume})");
+
+            cache.lastSfxVolume = ___m_options[5].GetOption();
+            OC2Modding.Log.LogInfo($"Saved sfx volume ({cache.lastSfxVolume})");
+
             Flush();
         }
 
