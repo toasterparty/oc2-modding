@@ -101,6 +101,13 @@ namespace OC2Modding
             Flush();
         }
 
+        [HarmonyPatch(typeof(OptionsData), nameof(OptionsData.Unload))]
+        [HarmonyPostfix]
+        private static void Unload(ref IOption[] ___m_options)
+        {
+            ApplyCachedVolumes(ref ___m_options);
+        }
+
         private static string CachePath
         {
             get
