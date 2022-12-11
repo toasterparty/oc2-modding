@@ -85,7 +85,7 @@ namespace OC2Modding
         public Dictionary<int, int> LevelPurchaseRequirements;
         public List<int> LevelForceReveal;
         public List<int> LevelForceHide;
-        public Dictionary<int, float> LeaderboardScoreScale = null;
+        public StarScales LeaderboardScoreScale = null;
         public Dictionary<string, Dictionary<int, DlcIdAndLevelId>> CustomLevelOrder = null;
         public List<int> LockedEmotes;
         public Dictionary<int, List<OnLevelCompletedEvent>> OnLevelCompleted = new Dictionary<int, List<OnLevelCompletedEvent>>();
@@ -106,6 +106,14 @@ namespace OC2Modding
 
             [JsonIgnore]
             public int dlc;
+        }
+
+        public class StarScales
+        {
+            public float FourStars;
+            public float ThreeStars;
+            public float TwoStars;
+            public float OneStar;
         }
 
         /* Create OC2Modding.cfg if it doesn't exist and populate it 
@@ -414,24 +422,18 @@ namespace OC2Modding
             {
                 if (config.HasKey("LeaderboardScoreScale"))
                 {
-                    Dictionary<int, float> tempDict = new Dictionary<int, float>();
+                    var scales = new StarScales();
+                    scales.OneStar    = config["LeaderboardScoreScale"]["OneStar"   ];
+                    scales.TwoStars   = config["LeaderboardScoreScale"]["TwoStars"  ];
+                    scales.ThreeStars = config["LeaderboardScoreScale"]["ThreeStars"];
+                    scales.FourStars  = config["LeaderboardScoreScale"]["FourStars" ];
 
-                    tempDict[1] = config["LeaderboardScoreScale"]["OneStar"];
-                    tempDict[2] = config["LeaderboardScoreScale"]["TwoStars"];
-                    tempDict[3] = config["LeaderboardScoreScale"]["ThreeStars"];
-                    tempDict[4] = config["LeaderboardScoreScale"]["FourStars"];
-
-                    if (tempDict[1] > tempDict[2] || tempDict[1] > tempDict[3] || tempDict[1] > tempDict[4])
+                    if (scales.OneStar > scales.TwoStars || scales.OneStar > scales.ThreeStars || scales.OneStar > scales.FourStars)
                     {
-                        throw new System.Exception("");
+                        throw new System.Exception("Illegal star scaling");
                     }
 
-                    if (LeaderboardScoreScale != null)
-                    {
-                        LeaderboardScoreScale.Clear();
-                    }
-
-                    LeaderboardScoreScale = tempDict;
+                    LeaderboardScoreScale = scales;
                 }
             }
             catch

@@ -207,10 +207,10 @@ namespace OC2Modding
                         If the level is not a dynamic level, then cut the world record by the same ammount that the level duration is cut by. */
                         float timeScale = OC2Helpers.IsDynamicLevel(variant.LevelConfig.name) ? 0.85f : OC2Config.Config.LevelTimerScale;
 
-                        starBoundariesOverride.m_FourStarScore  = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale[4], timeScale);
-                        starBoundariesOverride.m_ThreeStarScore = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale[3], timeScale);
-                        starBoundariesOverride.m_TwoStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale[2], timeScale);
-                        starBoundariesOverride.m_OneStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale[1], timeScale);
+                        starBoundariesOverride.m_FourStarScore  = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale.FourStars , timeScale);
+                        starBoundariesOverride.m_ThreeStarScore = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale.ThreeStars, timeScale);
+                        starBoundariesOverride.m_TwoStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale.TwoStars  , timeScale);
+                        starBoundariesOverride.m_OneStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale.OneStar   , timeScale);
 
                         // OC2Modding.Log.LogInfo($"{starBoundariesOverride.m_OneStarScore} / {starBoundariesOverride.m_TwoStarScore} / {starBoundariesOverride.m_ThreeStarScore} / {starBoundariesOverride.m_FourStarScore}");
 
