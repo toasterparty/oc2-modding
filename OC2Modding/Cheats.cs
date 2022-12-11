@@ -90,6 +90,11 @@ namespace OC2Modding
                 return;
             }
 
+            if (stars > 4)
+            {
+                stars = 4;
+            }
+
             flowController.SkipLevel(stars);
             if (!Printed)
             {

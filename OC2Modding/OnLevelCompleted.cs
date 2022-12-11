@@ -28,17 +28,24 @@ namespace OC2Modding
                 return; // not story, not relevant to the mod
             }
 
-            if (!_complete || _starRating < 1)
+            if (!_complete)
             {
                 return; // 0 stars
+            }
+
+            if (OC2Helpers.IsLevelHordeLevel(_levelIndex)) {
+                _starRating = 0;
+            }
+            else if (_starRating < 1)
+            {
+                return; // 0 stars on non-horde
             }
 
             ArchipelagoClient.VisitLocation(_levelIndex);
 
             GameProgress.GameProgressData.LevelProgress levelProgress = _saveData.GetLevelProgress(_levelIndex);
-
-            // Update "save file"
             if (!OC2Config.Config.PseudoSave.ContainsKey(_levelIndex) || _starRating > OC2Config.Config.PseudoSave[_levelIndex]) {
+                // Update "cloud save"
                 OC2Config.Config.PseudoSave[_levelIndex] = _starRating;
                 ArchipelagoClient.SendPseudoSave();
             }
@@ -58,16 +65,6 @@ namespace OC2Modding
         private static void GetStarTotal(ref int __result)
         {
             __result += OC2Config.Config.StarOffset;
-        }
-
-        /* Horde Levels should never increase star count */
-        [HarmonyPatch(typeof(GameProgress), "ApplyLevelProgress")]
-        [HarmonyPrefix]
-        private static void ApplyLevelProgress(ref int _levelIndex, ref int _starRating)
-        {
-            if (OC2Helpers.IsLevelHordeLevel(_levelIndex)) {
-                _starRating = 0;
-            }
         }
     }
 }
