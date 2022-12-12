@@ -163,29 +163,33 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void Start(ref LevelPortalMapNode ___m_levelMapNode, ref MeshFilter ___m_mesh, ref Mesh[] ___m_completeMeshs, ref Mesh ___m_unCompleteMesh)
         {
-            var levelName = ___m_levelMapNode.m_sceneDirectoryEntry.Label;
+            // var levelName = ___m_levelMapNode.m_sceneDirectoryEntry.Label;
 
-            var names = new string[] {
-                "Text.Menu.DLC03Level13",
-                "Text.Menu.DLC03Level15",
-                "Text.Menu.DLC07Battlements00",
-                "Text.Menu.DLC07Battlements01",
-                "Text.Menu.DLC07Battlements02",
-                "Text.Menu.DLC07Battlements03",
-                "Text.Menu.DLC07Battlements04",
-                "Text.Menu.DLC07Battlements05",
-                "Text.Menu.DLC07Battlements06",
-                "Text.Menu.DLC07Battlements07",
-                "Text.Menu.DLC07Battlements08",
-                "Text.Menu.DLC07Battlements09",
-                "Text.Menu.TutorialLevel",
-            };
+            // var names = new string[] {
+            //     "Text.Menu.DLC03Level13",
+            //     "Text.Menu.DLC03Level15",
+            //     "Text.Menu.DLC07Battlements00",
+            //     "Text.Menu.DLC07Battlements01",
+            //     "Text.Menu.DLC07Battlements02",
+            //     "Text.Menu.DLC07Battlements03",
+            //     "Text.Menu.DLC07Battlements04",
+            //     "Text.Menu.DLC07Battlements05",
+            //     "Text.Menu.DLC07Battlements06",
+            //     "Text.Menu.DLC07Battlements07",
+            //     "Text.Menu.DLC07Battlements08",
+            //     "Text.Menu.DLC07Battlements09",
+            //     "Text.Menu.TutorialLevel",
+            // };
 
-            if (names.Contains(levelName))
-            {
-                GameLog.LogMessage($"{levelName}");
-                ___m_mesh.gameObject.SetActive(false);
-            }
+            // if (names.Contains(levelName))
+            // {
+            //     // ___m_unCompleteMesh = null;
+            //     // ___m_completeMeshs[0] = null;
+            //     // ___m_completeMeshs[1] = null;
+            //     // ___m_completeMeshs[2] = null;
+            //     // ___m_completeMeshs[3] = null;
+            //     // ___m_completeMeshs[4] = null;
+            // }
         }
     }
 }
