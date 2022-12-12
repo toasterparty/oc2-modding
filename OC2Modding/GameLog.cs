@@ -29,7 +29,7 @@ namespace OC2Modding
         private static GUIStyle textStyle = new GUIStyle();
         private static string scrollText = "";
         private static float lastUpdateTime = Time.time;
-        private const int MAX_LOG_LINES = 40;
+        private const int MAX_LOG_LINES = 80;
         private const float HIDDEN_TIMEOUT_S = 15f;
 
         public static void Awake()
@@ -227,6 +227,14 @@ namespace OC2Modding
             {
                 UpdateWindow();
             }
+        }
+
+        /* Don't let the user use the game UI when the mod GUI is expanded */
+        [HarmonyPatch(typeof(T17StandaloneInputModule), nameof(T17StandaloneInputModule.Process))]
+        [HarmonyPrefix]
+        private static bool Process()
+        {
+            return isHidden;
         }
     }
 }
