@@ -485,6 +485,30 @@ namespace OC2Modding
             OC2Modding.Log.LogInfo("Finished bulding high score repository");
         }
 
+        private static int[] HordeLevels(int dlc)
+        {
+            int[] levels;
+            if (dlc == 7) // horde
+            {
+                levels = new int[] { 12, 13, 14, 15, 16, 17, 18, 19 };
+            }
+            else if (dlc == 3) // seasonal
+            {
+                levels = new int[] { 13, 15 };
+            }
+            else
+            {
+                levels = new int[] {};
+            }
+
+            return levels;
+        }
+
+        public static bool IsLevelHordeLevel(int dlc, int _levelIndex)
+        {
+            return HordeLevels(dlc).Contains(_levelIndex);
+        }
+
         public static bool IsLevelHordeLevel(int _levelIndex) {
             if (OC2Config.Config.CustomLevelOrder == null)
             {
@@ -503,21 +527,7 @@ namespace OC2Modding
 
             ModConfig.DlcIdAndLevelId level = OC2Config.Config.CustomLevelOrder["Story"][_levelIndex];
 
-            int[] levels;
-            if (level.dlc == 7) // horde
-            {
-                levels = new int[] { 12, 13, 14, 15, 16, 17, 18, 19 };
-            }
-            else if (level.dlc == 3) // seasonal
-            {
-                levels = new int[] { 13, 15 };
-            }
-            else
-            {
-                levels = new int[] {};
-            }
-
-            return levels.Contains(level.LevelID);
+            return HordeLevels(level.dlc).Contains(level.LevelID);
         }
 
         public static int DLCFromString(string dlc)
