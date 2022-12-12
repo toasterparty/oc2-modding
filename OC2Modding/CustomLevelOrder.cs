@@ -153,6 +153,15 @@ namespace OC2Modding
 
                         ___m_sceneDirectory.Scenes[levelId] = newScene;
 
+                        SceneDirectoryData sceneDirectory = GameUtils.GetGameSession().Progress.GetSceneDirectory();
+                        SceneDirectoryData.SceneDirectoryEntry sceneDirectoryEntry = sceneDirectory.Scenes[levelId];
+                        foreach (SceneDirectoryData.PerPlayerCountDirectoryEntry sceneVarient in sceneDirectoryEntry.SceneVarients)
+                        {
+                            // Clear the objectives for levels moved as part of 
+                            LevelConfigBase levelConfigBase = ((sceneVarient == null) ? null : sceneVarient.LevelConfig);
+                            levelConfigBase.m_objectives = new LevelObjectiveBase[] {};
+                        }
+
                         // Helper for determining DLC when patching scores
                         storyLevelIdToDlc.Add(levelId, newDlcAndLevel.dlc);
                     }
