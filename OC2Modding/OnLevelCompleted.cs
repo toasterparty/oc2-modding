@@ -34,7 +34,7 @@ namespace OC2Modding
             }
 
             if (OC2Helpers.IsLevelHordeLevel(_levelIndex)) {
-                _starRating = 0;
+                _starRating = 1;
             }
             else if (_starRating < 1)
             {
