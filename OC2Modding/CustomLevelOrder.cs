@@ -188,31 +188,41 @@ namespace OC2Modding
                             actualLevelId = levelId;
                         }
 
-                        // OC2Modding.Log.LogInfo($"\n\nstory_id={levelId}, dlc={dlc}, actualLevelId={actualLevelId}");
-                        int worldRecordScore = OC2Helpers.getScoresFromLeaderboard(dlc, actualLevelId, playerCount);
-                        var prop = variant.GetType().GetField("m_PCStarBoundaries", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                        if (worldRecordScore <= 0)
-                        {
-                            /* Fallback to 4-star score as WR where none is submitted */
-                            worldRecordScore = ((SceneDirectoryData.StarBoundaries)prop.GetValue(variant)).m_FourStarScore;
-                            // TODO: Get your friends to just submit everything
-                        }
-
                         SceneDirectoryData.StarBoundaries starBoundariesOverride = new SceneDirectoryData.StarBoundaries();
-
-                        /* If the level is a dynamic level, we don't ever scale the level timer, however, these levels are almost exclusively statistical
-                        outliers in terms of the gap between a good player and the current world record. This difficulty spike, in combination with the extended level
-                        duration, means that a well balanced randomizer should still grant some leniency in these cases (cut WR score by 15%).
+                        var prop = variant.GetType().GetField("m_PCStarBoundaries", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                         
-                        If the level is not a dynamic level, then cut the world record by the same ammount that the level duration is cut by. */
-                        float timeScale = OC2Helpers.IsDynamicLevel(variant.LevelConfig.name) ? 0.85f : OC2Config.Config.LevelTimerScale;
+                        if (OC2Helpers.IsLevelHordeLevel(levelId))
+                        {
+                            starBoundariesOverride.m_OneStarScore = 0;
+                            starBoundariesOverride.m_TwoStarScore = 0;
+                            starBoundariesOverride.m_ThreeStarScore = 0;
+                            starBoundariesOverride.m_FourStarScore = 0;
+                        }
+                        else
+                        {
+                            // OC2Modding.Log.LogInfo($"\n\nstory_id={levelId}, dlc={dlc}, actualLevelId={actualLevelId}");
+                            int worldRecordScore = OC2Helpers.getScoresFromLeaderboard(dlc, actualLevelId, playerCount);
+                            if (worldRecordScore <= 0)
+                            {
+                                /* Fallback to 4-star score as WR where none is submitted */
+                                worldRecordScore = ((SceneDirectoryData.StarBoundaries)prop.GetValue(variant)).m_FourStarScore;
+                                // TODO: Get your friends to just submit everything
+                            }
 
-                        starBoundariesOverride.m_FourStarScore  = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale.FourStars , timeScale);
-                        starBoundariesOverride.m_ThreeStarScore = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale.ThreeStars, timeScale);
-                        starBoundariesOverride.m_TwoStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale.TwoStars  , timeScale);
-                        starBoundariesOverride.m_OneStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale.OneStar   , timeScale);
+                            /* If the level is a dynamic level, we don't ever scale the level timer, however, these levels are almost exclusively statistical
+                            outliers in terms of the gap between a good player and the current world record. This difficulty spike, in combination with the extended level
+                            duration, means that a well balanced randomizer should still grant some leniency in these cases (cut WR score by 15%).
+                            
+                            If the level is not a dynamic level, then cut the world record by the same ammount that the level duration is cut by. */
+                            float timeScale = OC2Helpers.IsDynamicLevel(variant.LevelConfig.name) ? 0.85f : OC2Config.Config.LevelTimerScale;
 
-                        // OC2Modding.Log.LogInfo($"{starBoundariesOverride.m_OneStarScore} / {starBoundariesOverride.m_TwoStarScore} / {starBoundariesOverride.m_ThreeStarScore} / {starBoundariesOverride.m_FourStarScore}");
+                            starBoundariesOverride.m_FourStarScore  = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale.FourStars , timeScale);
+                            starBoundariesOverride.m_ThreeStarScore = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale.ThreeStars, timeScale);
+                            starBoundariesOverride.m_TwoStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale.TwoStars  , timeScale);
+                            starBoundariesOverride.m_OneStarScore   = scoreScaleHelper(worldRecordScore, OC2Config.Config.LeaderboardScoreScale.OneStar   , timeScale);
+
+                            // OC2Modding.Log.LogInfo($"{starBoundariesOverride.m_OneStarScore} / {starBoundariesOverride.m_TwoStarScore} / {starBoundariesOverride.m_ThreeStarScore} / {starBoundariesOverride.m_FourStarScore}");
+                        }
 
                         prop.SetValue(variant, starBoundariesOverride);
                     }
@@ -236,6 +246,29 @@ namespace OC2Modding
             }
 
             __result = ___m_sceneDirectory;
+        }
+
+        [HarmonyPatch(typeof(WorldMapKitchenLevelIconUI), nameof(WorldMapKitchenLevelIconUI.Setup))]
+        [HarmonyPrefix]
+        private static void Setup_Prefix(ref GameProgress.GameProgressData.LevelProgress _levelProgress, ref WorldMapKitchenLevelIconUI.State _state, ref WorldMapKitchenLevelIconUI __instance)
+        {
+            if (OC2Config.Config.ImpossibleTutorial && OC2Helpers.GetCurrentDLCID() == -1 && _levelProgress.LevelId == 0)
+            {
+                _state = WorldMapKitchenLevelIconUI.State.UnSupported;
+                __instance.SetCost(999);
+            }
+        }
+
+        [HarmonyPatch(typeof(WorldMapKitchenLevelIconUI), nameof(WorldMapKitchenLevelIconUI.Setup))]
+        [HarmonyPostfix]
+        private static void Setup(ref GameProgress.GameProgressData.LevelProgress _levelProgress, ref ScoreBoundaryStar[] ___m_stars)
+        {
+            if (OC2Helpers.IsLevelHordeLevel(_levelProgress.LevelId))
+            {
+                ___m_stars[1].gameObject.SetActive(false);
+                ___m_stars[2].gameObject.SetActive(false);
+                ___m_stars[3].gameObject.SetActive(false);
+            }
         }
 
         /* Use to print level ID to screen on hover */
