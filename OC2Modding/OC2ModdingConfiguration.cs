@@ -245,16 +245,16 @@ namespace OC2Modding
             ConfigEntry<float> configServerTickRate = configFile.Bind(
                 "Performance", // Config Category
                 "ServerTickRate", // Config key name
-                10.0f, // Default Config value
-                "Server Tick Rate in Hz (If you are unsure as to what this is, do not touch!!!)" // Friendly description
+                40.0f, // Default Config value
+                "Server Tick Rate in Hz (vanilla=10Hz) (If you are unsure as to what this is, do not touch!!!)" // Friendly description
             );
             ServerTickRate = configServerTickRate.Value;
 
             ConfigEntry<float> configServerTickRateUrgent = configFile.Bind(
                 "Performance", // Config Category
                 "ServerTickRateUrgent", // Config key name
-                10.0f, // Default Config value
-                "Server Tick Rate in Hz for 'urgent' synchronization requests (If you are unsure as to what this is, do not touch!!!)" // Friendly description
+                100.0f, // Default Config value
+                "Server Tick Rate in Hz for 'urgent' synchronization requests (vanilla=10Hz) (If you are unsure as to what this is, do not touch!!!)" // Friendly description
             );
             ServerTickRateUrgent = configServerTickRateUrgent.Value;
 
