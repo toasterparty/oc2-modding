@@ -217,6 +217,7 @@ namespace OC2Modding
             }
 
             ArchipelagoLoginGUI.UpdateGUI();
+            ArchipelagoCommandGUI.UpdateGUI();
         }
 
         [HarmonyPatch(typeof(FixedAspectRatioManager), "LateUpdate")]

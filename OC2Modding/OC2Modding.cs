@@ -31,6 +31,7 @@ namespace OC2Modding
             OC2ModdingCache.Awake();
             CustomSaveDirectory.Awake();
             ArchipelagoLoginGUI.Awake();
+            ArchipelagoCommandGUI.Awake();
             CoopHandshake.Awake();
             OnLevelCompleted.Awake();
             LevelProgression.Awake();
@@ -86,6 +87,7 @@ namespace OC2Modding
             DisplayModsOnResultsScreen.OnGUI();
             GameLog.OnGUI();
             ArchipelagoLoginGUI.OnGUI();
+            ArchipelagoCommandGUI.OnGUI();
         }
     }
 }

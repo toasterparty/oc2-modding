@@ -230,6 +230,16 @@ namespace OC2Modding
             }
         }
 
+        public static void SendMessage(string message)
+        {
+            if (!IsConnected || session == null)
+            {
+                GameLog.LogMessage($"Failed to send '{message}' due to disconnect.");
+                return;
+            }
+            session.Socket.SendPacketAsync(new SayPacket(){Text = message});
+        }
+
         /* Apply to end of save directory to garuntee uniqueness across rooms of the same seed */
         private static int CachedSaveDirSuffix = -1;
         public static string SaveDirSuffix()
