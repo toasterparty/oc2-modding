@@ -68,6 +68,7 @@ namespace OC2Modding
         public bool DisableRampButton = false;
         public bool DisableEarnHordeMoney = false;
         public bool AggressiveHorde = false;
+        public bool ShortHordeLevels = false;
         public int CustomOrderTimeoutPenalty = -1;
         // Pick up plate stacks 1 at a time
         // Squirt Gun Distance
@@ -351,6 +352,7 @@ namespace OC2Modding
             try { if (config.HasKey("DisableRampButton"              )) DisableRampButton              = config["DisableRampButton"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableRampButton'"              ); }
             try { if (config.HasKey("DisableEarnHordeMoney"          )) DisableEarnHordeMoney          = config["DisableEarnHordeMoney"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableEarnHordeMoney'"          ); }
             try { if (config.HasKey("AggressiveHorde"                )) AggressiveHorde                = config["AggressiveHorde"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'AggressiveHorde'"                ); }
+            try { if (config.HasKey("ShortHordeLevels"               )) ShortHordeLevels               = config["ShortHordeLevels"               ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ShortHordeLevels'"               ); }
             try { if (config.HasKey("CustomOrderTimeoutPenalty"      )) CustomOrderTimeoutPenalty      = config["CustomOrderTimeoutPenalty"      ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CustomOrderTimeoutPenalty'"      ); }
             try { if (config.HasKey("ItemIndex"                      )) ItemIndex                      = config["ItemIndex"                      ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ItemIndex'"                      ); }
             try { if (config.HasKey("LevelTimerScale"                )) LevelTimerScale                = config["LevelTimerScale"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'LevelTimerScale'"                ); }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using HarmonyLib;
+using GameModes.Horde;
 
 namespace OC2Modding
 {
@@ -157,9 +158,34 @@ namespace OC2Modding
                         SceneDirectoryData.SceneDirectoryEntry sceneDirectoryEntry = sceneDirectory.Scenes[levelId];
                         foreach (SceneDirectoryData.PerPlayerCountDirectoryEntry sceneVarient in sceneDirectoryEntry.SceneVarients)
                         {
+                            if (sceneVarient.LevelConfig == null)
+                            {
+                                continue;
+                            }
+
+                            LevelConfigBase levelConfigBase = sceneVarient.LevelConfig;
+
                             // Clear the objectives for levels moved as part of 
-                            LevelConfigBase levelConfigBase = ((sceneVarient == null) ? null : sceneVarient.LevelConfig);
                             levelConfigBase.m_objectives = new LevelObjectiveBase[] {};
+
+                            // Edit horde level config
+                            if (OC2Config.Config.ShortHordeLevels && levelConfigBase is HordeLevelConfig)
+                            {
+                                var hordeLevelConfig = sceneVarient.LevelConfig as HordeLevelConfig;
+                                var waves = hordeLevelConfig.m_waves;
+                                var prop = waves.GetType().GetField("m_waves", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+                                var m_waves = (List<HordeWaveData>)prop.GetValue(waves);
+                                int newWaveCount = (int)(waves.Count * 0.6 + 0.5f);
+
+                                // remove every other wave until desired count is reached
+                                int remove = 0;
+                                while (waves.Count > newWaveCount)
+                                {
+                                    m_waves.RemoveAt(remove);
+                                    remove = (remove + 1) % waves.Count;
+                                }
+                            }
                         }
 
                         // Helper for determining DLC when patching scores

@@ -15,8 +15,7 @@ namespace OC2Modding
         const float HORDE_ENEMY_TARGET_ATTACK_SPEED_MULTIPLIER = 1.3f; // larger means slower attack rate
         const float HORDE_ENEMY_MOVEMENT_SPEED_MULTIPLIER      = 1.2f; // larger means move to window faster
         // const float HORDE_ENEMY_KITCH_ATTACK_SPEED_MULTIPLIER  = 1.0f; // larger means slower attack rate
-        // const float HORDE_ENEMY_TARGET_DAMAGE_MULTIPLIER       = 1.0f; // larger means more damage
-        // const float HORDE_ENEMY_KITCH_DAMAGE_MULTIPLIER        = 1.0f; // larger means more damage
+        const float HORDE_ENEMY_DAMAGE_MULTIPLIER              = 1.4f; // larger means more damage
 
         /*
          * Increases/Decreases staggering of horde spawn in each wave
@@ -84,6 +83,42 @@ namespace OC2Modding
             return originalTime * HORDE_ENEMY_MOVEMENT_SPEED_MULTIPLIER;
         }
 
+        private static Dictionary<string, int> OrigTargetDmg = new Dictionary<string, int>();
+        private static int GetScaledTargetDmg(int inTime, string levelName)
+        {
+            if (!OrigTargetDmg.ContainsKey(levelName))
+            {
+                OrigTargetDmg[levelName] = inTime;
+            }
+
+            int originalTime = OrigTargetDmg[levelName];
+
+            if (!OC2Config.Config.ShortHordeLevels)
+            {
+                return originalTime;
+            }
+
+            return (int)(originalTime * HORDE_ENEMY_DAMAGE_MULTIPLIER + 0.5f);
+        }
+
+        private static Dictionary<string, int> OrigKitchenDmg = new Dictionary<string, int>();
+        private static int GetScaledKitchenDmg(int inTime, string levelName)
+        {
+            if (!OrigKitchenDmg.ContainsKey(levelName))
+            {
+                OrigKitchenDmg[levelName] = inTime;
+            }
+
+            int originalTime = OrigKitchenDmg[levelName];
+
+            if (!OC2Config.Config.ShortHordeLevels)
+            {
+                return originalTime;
+            }
+
+            return (int)(originalTime * HORDE_ENEMY_DAMAGE_MULTIPLIER + 0.5f);
+        }
+
         [HarmonyPatch(typeof(GameModes.Horde.ServerHordeEnemy))]
         [HarmonyPatch("OnUpdateState")]
         static class HordeEnemyPath
@@ -95,6 +130,9 @@ namespace OC2Modding
                     string name = GameUtils.GetFlowController().GetLevelConfig().name + ___m_enemy.name;
                     ___m_enemy.m_attackTargetFrequencySeconds = GetScaledAttkFreq(___m_enemy.m_attackTargetFrequencySeconds, name);
                     ___m_enemy.m_movementSpeed = GetScaledMovementSpeed(___m_enemy.m_movementSpeed, name);
+
+                    ___m_enemy.m_targetDamage = GetScaledTargetDmg(___m_enemy.m_targetDamage, name);
+                    ___m_enemy.m_kitchenDamage = GetScaledKitchenDmg(___m_enemy.m_kitchenDamage, name);
                 }
                 catch
                 {
@@ -102,8 +140,6 @@ namespace OC2Modding
                 }
 
                 // ___m_enemy.m_attackKitchenFrequencySeconds = 5f * HORDE_ENEMY_KITCH_ATTACK_SPEED_MULTIPLIER;
-                // ___m_enemy.m_targetDamage = (int)(25 * HORDE_ENEMY_TARGET_DAMAGE_MULTIPLIER);
-                // ___m_enemy.m_kitchenDamage = (int)(10 * HORDE_ENEMY_KITCH_DAMAGE_MULTIPLIER);
             }
         }
     }
