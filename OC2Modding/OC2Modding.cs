@@ -57,6 +57,7 @@ namespace OC2Modding
             CustomOrderTimeoutPenalty.Awake();
             IncreasedKnockback.Awake();
             ServerTickRate.Awake();
+            FirstPersonPerspective.Awake();
 
             DisplayModsOnResultsScreen.Awake();
         }
