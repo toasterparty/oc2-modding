@@ -3,7 +3,7 @@
     <TargetFramework>net46</TargetFramework>
     <AssemblyName>com.github.toasterparty.oc2modding.epic</AssemblyName>
     <Description>Overcooked! 2 Modding</Description>
-    <Version>1.5.0</Version>
+    <Version>1.5.1</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
