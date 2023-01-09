@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Threading;
+using System.Text.RegularExpressions;
 using HarmonyLib;
 using Team17.Online;
 using UnityEngine;
@@ -230,7 +231,13 @@ namespace OC2Modding
 
         public static string getCustomSaveDirectory()
         {
-            string saveFolderName = OC2Config.Config.SaveFolderName == "" ? "_default" : (OC2Config.Config.SaveFolderName + ArchipelagoClient.SaveDirSuffix());
+            // Sanatize to prevent passing illegal characters to filesystem
+            string saveFolderName = Regex.Replace(OC2Config.Config.SaveFolderName, "[^a-zA-Z0-9]", "-");
+
+            // Apply a suffix to garuntee uniqueness between different rooms of the same seed
+            saveFolderName = saveFolderName == "" ? "_default" : (saveFolderName + ArchipelagoClient.SaveDirSuffix());
+
+            // Add OS-specific context and return
             return Application.persistentDataPath + "/OC2Modding/" + saveFolderName + "/";
         }
 
