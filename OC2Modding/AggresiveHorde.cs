@@ -15,7 +15,8 @@ namespace OC2Modding
         const float HORDE_ENEMY_TARGET_ATTACK_SPEED_MULTIPLIER = 1.3f; // larger means slower attack rate
         const float HORDE_ENEMY_MOVEMENT_SPEED_MULTIPLIER      = 1.2f; // larger means move to window faster
         // const float HORDE_ENEMY_KITCH_ATTACK_SPEED_MULTIPLIER  = 1.0f; // larger means slower attack rate
-        const float HORDE_ENEMY_DAMAGE_MULTIPLIER              = 1.4f; // larger means more damage
+        const float HORDE_ENEMY_TARGET_DAMAGE_MULTIPLIER       = 1.1f; // larger means more damage
+        const float HORDE_ENEMY_KITCH_DAMAGE_MULTIPLIER        = 1.3f; // larger means more damage
 
         /*
          * Increases/Decreases staggering of horde spawn in each wave
@@ -98,7 +99,7 @@ namespace OC2Modding
                 return originalTime;
             }
 
-            return (int)(originalTime * HORDE_ENEMY_DAMAGE_MULTIPLIER + 0.5f);
+            return (int)(originalTime * HORDE_ENEMY_TARGET_DAMAGE_MULTIPLIER + 0.5f);
         }
 
         private static Dictionary<string, int> OrigKitchenDmg = new Dictionary<string, int>();
@@ -116,7 +117,7 @@ namespace OC2Modding
                 return originalTime;
             }
 
-            return (int)(originalTime * HORDE_ENEMY_DAMAGE_MULTIPLIER + 0.5f);
+            return (int)(originalTime * HORDE_ENEMY_KITCH_DAMAGE_MULTIPLIER + 0.5f);
         }
 
         [HarmonyPatch(typeof(GameModes.Horde.ServerHordeEnemy))]
