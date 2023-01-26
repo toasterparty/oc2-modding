@@ -375,17 +375,17 @@ namespace OC2Modding
             try
             {
                 // Derrive the full uri, accounting for every possible variation of user stupidity
-                serverUrl = server.Replace("ws://", "");
-                serverUrl = server.Replace("wss://", "");
+                serverUrl = server.ToLower();
+                serverUrl = serverUrl.Replace("http://", "");
+                serverUrl = serverUrl.Replace("https://", "");
                 serverUrl = serverUrl.Replace("/connect", "");
                 serverUrl = serverUrl.Replace("connect", "");
                 serverUrl = serverUrl.Replace("'", "");
                 serverUrl = serverUrl.Replace(" ", "");
-                if (!serverUrl.Contains(":"))
+                if (!serverUrl.StartsWith("ws://"))
                 {
-                    serverUrl += ":38281"; // default port
+                    serverUrl = "ws://" + serverUrl;
                 }
-                serverUrl = "ws://" + serverUrl;
 
                 OC2Modding.Log.LogInfo($"Connecting to {serverUrl}");
 
