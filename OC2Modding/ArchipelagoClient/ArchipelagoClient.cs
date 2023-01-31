@@ -6,6 +6,7 @@ using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Models;
 using Archipelago.MultiClient.Net.Packets;
+using Archipelago.MultiClient.Net.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -359,7 +360,9 @@ namespace OC2Modding
             if (IsConnected && session.Socket.Connected && cachedConnectionResult != null)
             {
                 if (serverUrl == server && userName == user && password == pass)
+                {
                     return cachedConnectionResult;
+                }
 
                 Disconnect();
             }
@@ -382,7 +385,7 @@ namespace OC2Modding
                 serverUrl = serverUrl.Replace("connect", "");
                 serverUrl = serverUrl.Replace("'", "");
                 serverUrl = serverUrl.Replace(" ", "");
-                if (!serverUrl.StartsWith("ws://"))
+                if (!serverUrl.StartsWith("ws://") && !serverUrl.StartsWith("wss://"))
                 {
                     serverUrl = "ws://" + serverUrl;
                 }
@@ -393,10 +396,9 @@ namespace OC2Modding
                 password = pass;
 
                 var uri = new Uri(serverUrl);
-                session = ArchipelagoSessionFactory.CreateSession(uri);
+                session = ArchipelagoSessionFactory.CreateSession(uri);        
 
-                session.Socket.PacketReceived += OnPacketReceived;
-
+                session.MessageLog.OnMessageReceived += OnMessageReceived;
 
                 var result = session.TryConnectAndLogin(
                     "Overcooked! 2",
@@ -608,67 +610,22 @@ namespace OC2Modding
         static void ReconnectIfNeeded()
         {
             if (IsConnected && session.Socket.Connected)
+            {
                 return;
+            }
 
             ConnectionAttempt(serverUrl, userName, password, session.ConnectionInfo.Uuid);
         }
 
-        public static void OnPacketReceived(ArchipelagoPacketBase packet)
+        static void OnMessageReceived(LogMessage message)
         {
             try
             {
-                string text = "";
-                switch (packet.PacketType)
-                {
-                    case ArchipelagoPacketType.Print:
-                        {
-                            var p = packet as PrintPacket;
-                            text = p.Text;
-                            break;
-                        }
-                    case ArchipelagoPacketType.PrintJSON:
-                        {
-                            var p = packet as PrintJsonPacket;
-                            foreach (var messagePart in p.Data)
-                            {
-                                switch (messagePart.Type)
-                                {
-                                    case JsonMessagePartType.PlayerId:
-                                        {
-                                            text += Int32.TryParse(messagePart.Text, out var PlayerSlot)
-                                                ? session.Players.GetPlayerAlias(PlayerSlot) ?? $"Slot: {PlayerSlot}"
-                                                : messagePart.Text;
-                                            break;
-                                        }
-                                    case JsonMessagePartType.ItemId:
-                                        {
-                                            text += Int64.TryParse(messagePart.Text, out var itemID)
-                                                ? session.Items.GetItemName(itemID) ?? $"Item: {itemID}" : messagePart.Text;
-                                            break;
-                                        }
-                                    case JsonMessagePartType.LocationId:
-                                        {
-                                            text += Int64.TryParse(messagePart.Text, out var locationID)
-                                                ? session.Locations.GetLocationNameFromId(locationID) ?? $"Location: {locationID}"
-                                                : messagePart.Text;
-                                            break;
-                                        }
-                                    default:
-                                        {
-                                            text += messagePart.Text;
-                                            break;
-                                        }
-                                }
-                            }
-
-                            break;
-                        }
-                }
-                GameLog.LogMessage(text);
+                GameLog.LogMessage(message.ToString());
             }
             catch (Exception e)
             {
-                OC2Modding.Log.LogError($"Error when parsing received packet {e}");
+                OC2Modding.Log.LogError($"Error when parsing received message {e}");
             }
         }
 
