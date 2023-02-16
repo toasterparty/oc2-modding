@@ -14,7 +14,7 @@ namespace OC2Modding
 {
     public static class ArchipelagoClient
     {
-        private static Version MinimumProtocolVersion = new Version(0, 3, 7);
+        private static Version MinimumProtocolVersion = new Version(0, 3, 8);
         public const bool REMOTE_INVENTORY = true;
 
         private static ArchipelagoSession session = null;
