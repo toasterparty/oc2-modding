@@ -592,13 +592,31 @@ namespace OC2Modding
 
         [HarmonyPatch(typeof(WorldMapSwitch), nameof(WorldMapSwitch.CanBePressed))]
         [HarmonyPostfix]
-        private static void CanBePressed(ref bool __result)
+        private static void CanBePressed(ref bool __result, ref WorldMapSwitch __instance)
         {
-            if (OC2Config.Config.DisableRampButton && __result)
+            if (!__result)
+            {
+                return; // already not pressable
+            }
+
+            if (OC2Config.Config.DisableRampButton)
+            {
+                __result = false;
+            }
+
+            string name = __instance.gameObject.name;
+            if (OC2Config.Config.DisableGreenRampButton  && name.StartsWith("Green" )) { __result = false; }
+            if (OC2Config.Config.DisableYellowRampButton && name.StartsWith("Yellow")) { __result = false; }
+            if (OC2Config.Config.DisableBlueRampButton   && name.StartsWith("Blue"  )) { __result = false; }
+            if (OC2Config.Config.DisablePinkRampButton   && name.StartsWith("Pink"  )) { __result = false; }
+            if (OC2Config.Config.DisableGreyRampButton   && name.StartsWith("Grey"  )) { __result = false; }
+            if (OC2Config.Config.DisableRedRampButton    && name.StartsWith("Red"   )) { __result = false; }
+            if (OC2Config.Config.DisablePurpleRampButton && name.StartsWith("Purple")) { __result = false; }
+
+            if (!__result)
             {
                 // Reject the button push
                 OC2Helpers.PlayErrorSfx();
-                __result = false;
             }
         }
 

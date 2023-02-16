@@ -92,6 +92,13 @@ namespace OC2Modding
             RampButton = 35,
             BonusStar = 36,
             AggressiveHorde = 37,
+            GreenRampButton = 38,
+            YellowRampButton = 39,
+            BlueRampButton = 40,
+            PinkRampButton = 41,
+            GreyRampButton = 42,
+            RedRampButton = 43,
+            PurpleRampButton = 44,
         };
 
         private static int LastVisitedLocationsCount = 0;
@@ -876,6 +883,48 @@ namespace OC2Modding
                 case Oc2Item.BonusStar:
                     {
                         OC2Config.Config.StarOffset++;
+                        break;
+                    }
+                case Oc2Item.GreenRampButton:
+                    {
+                        if (!OC2Config.Config.DisableGreenRampButton) return false;
+                        OC2Config.Config.DisableGreenRampButton = false;
+                        break;
+                    }
+                case Oc2Item.YellowRampButton:
+                    {
+                        if (!OC2Config.Config.DisableYellowRampButton) return false;
+                        OC2Config.Config.DisableYellowRampButton = false;
+                        break;
+                    }
+                case Oc2Item.BlueRampButton:
+                    {
+                        if (!OC2Config.Config.DisableBlueRampButton) return false;
+                        OC2Config.Config.DisableBlueRampButton = false;
+                        break;
+                    }
+                case Oc2Item.PinkRampButton:
+                    {
+                        if (!OC2Config.Config.DisablePinkRampButton) return false;
+                        OC2Config.Config.DisablePinkRampButton = false;
+                        break;
+                    }
+                case Oc2Item.GreyRampButton:
+                    {
+                        if (!OC2Config.Config.DisableGreyRampButton) return false;
+                        OC2Config.Config.DisableGreyRampButton = false;
+                        break;
+                    }
+                case Oc2Item.RedRampButton:
+                    {
+                        if (!OC2Config.Config.DisableRedRampButton) return false;
+                        OC2Config.Config.DisableRedRampButton = false;
+                        break;
+                    }
+                case Oc2Item.PurpleRampButton:
+                    {
+                        if (!OC2Config.Config.DisablePurpleRampButton) return false;
+                        OC2Config.Config.DisablePurpleRampButton = false;
                         break;
                     }
             }

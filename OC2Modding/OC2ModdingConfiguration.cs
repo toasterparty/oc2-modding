@@ -66,6 +66,13 @@ namespace OC2Modding
         public float CarnivalDispenserRefactoryTime = 0.0f;
         public int StarOffset = 0;
         public bool DisableRampButton = false;
+        public bool DisableGreenRampButton = false;
+        public bool DisableYellowRampButton = false;
+        public bool DisableBlueRampButton = false;
+        public bool DisablePinkRampButton = false;
+        public bool DisableGreyRampButton = false;
+        public bool DisableRedRampButton = false;
+        public bool DisablePurpleRampButton = false;
         public bool DisableEarnHordeMoney = false;
         public bool AggressiveHorde = false;
         public bool ShortHordeLevels = false;
@@ -74,7 +81,7 @@ namespace OC2Modding
         // Squirt Gun Distance
         // Guitine Cooldown
         // Custom Knockback Force (Bellows, Squirt Gun, Dashing, Throwing)
-        // 6-6 Timer Advantage (progressive?) 
+        // 6-6 Timer Advantage (progressive?)
 
         // Randomizer requirements
         public bool ForbidDLC = false;
@@ -350,6 +357,13 @@ namespace OC2Modding
             try { if (config.HasKey("StarOffset"                     )) StarOffset                     = config["StarOffset"                     ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'StarOffset'"                     ); }
             try { if (config.HasKey("ImpossibleTutorial"             )) ImpossibleTutorial             = config["ImpossibleTutorial"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ImpossibleTutorial'"             ); }
             try { if (config.HasKey("DisableRampButton"              )) DisableRampButton              = config["DisableRampButton"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableRampButton'"              ); }
+            try { if (config.HasKey("DisableGreenRampButton"         )) DisableGreenRampButton         = config["DisableGreenRampButton"         ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableGreenRampButton'"         ); }
+            try { if (config.HasKey("DisableYellowRampButton"        )) DisableYellowRampButton        = config["DisableYellowRampButton"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableYellowRampButton'"        ); }
+            try { if (config.HasKey("DisableBlueRampButton"          )) DisableBlueRampButton          = config["DisableBlueRampButton"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableBlueRampButton'"          ); }
+            try { if (config.HasKey("DisablePinkRampButton"          )) DisablePinkRampButton          = config["DisablePinkRampButton"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisablePinkRampButton'"          ); }
+            try { if (config.HasKey("DisableGreyRampButton"          )) DisableGreyRampButton          = config["DisableGreyRampButton"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableGreyRampButton'"          ); }
+            try { if (config.HasKey("DisableRedRampButton"           )) DisableRedRampButton           = config["DisableRedRampButton"           ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableRedRampButton'"           ); }
+            try { if (config.HasKey("DisablePurpleRampButton"        )) DisablePurpleRampButton        = config["DisablePurpleRampButton"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisablePurpleRampButton'"        ); }
             try { if (config.HasKey("DisableEarnHordeMoney"          )) DisableEarnHordeMoney          = config["DisableEarnHordeMoney"          ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableEarnHordeMoney'"          ); }
             try { if (config.HasKey("AggressiveHorde"                )) AggressiveHorde                = config["AggressiveHorde"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'AggressiveHorde'"                ); }
             try { if (config.HasKey("ShortHordeLevels"               )) ShortHordeLevels               = config["ShortHordeLevels"               ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ShortHordeLevels'"               ); }
