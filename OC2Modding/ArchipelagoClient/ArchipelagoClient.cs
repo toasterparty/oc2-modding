@@ -99,6 +99,7 @@ namespace OC2Modding
             GreyRampButton = 42,
             RedRampButton = 43,
             PurpleRampButton = 44,
+            EmoteWheel = 45,
         };
 
         private static int LastVisitedLocationsCount = 0;
@@ -925,6 +926,12 @@ namespace OC2Modding
                     {
                         if (!OC2Config.Config.DisablePurpleRampButton) return false;
                         OC2Config.Config.DisablePurpleRampButton = false;
+                        break;
+                    }
+                case Oc2Item.EmoteWheel:
+                    {
+                        if (OC2Config.Config.LockedEmotes.Count == 0) return false;
+                        OC2Config.Config.LockedEmotes.Clear();
                         break;
                     }
             }

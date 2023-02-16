@@ -701,6 +701,11 @@ namespace OC2Modding
                             Config.LevelForceReveal.Add(id);
                         }
                     }
+                    else if (e.action == "UNLOCK_EMOTES")
+                    {
+                        int id = Int32.Parse(e.payload);
+                        Config.LockedEmotes.Clear();
+                    }
                     else if (e.action == "UNLOCK_EMOTE")
                     {
                         int id = Int32.Parse(e.payload);
