@@ -165,7 +165,7 @@ namespace OC2Modding
 
                             LevelConfigBase levelConfigBase = sceneVarient.LevelConfig;
 
-                            // Clear the objectives for levels moved as part of 
+                            // Clear the objectives for levels moved as part of level shuffle to stop the pole from glowing
                             levelConfigBase.m_objectives = new LevelObjectiveBase[] {};
 
                             // Edit horde level config
