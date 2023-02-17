@@ -88,6 +88,7 @@ namespace OC2Modding
         public bool ForceSingleSaveSlot = false;
         public bool DisableNGP = false;
         public bool LocalDeathLink = false;
+        public bool BurnTriggersDeath = false;
 
         // <UnlockerLevelId, LockedLevelId>
         public Dictionary<int, int> LevelUnlockRequirements;
@@ -376,6 +377,7 @@ namespace OC2Modding
             try { if (config.HasKey("ForceSingleSaveSlot"            )) ForceSingleSaveSlot            = config["ForceSingleSaveSlot"            ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ForceSingleSaveSlot'"            ); }
             try { if (config.HasKey("DisableNGP"                     )) DisableNGP                     = config["DisableNGP"                     ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableNGP'"                     ); }
             try { if (config.HasKey("LocalDeathLink"                 )) LocalDeathLink                 = config["LocalDeathLink"                 ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'LocalDeathLink'"                 ); }
+            try { if (config.HasKey("BurnTriggersDeath"              )) BurnTriggersDeath              = config["BurnTriggersDeath"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'BurnTriggersDeath'"              ); }
 
             try
             {

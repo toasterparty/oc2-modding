@@ -31,6 +31,24 @@ namespace OC2Modding
             }
         }
 
+        [HarmonyPatch(typeof(ServerCookingHandler), nameof(ServerCookingHandler.Cook))]
+        [HarmonyPrefix]
+        private static void CookPrefix(ref CookingStateMessage ___m_ServerData, ref CookingUIController.State __state)
+        {
+            __state = ___m_ServerData.m_cookingState;
+        }
+
+        [HarmonyPatch(typeof(ServerCookingHandler), nameof(ServerCookingHandler.Cook))]
+        [HarmonyPostfix]
+        private static void CookPostfix(ref CookingStateMessage ___m_ServerData, ref CookingUIController.State __state)
+        {
+            if (OC2Config.Config.BurnTriggersDeath && __state != CookingUIController.State.Ruined && ___m_ServerData.m_cookingState == CookingUIController.State.Ruined)
+            {
+                // This was a transition from non-ruined to ruined
+                KillAllChefs();
+            }
+        }
+
         public static void KillAllChefs()
         {
             OC2Modding.Log.LogInfo($"Killing all chefs...");
