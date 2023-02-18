@@ -114,6 +114,7 @@ namespace OC2Modding
             SetOptionHelper(ref ___m_options, 3, cache.lastQuality);
             SetOptionHelper(ref ___m_options, 4, cache.lastMusicVolume);
             SetOptionHelper(ref ___m_options, 5, cache.lastSfxVolume);
+            SetOptionHelper(ref ___m_options, 8, 1);
         }
 
         private static string CachePath
