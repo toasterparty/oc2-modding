@@ -7,6 +7,7 @@ using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Models;
 using Archipelago.MultiClient.Net.Packets;
 using Archipelago.MultiClient.Net.Helpers;
+using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -27,6 +28,16 @@ namespace OC2Modding
 
         public static bool IsConnected = false;
         public static bool IsConnecting = false;
+
+        private static DeathLinkService deathLinkService = null;
+
+        private static string PlayerAlias
+        {
+            get
+            {
+                return session.Players.GetPlayerAliasAndName(session.ConnectionInfo.Slot);
+            }
+        }
 
         private static string PlayerName
         {
@@ -113,7 +124,7 @@ namespace OC2Modding
         {
             if (IsConnected && (session == null || !session.Socket.Connected))
             {
-                IsConnected = false;
+                Disconnect();
                 GameLog.isHidden = false;
                 GameLog.LogMessage($"Error: Unexpectedly disconnected from {serverUrl}. Please reconnect");
             }
@@ -482,18 +493,57 @@ namespace OC2Modding
                     GameLog.LogMessage($"Failed to initialize pseudo cloud save: {e.Message}");
                 }
 
+                // Force an update after connection
                 PendingPseudoSaveUpdate = true;
                 PendingLocationUpdate = true;
 
+                // Save successful login info to disk for easy resume
                 OC2ModdingCache.cache.lastLoginHost = server;
                 OC2ModdingCache.cache.lastLoginPass = user;
                 OC2ModdingCache.cache.lastLoginUser = pass;
                 OC2ModdingCache.Flush();
+
+                // Enable deathLink
+                if (OC2Config.Config.LocalDeathLink || OC2Config.Config.BurnTriggersDeath)
+                {
+                    deathLinkService = session.CreateDeathLinkService();
+                    deathLinkService.EnableDeathLink();
+                    deathLinkService.OnDeathLinkReceived += DeathLinkReceived;
+                    OC2Modding.Log.LogInfo($"DeathLink: ENABLED");
+                }
             }
 
             IsConnecting = false;
 
             return cachedConnectionResult;
+        }
+
+        private static void DeathLinkReceived(DeathLink deathLink)
+        {
+            OC2Modding.Log.LogInfo($"Received Death Link from: {deathLink.Source} due to {deathLink.Cause}");
+            DeathLinkImplementation.KillAllChefs();
+        }
+
+        public static void SendDeathLink(string cause)
+        {
+            if (deathLinkService == null || !IsConnected || session == null)
+            {
+                return; // not connected or DeathLink disabled
+            }
+
+            try
+            {
+                string reason = $"{PlayerName} {cause}";
+                deathLinkService.SendDeathLink(
+                    new DeathLink(PlayerName, reason)
+                );
+                OC2Modding.Log.LogInfo($"Sent DeathLink '{reason}'");
+                GameLog.LogMessage(reason);
+            }
+            catch (Exception e)
+            {
+                OC2Modding.Log.LogError($"Failed to send DeathLink: {e}");
+            }
         }
 
         private static bool ThisClientHasOpenRequest = false;
@@ -577,6 +627,7 @@ namespace OC2Modding
             session = null;
 
             cachedConnectionResult = null;
+            deathLinkService = null;
         }
 
         private static List<long> VisitedLocations = new List<long>();

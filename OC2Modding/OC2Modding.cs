@@ -57,7 +57,7 @@ namespace OC2Modding
             CustomOrderTimeoutPenalty.Awake();
             IncreasedKnockback.Awake();
             ServerTickRate.Awake();
-            DeathLink.Awake();
+            DeathLinkImplementation.Awake();
 
             DisplayModsOnResultsScreen.Awake();
         }
@@ -74,6 +74,7 @@ namespace OC2Modding
             AutoCompleteLevel.Update();
             ArchipelagoClient.Update();
             ArchipelagoLoginGUI.Update();
+            DeathLinkImplementation.Update();
         }
 
         private void FixedUpdate()
