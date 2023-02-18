@@ -521,6 +521,7 @@ namespace OC2Modding
         private static void DeathLinkReceived(DeathLink deathLink)
         {
             OC2Modding.Log.LogInfo($"Received Death Link from: {deathLink.Source} due to {deathLink.Cause}");
+            GameLog.LogMessage(deathLink.Cause);
             DeathLinkImplementation.KillAllChefs();
         }
 
