@@ -20,6 +20,14 @@ namespace OC2Modding
             public long variantID;
             public AssetTypeValueField variantData;
         };
+
+        private struct MonoBehaviourTypeData
+        {
+            public int index;
+            public int fileID;
+            public long pathID;
+            public AssetTypeTemplateField template;
+        };
      
         public static void Awake()
         {
@@ -27,6 +35,12 @@ namespace OC2Modding
 
             Manager.LoadClassPackage("classdata.tpk");
             Manager.MonoTempGenerator = new MonoCecilTempGenerator("C:/Other/Games/Steam/steamapps/common/Overcooked! 2/Overcooked2_Data/Managed");
+
+            if (Manager.MonoTempGenerator == null)
+            {
+                OC2Modding.Log.LogError($"Failed to init Mono template generator at (Managed folder)");
+                return;
+            }
 
             var oc2AvatarBundlePath = "C:/Other/Games/Steam/steamapps/common/Overcooked! 2/Overcooked2_Data/StreamingAssets/Windows/bundle18";
             var oc2AvatarBundleBakPath = oc2AvatarBundlePath + ".bak";
@@ -36,60 +50,66 @@ namespace OC2Modding
                 File.Copy(oc2AvatarBundlePath, oc2AvatarBundleBakPath);
             }
 
-            try
-            {
-                ReadScriptInfo(oc2AvatarBundleBakPath);
-            }
-            catch (Exception e)
-            {
-                OC2Modding.Log.LogError($"Failed to read script type data for {oc2AvatarBundlePath}: {e}");
-                Manager.UnloadAll();
-                return;
-            }
-
+            ReadScriptInfo(oc2AvatarBundleBakPath);
             List<ChefMetadata> chefMetadata = LoadAyceAvatars("C:/Other/Games/Steam/steamapps/common/Overcooked! All You Can Eat/Overcooked All You Can Eat_Data/StreamingAssets/aa/Windows/StandaloneWindows64/persistent_assets_all.bundle");
             AddAvatarsToBundle(oc2AvatarBundleBakPath, oc2AvatarBundlePath, chefMetadata);
             Manager.UnloadAll();
         }
 
-        private static int ChefAvatarDataScriptIndex = 0;
-        private static AssetTypeTemplateField ChefAvatarDataTemplate = null;
+        private static MonoBehaviourTypeData ChefAvatarDataMB;
 
         private static void ReadScriptInfo(string bundlePath)
         {
-            var bundle = Manager.LoadBundleFile(bundlePath);
-            if (bundle == null)
+            try
             {
-                throw new Exception($"Failed to load bundle file: {bundlePath}");
-            }
-            
-            var assets = Manager.LoadAssetsFileFromBundle(bundle, 0, loadDeps: false);
-            if (assets == null || assets.file == null)
-            {
-                throw new Exception($"Failed to load assets file from {bundlePath}");
-            }
+                var bundle = Manager.LoadBundleFile(bundlePath);
+                if (bundle == null)
+                {
+                    throw new Exception($"Failed to load bundle file: {bundlePath}");
+                }
+                
+                var assets = Manager.LoadAssetsFileFromBundle(bundle, 0, loadDeps: false);
+                if (assets == null || assets.file == null)
+                {
+                    throw new Exception($"Failed to load assets file from {bundlePath}");
+                }
 
+                ChefAvatarDataMB = ReadMonoBehaviorTypeData(assets, "ChefAvatarData");
+            }
+            catch (Exception e)
+            {
+                OC2Modding.Log.LogError($"Failed to read script type data for {bundlePath}: {e}");
+                Manager.UnloadAll();
+                return;
+            }
+        }
+
+        private static MonoBehaviourTypeData ReadMonoBehaviorTypeData(AssetsFileInstance assets, string className)
+        {
             var scriptTypeInfos = AssetHelper.GetAssetsFileScriptInfos(Manager, assets);
             if (scriptTypeInfos == null)
             {
                 throw new Exception($"Failed to read scriptTypeInfos");
             }
 
-            ChefAvatarDataScriptIndex = scriptTypeInfos.FindIndex(s => s.className == "ChefAvatarData");
+            var scriptIndex = scriptTypeInfos.FindIndex(s => s.className == className);
             if (scriptTypeInfos == null)
             {
-                throw new Exception($"Failed to find class of type 'ChefAvatarData'");
+                throw new Exception($"Failed to find class of type '{className}'");
             }
 
-            var scriptTypeInfo = scriptTypeInfos[ChefAvatarDataScriptIndex];
+            var scriptTypeInfo = scriptTypeInfos[scriptIndex];
             if (scriptTypeInfos == null)
             {
-                throw new Exception($"Failed to get script info for class 'ChefAvatarData'");
+                throw new Exception($"Failed to get script info for class '{className}'");
             }
 
             var assemblyName = scriptTypeInfo.assemblyName;
             var nameSpace = scriptTypeInfo.nameSpace;
-            var className = scriptTypeInfo.className;
+
+            if (className != scriptTypeInfo.className) {
+                throw new Exception($"Expected class name '{scriptTypeInfo.className}' got '{className}'");
+            }
 
             var unityVersion = new UnityVersion(assets.file.Metadata.UnityVersion);
             var mbTempField = Manager.GetTemplateBaseField(assets, assets.file.Reader, -1, (int)AssetClassID.MonoBehaviour, 0xffff, false, true);
@@ -98,16 +118,18 @@ namespace OC2Modding
                 throw new Exception($"Failed to get template base field for assets file");
             }
 
-            if (Manager.MonoTempGenerator == null)
+            var template = Manager.MonoTempGenerator.GetTemplateField(mbTempField, assemblyName, nameSpace, className, unityVersion);
+            if (template == null)
             {
-                throw new Exception($"Failed to init Mono template generator at (Managed folder)");
+                throw new Exception($"Failed to make template for {className}");
             }
 
-            ChefAvatarDataTemplate = Manager.MonoTempGenerator.GetTemplateField(mbTempField, assemblyName, nameSpace, className, unityVersion);
-            if (ChefAvatarDataTemplate == null)
-            {
-                throw new Exception($"Failed to get template field for {assemblyName} / {nameSpace} / {className}");
-            }
+            return new MonoBehaviourTypeData { 
+                index = scriptIndex,
+                fileID = assets.file.Metadata.ScriptTypes[scriptIndex].FileId,
+                pathID = assets.file.Metadata.ScriptTypes[scriptIndex].PathId,
+                template = template,
+            }; 
         }
 
         private static List<ChefMetadata> LoadAyceAvatars(string bundlePath)
@@ -220,6 +242,7 @@ namespace OC2Modding
                 foreach (var chef in chefMetadata)
                 {
                     // Add chef entry to AvatarDirectoryData array
+                    // TODO: skip doing so if that chef already exists in OC2
                     var avatar = ValueBuilder.DefaultValueFieldFromArrayTemplate(avatars);
                     avatar["m_FileID"].AsInt = 0;
                     avatar["m_PathID"].AsLong = chef.variantID;
@@ -227,7 +250,7 @@ namespace OC2Modding
 
                     // Make a new asset of type "ChefAvatarData" and convert fields from AYCE
                     var chefBytes = ConvertVariant(chef.variantData).WriteToByteArray();
-                    var replacer = new AssetsReplacerFromMemory(chef.variantID, (int)AssetClassID.MonoBehaviour, (ushort)ChefAvatarDataScriptIndex, chefBytes);
+                    var replacer = new AssetsReplacerFromMemory(chef.variantID, (int)AssetClassID.MonoBehaviour, (ushort)ChefAvatarDataMB.index, chefBytes);
                     assetsReplacers.Add(replacer);
 
                     OC2Modding.Log.LogInfo($"Created {chef.variantData["m_Name"].AsString} ({chef.variantID})");
@@ -249,12 +272,15 @@ namespace OC2Modding
 
         private static AssetTypeValueField ConvertVariant(AssetTypeValueField ayceVariantData)
         {
-            var newBaseField = ValueBuilder.DefaultValueFieldFromTemplate(ChefAvatarDataTemplate);
+            var newBaseField = ValueBuilder.DefaultValueFieldFromTemplate(ChefAvatarDataMB.template);
 
             newBaseField["m_GameObject.m_FileID"].AsInt = 0;
             newBaseField["m_GameObject.m_PathID"].AsLong = 0;
 
             newBaseField["m_Enabled"].AsInt = 1;
+
+            newBaseField["m_Script.m_FileID"].AsInt = ChefAvatarDataMB.fileID;
+            newBaseField["m_Script.m_PathID"].AsLong = ChefAvatarDataMB.pathID; // -8987147349260460087
 
             newBaseField["m_Name"].AsString = ayceVariantData["m_Name"].AsString;
 
@@ -268,6 +294,16 @@ namespace OC2Modding
             newBaseField["UIModelPrefab.m_PathID"].AsLong = ayceVariantData["ModelPrefab_UI.m_PathID"].AsLong;
 
             newBaseField["HeadName"].AsString = ayceVariantData["Head"].AsString;
+
+            newBaseField["ColourisationMode"].AsInt = (int)ChefMeshReplacer.ChefColourisationMode.SwapColourValue;
+            newBaseField["ActuallyAllowed"].AsBool = true;
+
+            // ForDlc left at 0;0
+
+            newBaseField["m_PC"].AsBool = true;
+            newBaseField["m_XboxOne"].AsBool = true;
+            newBaseField["m_PS4"].AsBool = true;
+            newBaseField["m_Switch"].AsBool = true;
 
             return newBaseField;
         }
