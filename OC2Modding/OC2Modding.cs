@@ -36,6 +36,7 @@ namespace OC2Modding
             OnLevelCompleted.Awake();
             LevelProgression.Awake();
             CustomLevelOrder.Awake();
+            ImportAYCEAssets.Awake();
             
             // Visual Mods
             LeaderboardMod.Awake();
