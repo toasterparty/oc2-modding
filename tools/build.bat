@@ -4,10 +4,8 @@ set SRC_DIR="%~dp0\..\OC2Modding"
 set DIST_DIR="%~dp0\..\dist"
 set BUILD_DIR="%~dp0\..\OC2Modding\bin\Debug"
 set TOOLS_DIR="%~dp0\..\tools"
-set RELEASE_DIR="%~dp0\..\release"
 
 if not exist %DIST_DIR% mkdir %DIST_DIR%
-if not exist %RELEASE_DIR% mkdir %RELEASE_DIR%
 
 cd %SRC_DIR% || exit 1
 

@@ -60,4 +60,9 @@
         <HintPath>..\lib\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="AssetsTools.NET">
+        <HintPath>..\dist\AssetTools.NET\AssetsTools.NET.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

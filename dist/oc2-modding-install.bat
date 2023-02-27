@@ -60,6 +60,8 @@ if     exist "%~dp1\UnityCrashHandler64.exe" xcopy %DIST_DIR%\%EPIC_BEPINEX_VER%
 if not exist "%~dp1\UnityCrashHandler64.exe" xcopy %DIST_DIR%\%STEAM_BEPINEX_VER% %GAME_DIR% /y /q /s /e
 
 xcopy %DIST_DIR%\*.dll %PLUGINS_DIR% /y /q
+xcopy %DIST_DIR%\AssetTools.NET %PLUGINS_DIR% /y /q
+xcopy %DIST_DIR%\*.tpk %GAME_DIR% /y /q
 xcopy %DIST_DIR%\oc2-modding-uninstall.bat %GAME_DIR% /y /q
 xcopy %DIST_DIR%\curl %GAME_DIR% /y /q /s /e
 
