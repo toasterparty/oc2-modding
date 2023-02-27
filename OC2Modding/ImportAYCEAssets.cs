@@ -14,11 +14,14 @@ namespace OC2Modding
         private const long AVATAR_DIRECTORY_ID = -1326050724655347751;
 
         private static AssetsManager Manager = new AssetsManager();
-     
-        private struct ChefMetadata
+
+        private struct AssetData
         {
-            public long variantID;
-            public AssetTypeValueField variantData;
+            public long id;
+            public AssetClassID type;
+            public int scriptType;
+            public AssetTypeValueField data;
+            public List<AssetData> dependencies;
         };
 
         private struct MonoBehaviourTypeData
@@ -51,7 +54,7 @@ namespace OC2Modding
             }
 
             ReadScriptInfo(oc2AvatarBundleBakPath);
-            List<ChefMetadata> chefMetadata = LoadAyceAvatars("C:/Other/Games/Steam/steamapps/common/Overcooked! All You Can Eat/Overcooked All You Can Eat_Data/StreamingAssets/aa/Windows/StandaloneWindows64/persistent_assets_all.bundle");
+            List<AssetData> chefMetadata = LoadAyceAvatars("C:/Other/Games/Steam/steamapps/common/Overcooked! All You Can Eat/Overcooked All You Can Eat_Data/StreamingAssets/aa/Windows/StandaloneWindows64/persistent_assets_all.bundle");
             AddAvatarsToBundle(oc2AvatarBundleBakPath, oc2AvatarBundlePath, chefMetadata);
             Manager.UnloadAll();
         }
@@ -132,9 +135,9 @@ namespace OC2Modding
             }; 
         }
 
-        private static List<ChefMetadata> LoadAyceAvatars(string bundlePath)
+        private static List<AssetData> LoadAyceAvatars(string bundlePath)
         {
-            var chefMetadata = new List<ChefMetadata>();
+            var chefMetadata = new List<AssetData>();
             try
             {
                 var bundle = Manager.LoadBundleFile(bundlePath);
@@ -143,7 +146,7 @@ namespace OC2Modding
                     throw new Exception($"Failed to load bundle file: {bundlePath}");
                 }
 
-                var assets = Manager.LoadAssetsFileFromBundle(bundle, 0, loadDeps: false);
+                var assets = Manager.LoadAssetsFileFromBundle(bundle, 0, loadDeps: true);
                 if (assets == null || assets.file == null)
                 {
                     throw new Exception($"Failed to load assets file from {bundlePath}");
@@ -169,19 +172,14 @@ namespace OC2Modding
                     {
                         try
                         {
-                            var pathID = variant["m_PathID"].AsLong;
-                            var variantInfo = assets.file.GetAssetInfo(pathID);
-                            var variantData = Manager.GetBaseField(assets, variantInfo);
+                            var assetData = AssetDataFromID(assets, variant["m_PathID"].AsLong);
+                            chefMetadata.Add(assetData);
 
-                            // OC2Modding.Log.LogInfo($"  {pathID}");
-                            // OC2Modding.Log.LogInfo($"{variantData["m_Name"].AsString}");
-
-                            chefMetadata.Add(
-                                new ChefMetadata {
-                                    variantID = pathID,
-                                    variantData = variantData,
-                                }
-                            );
+                            // OC2Modding.Log.LogInfo($"Deps of {assetData.id}:");
+                            // foreach (var dep in assetData.dependencies)
+                            // {
+                            //     OC2Modding.Log.LogInfo($"    {dep.id}");
+                            // }
                         }
                         catch (Exception e)
                         {
@@ -198,7 +196,104 @@ namespace OC2Modding
             return chefMetadata;
         }
 
-        private static void AddAvatarsToBundle(string inBundlePath, string outBundlePath, List<ChefMetadata> chefMetadata)
+        private static AssetData AssetDataFromID(AssetsFileInstance assets, long id)
+        {
+            var assetInfo = assets.file.GetAssetInfo(id);
+            var assetData = Manager.GetBaseField(assets, assetInfo);
+
+            var depIDs = new List<long>();
+            CollectAssetDependencies(ref assets, assetData, ref depIDs);
+
+            var dependencies = new List<AssetData>();
+            foreach (var depID in depIDs)
+            {
+                var depInfo = assets.file.GetAssetInfo(depID);
+                var depData = Manager.GetBaseField(assets, depInfo);
+
+                int depScriptType = 0;
+                if (depInfo.TypeId == (int)AssetClassID.MonoBehaviour)
+                {
+                    depScriptType = depInfo.TypeIdOrIndex;
+                }
+
+                dependencies.Add(
+                    new AssetData {
+                        id = depID,
+                        type = (AssetClassID)depInfo.TypeId,
+                        scriptType = depScriptType,
+                        data = depData,
+                        dependencies = null,
+                    }
+                );
+            }
+
+            int scriptType = 0;
+            if (assetInfo.TypeId == (int)AssetClassID.MonoBehaviour)
+            {
+                scriptType = assetInfo.TypeIdOrIndex;
+            }
+
+            return new AssetData {
+                id = id,
+                type = (AssetClassID)assetInfo.TypeId,
+                scriptType = scriptType,
+                data = assetData,
+                dependencies = dependencies,
+            };
+        }
+
+        /* recursive tree search for asset ids referenced by this one */
+        private static void CollectAssetDependencies(ref AssetsFileInstance assets, AssetTypeValueField data, ref List<long> deps)
+        {
+            if (data.FieldName == "m_PathID")
+            {
+                var depID = data.AsLong;
+
+                if (depID == 0)
+                {
+                    return; // "null" reference
+                }
+
+                if (deps.Contains(depID))
+                {
+                    return; // avoid infinite recursion
+                }
+
+                var depInfo = assets.file.GetAssetInfo(depID);
+                if (depInfo == null)
+                {
+                    // OC2Modding.Log.LogWarning($"{depID} doesn't exist in this file");
+                    return;
+                }
+
+                var depData = Manager.GetBaseField(assets, depInfo);
+                if (depData == null)
+                {
+                    OC2Modding.Log.LogError($"Couldn't get BaseField of {depID}");
+                    return;
+                }
+
+                deps.Add(depID);
+
+                // collect all dependencies from depenent asset
+                CollectAssetDependencies(ref assets, data, ref deps);
+
+                return;
+            }
+
+            if (data.Children == null)
+            {
+                return;
+            }
+
+            foreach (var child in data.Children)
+            {
+                // continue searching this asset
+                CollectAssetDependencies(ref assets, child, ref deps);
+            }
+        }
+
+        private static void AddAvatarsToBundle(string inBundlePath, string outBundlePath, List<AssetData> chefMetadata)
         {
             try
             {
@@ -245,15 +340,21 @@ namespace OC2Modding
                     // TODO: skip doing so if that chef already exists in OC2
                     var avatar = ValueBuilder.DefaultValueFieldFromArrayTemplate(avatars);
                     avatar["m_FileID"].AsInt = 0;
-                    avatar["m_PathID"].AsLong = chef.variantID;
+                    avatar["m_PathID"].AsLong = chef.id;
                     avatars.Children.Add(avatar);
 
                     // Make a new asset of type "ChefAvatarData" and convert fields from AYCE
-                    var chefBytes = ConvertVariant(chef.variantData).WriteToByteArray();
-                    var replacer = new AssetsReplacerFromMemory(chef.variantID, (int)AssetClassID.MonoBehaviour, (ushort)ChefAvatarDataMB.index, chefBytes);
+                    var chefBytes = ConvertVariant(chef.data).WriteToByteArray();
+                    var replacer = new AssetsReplacerFromMemory(chef.id, (int)AssetClassID.MonoBehaviour, (ushort)ChefAvatarDataMB.index, chefBytes);
                     assetsReplacers.Add(replacer);
 
-                    OC2Modding.Log.LogInfo($"Created {chef.variantData["m_Name"].AsString} ({chef.variantID})");
+                    // Convert dependencies
+                    foreach(var dep in chef.dependencies)
+                    {
+                        
+                    }
+
+                    // OC2Modding.Log.LogInfo($"Created {chef.data["m_Name"].AsString} ({chef.id})");
                 }
 
                 assetsReplacers.Add(new AssetsReplacerFromMemory(assets.file, mainAvatarDirectoryInfo, mainAvatarDirectory));
