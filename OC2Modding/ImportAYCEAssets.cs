@@ -104,7 +104,7 @@ namespace OC2Modding
                 throw new Exception($"Failed to read scriptTypeInfos");
             }
 
-            var scriptIndex = scriptTypeInfos.FindIndex(s => s.className == className);
+            var scriptIndex = scriptTypeInfos.FindIndex(s => s.ClassName == className);
             if (scriptIndex == -1)
             {
                 throw new Exception($"Failed to find class of type '{className}'");
@@ -116,21 +116,20 @@ namespace OC2Modding
                 throw new Exception($"Failed to get script info for class '{className}'");
             }
 
-            var assemblyName = scriptTypeInfo.assemblyName;
-            var nameSpace = scriptTypeInfo.nameSpace;
-
-            if (className != scriptTypeInfo.className) {
-                throw new Exception($"Expected class name '{scriptTypeInfo.className}' got '{className}'");
-            }
-
             var unityVersion = new UnityVersion(assets.file.Metadata.UnityVersion);
-            var mbTempField = Manager.GetTemplateBaseField(assets, assets.file.Reader, -1, (int)AssetClassID.MonoBehaviour, 0xffff, false, true);
+            var mbTempField = Manager.GetTemplateBaseField(assets, assets.file.Reader, -1, (int)AssetClassID.MonoBehaviour, 0xffff, assets.file.Metadata.TypeTreeEnabled, preferEditor: false, skipMonoBehaviourFields: true);
             if (mbTempField == null)
             {
                 throw new Exception($"Failed to get template base field for assets file");
             }
 
-            var template = Manager.MonoTempGenerator.GetTemplateField(mbTempField, assemblyName, nameSpace, className, unityVersion);
+            var template = Manager.MonoTempGenerator.GetTemplateField(
+                    mbTempField,
+                    scriptTypeInfo.AsmName,
+                    scriptTypeInfo.Namespace,
+                    className,
+                    unityVersion
+                );
             if (template == null)
             {
                 throw new Exception($"Failed to make template for {className}");
