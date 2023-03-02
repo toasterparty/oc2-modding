@@ -79,7 +79,7 @@ namespace OC2Modding
                     throw new Exception($"Failed to load bundle file: {bundlePath}");
                 }
                 
-                var assets = Manager.LoadAssetsFileFromBundle(bundle, 0, loadDeps: false);
+                var assets = Manager.LoadAssetsFileFromBundle(bundle, 0, loadDeps: true);
                 if (assets == null || assets.file == null)
                 {
                     throw new Exception($"Failed to load assets file from {bundlePath}");
@@ -319,7 +319,7 @@ namespace OC2Modding
                     throw new Exception($"Failed to load bundle file");
                 }
 
-                var assets = Manager.LoadAssetsFileFromBundle(bundle, 0, loadDeps: false);
+                var assets = Manager.LoadAssetsFileFromBundle(bundle, 0, loadDeps: true);
                 if (assets == null || assets.file == null)
                 {
                     throw new Exception($"Failed to load assets file");
@@ -346,9 +346,30 @@ namespace OC2Modding
                     throw new Exception($"Failed to find avatars list in MainAvatarDirectory");
                 }
 
-                // avatars.Children.Clear();
+                if (avatars.Children.Count > 40)
+                {
+                    throw new Exception($"{inBundlePath} appears to already be patched (tried to add {chefMetadata.Count} Chefs when there were already {avatars.Children.Count})");
+                }
 
-                // TODO: Abort if the directory already has AYCE avatars in it (size > 100)
+                List<string> existingNames = new List<string>(); 
+                foreach (var avatar in avatars.Children)
+                {
+                    var id = avatar["m_PathID"].AsLong;
+                    if (id == 0)
+                    {
+                        continue;
+                    }
+
+                    var info = assets.file.GetAssetInfo(id);
+                    if (info == null)
+                    {
+                        OC2Modding.Log.LogWarning($"Failed to lookup existing avatar: id={id}");
+                        continue;
+                    }
+
+                    var data = Manager.GetBaseField(assets, info);
+                    existingNames.Add(data["m_Name"].AsString);
+                }
 
                 var convertedIDs = new List<long>();
 
@@ -360,8 +381,12 @@ namespace OC2Modding
                     {
                         chefName = chef.data["m_Name"].AsString;
 
+                        if (existingNames.Contains(chefName))
+                        {
+                            continue; // This chef comes from OC2, so no need to backport...
+                        }
+
                         // Add chef entry to AvatarDirectoryData array
-                        // TODO: skip doing so if that chef already exists in OC2
                         var avatar = ValueBuilder.DefaultValueFieldFromArrayTemplate(avatars);
                         avatar["m_FileID"].AsInt = 0;
                         avatar["m_PathID"].AsLong = chef.id;
