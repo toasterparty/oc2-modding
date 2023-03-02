@@ -19,13 +19,14 @@ namespace OC2Modding
         {
             public long id;
             public AssetClassID type;
-            public int scriptType;
+            public string className;
             public AssetTypeValueField data;
             public List<AssetData> dependencies;
         };
 
         private struct MonoBehaviourTypeData
         {
+            public string name;
             public int index;
             public int fileID;
             public long pathID;
@@ -59,7 +60,14 @@ namespace OC2Modding
             Manager.UnloadAll();
         }
 
-        private static MonoBehaviourTypeData ChefAvatarDataMB;
+        private static Dictionary<string, MonoBehaviourTypeData> MonoBehaviorTypes = new Dictionary<string, MonoBehaviourTypeData>();
+
+        private static readonly string [] MONO_BEHAVIOR_TO_CONVERT = new string [] {
+            "ChefAvatarData",
+            "GameInputConfigData",
+            "AudioDirectoryData",
+            "DLCFrontendData",
+        };
 
         private static void ReadScriptInfo(string bundlePath)
         {
@@ -77,17 +85,18 @@ namespace OC2Modding
                     throw new Exception($"Failed to load assets file from {bundlePath}");
                 }
 
-                ChefAvatarDataMB = ReadMonoBehaviorTypeData(assets, "ChefAvatarData");
+                foreach (var mb in MONO_BEHAVIOR_TO_CONVERT)
+                {
+                    ReadMonoBehaviorTypeData(assets, mb);
+                }
             }
             catch (Exception e)
             {
-                OC2Modding.Log.LogError($"Failed to read script type data for {bundlePath}: {e}");
-                Manager.UnloadAll();
-                return;
+                OC2Modding.Log.LogError($"Failed to read script type data for {bundlePath}:\n {e}");
             }
         }
 
-        private static MonoBehaviourTypeData ReadMonoBehaviorTypeData(AssetsFileInstance assets, string className)
+        private static void ReadMonoBehaviorTypeData(AssetsFileInstance assets, string className)
         {
             var scriptTypeInfos = AssetHelper.GetAssetsFileScriptInfos(Manager, assets);
             if (scriptTypeInfos == null)
@@ -96,7 +105,7 @@ namespace OC2Modding
             }
 
             var scriptIndex = scriptTypeInfos.FindIndex(s => s.className == className);
-            if (scriptTypeInfos == null)
+            if (scriptIndex == -1)
             {
                 throw new Exception($"Failed to find class of type '{className}'");
             }
@@ -127,12 +136,17 @@ namespace OC2Modding
                 throw new Exception($"Failed to make template for {className}");
             }
 
-            return new MonoBehaviourTypeData { 
+            var typeData = new MonoBehaviourTypeData {
+                name = className,
                 index = scriptIndex,
                 fileID = assets.file.Metadata.ScriptTypes[scriptIndex].FileId,
                 pathID = assets.file.Metadata.ScriptTypes[scriptIndex].PathId,
                 template = template,
-            }; 
+            };
+
+            MonoBehaviorTypes[className] = typeData;
+
+            // OC2Modding.Log.LogInfo($"{className} is index={typeData.index}"); 
         }
 
         private static List<AssetData> LoadAyceAvatars(string bundlePath)
@@ -160,7 +174,7 @@ namespace OC2Modding
                 }
 
                 var baseAvatars = mainAvatarDirectory["m_baseAvatars"][0];
-                OC2Modding.Log.LogInfo($"{baseAvatars.AsArray.size} baseAvatars to parse");
+                // OC2Modding.Log.LogInfo($"{baseAvatars.AsArray.size} baseAvatars to parse");
 
                 foreach (var baseAvatar in baseAvatars)
                 {
@@ -183,14 +197,14 @@ namespace OC2Modding
                         }
                         catch (Exception e)
                         {
-                            OC2Modding.Log.LogError($"Failed to load ayce chef variant: {e}");
+                            OC2Modding.Log.LogError($"Failed to load ayce chef variant:\n {e}");
                         }
                     }
                 }
             }
             catch (Exception e)
             {
-                OC2Modding.Log.LogError($"Failed to load AYCE chefs from bundle {e}");
+                OC2Modding.Log.LogError($"Failed to load AYCE chefs from bundle\n {e}");
             }
 
             return chefMetadata;
@@ -207,39 +221,42 @@ namespace OC2Modding
             var dependencies = new List<AssetData>();
             foreach (var depID in depIDs)
             {
-                var depInfo = assets.file.GetAssetInfo(depID);
-                var depData = Manager.GetBaseField(assets, depInfo);
-
-                int depScriptType = 0;
-                if (depInfo.TypeId == (int)AssetClassID.MonoBehaviour)
-                {
-                    depScriptType = depInfo.TypeIdOrIndex;
-                }
-
                 dependencies.Add(
-                    new AssetData {
-                        id = depID,
-                        type = (AssetClassID)depInfo.TypeId,
-                        scriptType = depScriptType,
-                        data = depData,
-                        dependencies = null,
-                    }
-                );
+                    AssetDataFromID(assets, depID, null)
+                );               
             }
 
-            int scriptType = 0;
-            if (assetInfo.TypeId == (int)AssetClassID.MonoBehaviour)
-            {
-                scriptType = assetInfo.TypeIdOrIndex;
-            }
+            return AssetDataFromID(assets, id, dependencies);
+        }
+
+        private static AssetData AssetDataFromID(AssetsFileInstance assets, long id, List<AssetData> dependencies)
+        {
+            var info = assets.file.GetAssetInfo(id);
+            var type = (AssetClassID)info.TypeId;
+            var data = Manager.GetBaseField(assets, info);
+            var className = ScriptNameOfAsset(assets, info);
 
             return new AssetData {
                 id = id,
-                type = (AssetClassID)assetInfo.TypeId,
-                scriptType = scriptType,
-                data = assetData,
+                type = type,
+                className = className,
+                data = data,
                 dependencies = dependencies,
             };
+        }
+
+        private static string ScriptNameOfAsset(AssetsFileInstance assets, AssetFileInfo info)
+        {
+            if (info.TypeId != (int)AssetClassID.MonoBehaviour)
+            {
+                return "";
+            }
+
+            var data = Manager.GetBaseField(assets, info);
+            var id = data["m_Script.m_PathID"].AsLong;
+            var scriptInfo = assets.file.GetAssetInfo(id);
+            var scriptData = Manager.GetBaseField(assets, scriptInfo);
+            return scriptData["m_ClassName"].AsString;
         }
 
         /* recursive tree search for asset ids referenced by this one */
@@ -334,28 +351,59 @@ namespace OC2Modding
 
                 // TODO: Abort if the directory already has AYCE avatars in it (size > 100)
 
+                var convertedIDs = new List<long>();
+
                 foreach (var chef in chefMetadata)
                 {
-                    // Add chef entry to AvatarDirectoryData array
-                    // TODO: skip doing so if that chef already exists in OC2
-                    var avatar = ValueBuilder.DefaultValueFieldFromArrayTemplate(avatars);
-                    avatar["m_FileID"].AsInt = 0;
-                    avatar["m_PathID"].AsLong = chef.id;
-                    avatars.Children.Add(avatar);
+                    var chefName = "<unkown-name>";
 
-                    // Make a new asset of type "ChefAvatarData" and convert fields from AYCE
-                    var chefBytes = ConvertVariant(chef.data).WriteToByteArray();
-                    var replacer = new AssetsReplacerFromMemory(chef.id, (int)AssetClassID.MonoBehaviour, (ushort)ChefAvatarDataMB.index, chefBytes);
-                    assetsReplacers.Add(replacer);
-
-                    // Convert dependencies
-                    foreach(var dep in chef.dependencies)
+                    try
                     {
-                        
-                    }
+                        chefName = chef.data["m_Name"].AsString;
 
-                    // OC2Modding.Log.LogInfo($"Created {chef.data["m_Name"].AsString} ({chef.id})");
+                        // Add chef entry to AvatarDirectoryData array
+                        // TODO: skip doing so if that chef already exists in OC2
+                        var avatar = ValueBuilder.DefaultValueFieldFromArrayTemplate(avatars);
+                        avatar["m_FileID"].AsInt = 0;
+                        avatar["m_PathID"].AsLong = chef.id;
+                        avatars.Children.Add(avatar);
+
+                        // Make a new asset of type "ChefAvatarData" and convert fields from AYCE
+                        {
+                            var asset = ConvertAsset(assets, chef);
+                            if (asset == null)
+                            {
+                                throw new Exception("ChefAvatarData convert returned null");
+                            }
+                            assetsReplacers.Add(asset);
+                        }
+
+                        // Convert dependencies
+                        foreach (var dep in chef.dependencies)
+                        {
+                            if (convertedIDs.Contains(dep.id))
+                            {
+                                continue;
+                            }
+                            convertedIDs.Add(dep.id);
+
+                            var asset = ConvertAsset(assets, dep);
+                            if (asset == null)
+                            {
+                                continue;
+                            }
+
+                            assetsReplacers.Add(asset);
+                        }
+                        // OC2Modding.Log.LogInfo($"Successfully converted '{chefName}' and it's dependencies");
+                    }
+                    catch (Exception e)
+                    {
+                        OC2Modding.Log.LogError($"Failed to convert '{chefName}': {e}");
+                    }
                 }
+
+                OC2Modding.Log.LogInfo("Finished converting assets");
 
                 assetsReplacers.Add(new AssetsReplacerFromMemory(assets.file, mainAvatarDirectoryInfo, mainAvatarDirectory));
                 bundleReplacers.Add(new BundleReplacerFromAssets(assets.name, null, assets.file, assetsReplacers));
@@ -367,46 +415,142 @@ namespace OC2Modding
             }
             catch (Exception e)
             {
-                OC2Modding.Log.LogError($"Failed make new bundle '{outBundlePath}' from base '{inBundlePath}': {e}");
+                OC2Modding.Log.LogError($"Failed make new bundle '{outBundlePath}' from base '{inBundlePath}':\n {e}");
             }
         }
 
-        private static AssetTypeValueField ConvertVariant(AssetTypeValueField ayceVariantData)
+        private static AssetsReplacerFromMemory ConvertAsset(AssetsFileInstance assets, AssetData data)
         {
-            var newBaseField = ValueBuilder.DefaultValueFieldFromTemplate(ChefAvatarDataMB.template);
+            // OC2Modding.Log.LogInfo($"Converting {data.id} type={data.type}");
 
-            newBaseField["m_GameObject.m_FileID"].AsInt = 0;
-            newBaseField["m_GameObject.m_PathID"].AsLong = 0;
+            AssetTypeValueField converted;
 
-            newBaseField["m_Enabled"].AsInt = 1;
+            switch (data.type)
+            {
+                case AssetClassID.MonoBehaviour:
+                {
+                    converted = ConvertMB(assets, data);
+                    if (converted == null)
+                    {
+                        return null;
+                    }
 
-            newBaseField["m_Script.m_FileID"].AsInt = ChefAvatarDataMB.fileID;
-            newBaseField["m_Script.m_PathID"].AsLong = ChefAvatarDataMB.pathID; // -8987147349260460087
+                    break;
+                }
+                case AssetClassID.MonoScript:
+                {
+                    converted = DefaultAssetConverter(assets, data);
+                    break;
+                }
+                case AssetClassID.GameObject:
+                {
+                    converted = DefaultAssetConverter(assets, data);
+                    return null; 
+                    // break; // TODO: this crashes
+                }
+                case AssetClassID.Sprite:
+                {
+                    converted = DefaultAssetConverter(assets, data);
+                    break;
+                }
+                case AssetClassID.AnimationClip:
+                {
+                    converted = DefaultAssetConverter(assets, data);
+                    break;
+                }
+                default:
+                {
+                    throw new Exception($"Error: Cannot convert {data.type} because no converter is implemented");
+                }
+            }
 
-            newBaseField["m_Name"].AsString = ayceVariantData["m_Name"].AsString;
+            var scriptIndex = (ushort)(data.className == "" ? 0xffff : MonoBehaviorTypes[data.className].index);
 
-            newBaseField["ModelPrefab.m_FileID"].AsInt = ayceVariantData["ModelPrefab.m_FileID"].AsInt;
-            newBaseField["ModelPrefab.m_PathID"].AsLong = ayceVariantData["ModelPrefab.m_PathID"].AsLong;
+            return new AssetsReplacerFromMemory(data.id, (int)data.type, scriptIndex, converted.WriteToByteArray());
+        }
 
-            newBaseField["FrontendModelPrefab.m_FileID"].AsInt = ayceVariantData["ModelPrefab_Frontend.m_FileID"].AsInt;
-            newBaseField["FrontendModelPrefab.m_PathID"].AsLong = ayceVariantData["ModelPrefab_Frontend.m_PathID"].AsLong;
+        private static AssetTypeValueField DefaultAssetConverter(AssetsFileInstance assets, AssetData data)
+        {
+            var newBaseField = Manager.CreateValueBaseField(assets, (int)data.type);
 
-            newBaseField["UIModelPrefab.m_FileID"].AsInt = ayceVariantData["ModelPrefab_UI.m_FileID"].AsInt;
-            newBaseField["UIModelPrefab.m_PathID"].AsLong = ayceVariantData["ModelPrefab_UI.m_PathID"].AsLong;
+            newBaseField.Children = data.data.Children;
 
-            newBaseField["HeadName"].AsString = ayceVariantData["Head"].AsString;
+            return newBaseField;
+        }
 
-            newBaseField["ColourisationMode"].AsInt = (int)ChefMeshReplacer.ChefColourisationMode.SwapColourValue;
-            newBaseField["ActuallyAllowed"].AsBool = true;
+        private static AssetTypeValueField ConvertMB(AssetsFileInstance assets, AssetData data)
+        {
+            if (!MonoBehaviorTypes.ContainsKey(data.className))
+            {
+                var helper = AssetHelper.GetAssetsFileScriptInfos(Manager, assets);
+                throw new Exception($"Error: Cannot convert MonoBehavior '{data.className}' because no converter is implemented");
+            }
+
+            var typeData = MonoBehaviorTypes[data.className];
+
+            // OC2Modding.Log.LogInfo($"Converting {data.type} id={data.id}, scriptType={typeData.index}, name={typeData.name}");
+
+            var newBaseField = ValueBuilder.DefaultValueFieldFromTemplate(typeData.template);
+
+            newBaseField["m_Script.m_FileID"].AsInt = typeData.fileID;
+            newBaseField["m_Script.m_PathID"].AsLong = typeData.pathID;
+
+            switch (typeData.name)
+            {
+                case "ChefAvatarData":
+                {
+                    return ConvertMBChefAvatarData(data.data, newBaseField);
+                }
+                case "GameInputConfigData":
+                {
+                    return null;
+                }
+                case "AudioDirectoryData":
+                {
+                    return null;
+                }
+                case "DLCFrontendData":
+                {
+                    return null;
+                }
+                default:
+                {
+                    throw new Exception($"Error: Cannot convert MonoBehavior '{typeData.name}' (idx={typeData.index}) because no converter is implemented");
+                }
+            }
+        }
+
+        private static AssetTypeValueField ConvertMBChefAvatarData(AssetTypeValueField fromData, AssetTypeValueField toData)
+        {
+            toData["m_GameObject.m_FileID"].AsInt = 0;
+            toData["m_GameObject.m_PathID"].AsLong = 0;
+
+            toData["m_Enabled"].AsInt = 1;
+
+            toData["m_Name"].AsString = fromData["m_Name"].AsString;
+
+            toData["ModelPrefab.m_FileID"].AsInt = fromData["ModelPrefab.m_FileID"].AsInt;
+            toData["ModelPrefab.m_PathID"].AsLong = fromData["ModelPrefab.m_PathID"].AsLong;
+
+            toData["FrontendModelPrefab.m_FileID"].AsInt = fromData["ModelPrefab_Frontend.m_FileID"].AsInt;
+            toData["FrontendModelPrefab.m_PathID"].AsLong = fromData["ModelPrefab_Frontend.m_PathID"].AsLong;
+
+            toData["UIModelPrefab.m_FileID"].AsInt = fromData["ModelPrefab_UI.m_FileID"].AsInt;
+            toData["UIModelPrefab.m_PathID"].AsLong = fromData["ModelPrefab_UI.m_PathID"].AsLong;
+
+            toData["HeadName"].AsString = fromData["Head"].AsString;
+
+            toData["ColourisationMode"].AsInt = (int)ChefMeshReplacer.ChefColourisationMode.SwapColourValue;
+            toData["ActuallyAllowed"].AsBool = true;
 
             // ForDlc left at 0;0
 
-            newBaseField["m_PC"].AsBool = true;
-            newBaseField["m_XboxOne"].AsBool = true;
-            newBaseField["m_PS4"].AsBool = true;
-            newBaseField["m_Switch"].AsBool = true;
+            toData["m_PC"].AsBool = true;
+            toData["m_XboxOne"].AsBool = true;
+            toData["m_PS4"].AsBool = true;
+            toData["m_Switch"].AsBool = true;
 
-            return newBaseField;
+            return toData;
         }
 
         // [HarmonyPatch(typeof(MetaGameProgress), "Awake")]
