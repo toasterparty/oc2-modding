@@ -473,9 +473,40 @@ namespace OC2Modding
         {
             var newBaseField = Manager.CreateValueBaseField(assets, (int)data.type);
 
-            newBaseField.Children = data.data.Children;
+            var keys = new List<string>();
+            FlattenAssetKeys(data.data, "", ref keys);
+            foreach (var key in keys)
+            {
+                newBaseField[key].Value = data.data[key].Value;
+            }
 
             return newBaseField;
+        }
+
+        private static void FlattenAssetKeys(AssetTypeValueField data, string currentKey, ref List<string> keys)
+        {
+            if (data.FieldName != "Base")
+            {
+                if (currentKey == "")
+                {
+                    currentKey += data.FieldName;
+                }
+                else
+                {
+                    currentKey += "." + data.FieldName;
+                }
+            }
+
+            if (data.Children.Count == 0)
+            {
+                keys.Add(currentKey);
+                return;
+            }
+
+            foreach (var key in data.Children)
+            {
+                FlattenAssetKeys(key, currentKey, ref keys);
+            }
         }
 
         private static AssetTypeValueField ConvertMB(AssetsFileInstance assets, AssetData data)
