@@ -13,8 +13,9 @@ namespace OC2Modding
         private static BundleHelper AyceBundleHelper;
         private static BundleHelper Oc2BundleHelper;
 
-        private const long AVATAR_DIRECTORY_ID = -1326050724655347751;
+        private const long MAIN_AVATAR_DIRECTORY_ID = -1326050724655347751;
 
+        private static string AYCE_BUNDLE_PATH = "StreamingAssets/aa/Windows/StandaloneWindows64/";
         private static string[] AYCE_BUNDLE_NAMES = new string[] {
             "persistent_assets_all.bundle", // Main Bundle
             "chefs_assets_all.bundle",
@@ -25,8 +26,8 @@ namespace OC2Modding
             "duplicateassetisolation_assets_all11.bundle", // TODO: this is just a single sprite logo for cat ginger
         };
 
-        private static string AYCE_BUNDLE_PATH = "StreamingAssets/aa/Windows/StandaloneWindows64/";
-     
+        private static string OC2_BUNDLE_PATH = "Overcooked2_Data/StreamingAssets/Windows/";
+
         public static void Awake()
         {
             /* Inject Harmony Mods */
@@ -49,8 +50,7 @@ namespace OC2Modding
             var ayceBasePath = "C:/Other/Games/Steam/steamapps/common/Overcooked! All You Can Eat/Overcooked All You Can Eat_Data/";
             var ayceBaseBundlePath = Path.Combine(ayceBasePath, AYCE_BUNDLE_PATH);
 
-            AyceBundleHelper = new BundleHelper("C:/Other/Games/Steam/steamapps/common/Overcooked! All You Can Eat/BepInEx/interop", classDataTpkPath: "classdata.tpk");
-            // AyceBundleHelper = new BundleHelper(classDataTpkPath: "classdata.tpk");
+            AyceBundleHelper = new BundleHelper(classDataTpkPath: "classdata.tpk");
             foreach (var bundleName in AYCE_BUNDLE_NAMES)
             {
                 var bundlePath = Path.Combine(ayceBaseBundlePath, bundleName);
@@ -65,9 +65,12 @@ namespace OC2Modding
             OC2Modding.Log.LogInfo($"Unloaded AYCE Bundles");
 
             /* Initialize OC2 Bundle Helper */
-            var oc2ManagedPath = "C:/Other/Games/Steam/steamapps/common/Overcooked! 2/Overcooked2_Data/Managed";
-            var oc2AvatarBundlePath = "C:/Other/Games/Steam/steamapps/common/Overcooked! 2/Overcooked2_Data/StreamingAssets/Windows/bundle18";
-            var oc2AvatarBundleBakPath = oc2AvatarBundlePath + ".bak";
+            var oc2BasePath = "C:/Other/Games/Steam/steamapps/common/Overcooked! 2/";
+            var oc2ManagedPath = oc2BasePath + "Overcooked2_Data/Managed";
+            var oc2BundlePath = oc2BasePath + OC2_BUNDLE_PATH;
+            var oc2AvatarBundlePath = oc2BundlePath + "bundle18";
+            var oc2AvatarBundleBakPath = oc2BundlePath + "bundle18.bak";
+            var oc2PigBundlePath = oc2BundlePath + "bundle158";
 
             if (!File.Exists(oc2AvatarBundleBakPath) && File.Exists(oc2AvatarBundlePath))
             {
@@ -81,6 +84,7 @@ namespace OC2Modding
 
             Oc2BundleHelper = new BundleHelper(oc2ManagedPath, classDataTpkPath: "classdata.tpk");
             Oc2BundleHelper.LoadBundle(oc2AvatarBundleBakPath);
+            Oc2BundleHelper.LoadBundle(oc2PigBundlePath);
 
             /* Convert assets to OC2 format and write new bundle */
 
@@ -93,7 +97,7 @@ namespace OC2Modding
         private static Dictionary<long, string> GetAyceAvatarIDsAndNames()
         {
             var avatarIDsAndNames = new Dictionary<long, string>();
-            var mainAvatarDirectory = AyceBundleHelper.GetBaseField(AVATAR_DIRECTORY_ID);
+            var mainAvatarDirectory = AyceBundleHelper.GetBaseField(MAIN_AVATAR_DIRECTORY_ID);
             if (mainAvatarDirectory["m_Name"].AsString != "MainAvatarDirectory")
             {
                 throw new Exception($"Unexpected name for AYCE MainAvatarDirectory: {mainAvatarDirectory["m_Name"].AsString}");
@@ -242,10 +246,10 @@ namespace OC2Modding
             int addedCount = 0;
             int skippedCount = 0;
 
-            var mainAvatarDirectory = Oc2BundleHelper.GetBaseField(AVATAR_DIRECTORY_ID);
+            var mainAvatarDirectory = Oc2BundleHelper.GetBaseField(MAIN_AVATAR_DIRECTORY_ID);
             if (mainAvatarDirectory["m_Name"].AsString != "MainAvatarDirectory")
             {
-                throw new Exception($"Unexpected name for id={AVATAR_DIRECTORY_ID} '{mainAvatarDirectory["m_Name"].AsString}'");
+                throw new Exception($"Unexpected name for id={MAIN_AVATAR_DIRECTORY_ID} '{mainAvatarDirectory["m_Name"].AsString}'");
             }
 
             var avatars = mainAvatarDirectory["Avatars.Array"];
@@ -307,7 +311,7 @@ namespace OC2Modding
 
             // TODO: Skip if oc2 already contains that ID
 
-            assetsReplacers.Add(Oc2BundleHelper.FileReplacer(AVATAR_DIRECTORY_ID, mainAvatarDirectory));
+            assetsReplacers.Add(Oc2BundleHelper.FileReplacer(MAIN_AVATAR_DIRECTORY_ID, mainAvatarDirectory));
 
             OC2Modding.Log.LogInfo($"Skipped adding {skippedCount} directory entries due to redundant chefs");
             Oc2BundleHelper.ModifyBundle(assetsReplacers, outBundlePath);
