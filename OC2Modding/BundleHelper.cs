@@ -377,7 +377,7 @@ namespace OC2Modding
             var info = GetMonoBehaviourInfo(className);
 
             AssetTypeValueField baseField;
-            if (info.template == null)
+            if (info.template != null)
             {
                 baseField = ValueBuilder.DefaultValueFieldFromTemplate(info.template);
             }

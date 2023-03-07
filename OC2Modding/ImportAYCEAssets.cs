@@ -17,10 +17,12 @@ namespace OC2Modding
 
         private static string[] AYCE_BUNDLE_NAMES = new string[] {
             "persistent_assets_all.bundle", // Main Bundle
+            "chefs_assets_all.bundle",
             "duplicate_aasets_models_characters_assets_all.bundle",
             "duplicate_aasets_models_characters_assets_all1.bundle",
             "duplicate_aasets_models_characters_assets_all2.bundle",
             "duplicate_aasets_models_characters_assets_all3.bundle",
+            "duplicateassetisolation_assets_all11.bundle", // TODO: this is just a single sprite logo for cat ginger
         };
 
         private static string AYCE_BUNDLE_PATH = "StreamingAssets/aa/Windows/StandaloneWindows64/";
@@ -273,7 +275,7 @@ namespace OC2Modding
                 }
                 catch (Exception e)
                 {
-                    OC2Modding.Log.LogWarning($"Failed to get the name of an oc2 avatar\n{e}");
+                    OC2Modding.Log.LogWarning($"Failed to get the name of an oc2 avatar: {e.Message}");
                 }
             }
 
@@ -337,8 +339,7 @@ namespace OC2Modding
                 case AssetClassID.GameObject:
                 {
                     converted = DefaultAssetConverter(assetData);
-                    return null; 
-                    // break; // TODO: this crashes
+                    break;
                 }
                 case AssetClassID.Sprite:
                 {
@@ -346,6 +347,11 @@ namespace OC2Modding
                     break;
                 }
                 case AssetClassID.AnimationClip:
+                {
+                    converted = DefaultAssetConverter(assetData);
+                    break;
+                }
+                case AssetClassID.Material:
                 {
                     converted = DefaultAssetConverter(assetData);
                     break;
@@ -374,10 +380,15 @@ namespace OC2Modding
         private static AssetTypeValueField ConvertMonoBehaviour(AssetData assetData)
         {
             var oldBaseField = assetData.baseField;
+            if (oldBaseField == null)
+            {
+                throw new Exception($"Unexpectedly null ayce baseField for {assetData.info.PathId}/{assetData.className}");
+            }
+
             var newBaseField = Oc2BundleHelper.CreateBaseField(assetData.className);
             if (newBaseField == null)
             {
-                throw new Exception($"Failed to make a new oc2 asset of type {assetData.className}");
+                throw new Exception($"Failed to make a new oc2 asset of className: {assetData.className}");
             }
 
             switch (assetData.className)
@@ -407,33 +418,34 @@ namespace OC2Modding
 
         private static AssetTypeValueField ConvertMBChefAvatarData(AssetTypeValueField fromData, AssetTypeValueField toData)
         {
-            // toData["m_GameObject.m_FileID"].AsInt = 0;
-            // toData["m_GameObject.m_PathID"].AsLong = 0;
+            toData["m_GameObject.m_FileID"].AsInt = 0;
+            toData["m_GameObject.m_PathID"].AsLong = 0;
 
-            // toData["m_Enabled"].AsInt = 1;
+            toData["m_Enabled"].AsInt = 1;
 
-            // toData["m_Name"].AsString = fromData["m_Name"].AsString;
+            toData["m_Name"].AsString = fromData["m_Name"].AsString;
 
-            // toData["ModelPrefab.m_FileID"].AsInt = fromData["ModelPrefab.m_FileID"].AsInt;
-            // toData["ModelPrefab.m_PathID"].AsLong = fromData["ModelPrefab.m_PathID"].AsLong;
+            toData["ModelPrefab.m_FileID"].AsInt = fromData["ModelPrefab.m_FileID"].AsInt;
+            toData["ModelPrefab.m_PathID"].AsLong = fromData["ModelPrefab.m_PathID"].AsLong;
 
-            // toData["FrontendModelPrefab.m_FileID"].AsInt = fromData["ModelPrefab_Frontend.m_FileID"].AsInt;
-            // toData["FrontendModelPrefab.m_PathID"].AsLong = fromData["ModelPrefab_Frontend.m_PathID"].AsLong;
+            toData["FrontendModelPrefab.m_FileID"].AsInt = fromData["ModelPrefab_Frontend.m_FileID"].AsInt;
+            toData["FrontendModelPrefab.m_PathID"].AsLong = fromData["ModelPrefab_Frontend.m_PathID"].AsLong;
 
-            // toData["UIModelPrefab.m_FileID"].AsInt = fromData["ModelPrefab_UI.m_FileID"].AsInt;
-            // toData["UIModelPrefab.m_PathID"].AsLong = fromData["ModelPrefab_UI.m_PathID"].AsLong;
+            toData["UIModelPrefab.m_FileID"].AsInt = fromData["ModelPrefab_UI.m_FileID"].AsInt;
+            toData["UIModelPrefab.m_PathID"].AsLong = fromData["ModelPrefab_UI.m_PathID"].AsLong;
 
-            // toData["HeadName"].AsString = fromData["Head"].AsString;
+            toData["HeadName"].AsString = fromData["Head"].AsString;
 
-            // toData["ColourisationMode"].AsInt = (int)ChefMeshReplacer.ChefColourisationMode.SwapColourValue;
-            // toData["ActuallyAllowed"].AsBool = true;
+            toData["ColourisationMode"].AsInt = (int)ChefMeshReplacer.ChefColourisationMode.SwapColourValue;
+            toData["ActuallyAllowed"].AsBool = true;
 
-            // ForDlc left at 0;0
+            toData["ForDlc.m_FileID"].AsInt = 0;
+            toData["ForDlc.m_PathID"].AsLong = 0;
 
-            // toData["m_PC"].AsBool = true;
-            // toData["m_XboxOne"].AsBool = true;
-            // toData["m_PS4"].AsBool = true;
-            // toData["m_Switch"].AsBool = true;
+            toData["m_PC"].AsBool = true;
+            toData["m_XboxOne"].AsBool = true;
+            toData["m_PS4"].AsBool = true;
+            toData["m_Switch"].AsBool = true;
 
             return toData;
         }
