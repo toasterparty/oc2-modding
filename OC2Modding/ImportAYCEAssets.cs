@@ -326,6 +326,7 @@ namespace OC2Modding
                     converted = ConvertMonoBehaviour(assetData);
                     if (converted == null)
                     {
+                        OC2Modding.Log.LogWarning($"{assetData.className} converter not yet implemented");
                         return null;
                     }
 
@@ -343,8 +344,7 @@ namespace OC2Modding
                 }
                 case AssetClassID.Sprite:
                 {
-                    converted = DefaultAssetConverter(assetData);
-                    break;
+                    return null; // causes crashes, isn't needed
                 }
                 case AssetClassID.AnimationClip:
                 {
@@ -396,14 +396,6 @@ namespace OC2Modding
                 case "ChefAvatarData":
                 {
                     return ConvertMBChefAvatarData(oldBaseField, newBaseField);
-                }
-                case "GameInputConfigData":
-                {
-                    return null;
-                }
-                case "AudioDirectoryData":
-                {
-                    return null;
                 }
                 case "DLCFrontendData":
                 {
