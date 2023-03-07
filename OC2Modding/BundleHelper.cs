@@ -336,16 +336,16 @@ namespace OC2Modding
                 throw new Exception($"Failed to get script info for class '{className}'");
             }
 
-            var unityVersion = new UnityVersion(assets.file.Metadata.UnityVersion);
-            var mbTempField = Manager.GetTemplateBaseField(assets, assets.file.Reader, -1, (int)AssetClassID.MonoBehaviour, (ushort)scriptIndex, AssetReadFlags.SkipMonoBehaviourFields);
-            if (mbTempField == null)
-            {
-                throw new Exception($"Failed to get template base field for assets file");
-            }
-
             AssetTypeTemplateField template = null;
             if (Manager.MonoTempGenerator != null)
             {
+                var unityVersion = new UnityVersion(assets.file.Metadata.UnityVersion);
+                var mbTempField = Manager.GetTemplateBaseField(assets, assets.file.Reader, -1, (int)AssetClassID.MonoBehaviour, (ushort)scriptIndex, AssetReadFlags.SkipMonoBehaviourFields);
+                if (mbTempField == null)
+                {
+                    throw new Exception($"Failed to get template base field for assets file");
+                }
+
                 template = Manager.MonoTempGenerator.GetTemplateField(
                         mbTempField,
                         scriptTypeInfo.AsmName,
@@ -355,7 +355,7 @@ namespace OC2Modding
                     );
                 if (template == null)
                 {
-                    OC2Modding.Log.LogWarning($"Failed to make template for {className}");
+                    throw new Exception($"Failed to make template for {className}");
                 }
             }
 
@@ -376,16 +376,12 @@ namespace OC2Modding
         {
             var info = GetMonoBehaviourInfo(className);
 
-            AssetTypeValueField baseField;
-            if (info.template != null)
+            if (info.template == null)
             {
-                baseField = ValueBuilder.DefaultValueFieldFromTemplate(info.template);
+                throw new Exception($"no template for {className}");
             }
-            else
-            {
-                baseField = Manager.CreateValueBaseField(this.MainBundleData().assets, (int)AssetClassID.MonoBehaviour);
-            }
-            
+
+            var baseField = ValueBuilder.DefaultValueFieldFromTemplate(info.template);            
             baseField["m_Script.m_FileID"].AsInt = info.fileID;
             baseField["m_Script.m_PathID"].AsLong = info.pathID;
             return baseField;
