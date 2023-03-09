@@ -290,7 +290,7 @@ namespace OC2Modding
 
                 try
                 {
-                    if (oc2Names.Contains(avatarName))
+                    if (oc2Names.Contains(avatarName) || Oc2BundleHelper.ContainsID(avatarID))
                     {
                         skippedCount++;
                         continue; // This chef comes from OC2, so no need to backport...
@@ -349,8 +349,7 @@ namespace OC2Modding
                 case AssetClassID.GameObject:
                 {
                     converted = DefaultAssetConverter(assetData);
-                    return null; // TODO: this crashes the game
-                    // break;
+                    break;
                 }
                 case AssetClassID.Sprite:
                 {
@@ -383,7 +382,7 @@ namespace OC2Modding
         private static AssetTypeValueField DefaultAssetConverter(AssetData assetData)
         {
             var newBaseField = Oc2BundleHelper.CreateBaseField((AssetClassID)assetData.info.TypeId);
-            BundleHelper.CopyAsset(ref newBaseField, ref assetData.baseField);
+            BundleHelper.CopyAsset(ref newBaseField, ref assetData.baseField, ref Oc2BundleHelper);
             return newBaseField;
         }
 

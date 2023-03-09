@@ -36,13 +36,27 @@ namespace OC2Modding
 
         private Dictionary<string, MonoBehaviourInfo> MonoBehaviourInfos = new Dictionary<string, MonoBehaviourInfo>();
 
-        public static void CopyAsset(ref AssetTypeValueField toData, ref AssetTypeValueField fromData)
+        public static void CopyAsset(ref AssetTypeValueField toData, ref AssetTypeValueField fromData, ref BundleHelper bundleHelper)
         {
             var keys = new List<string>();
             FlattenAssetKeys(fromData, "", ref keys);
             foreach (var key in keys)
             {
-                toData[key].Value = toData[key].Value;
+                if (
+                        key.EndsWith("m_FileID") &&
+                        bundleHelper != null &&
+                        fromData[key].Value.AsInt != 0 &&
+                        !bundleHelper.ContainsID(fromData[key.Replace("m_FileID", "m_PathID")].Value.AsLong) // TODO check if this is in the list of assets to convert
+                    )
+                {
+                    // In all you can eat, this file belonged to a dependency bundle, however we write these assets to the main bundle for oc2
+                    OC2Modding.Log.LogWarning("adjust m_FileID");
+                    toData[key].Value.AsInt = 0;
+                }
+                else
+                {
+                    toData[key].Value = fromData[key].Value;
+                }
             }
         }
 
