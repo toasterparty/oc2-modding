@@ -309,11 +309,15 @@ namespace OC2Modding
                 }
             }
 
-            // TODO: Skip if oc2 already contains that ID
+            int beforeLen = assetsReplacers.Count;
+            assetsReplacers = assetsReplacers.Where(x => !Oc2BundleHelper.ContainsID(x.GetPathID())).ToList();
+            
+            OC2Modding.Log.LogInfo($"Skipped adding {beforeLen - assetsReplacers.Count} assets whose IDs already existed in OC2");
 
             assetsReplacers.Add(Oc2BundleHelper.FileReplacer(MAIN_AVATAR_DIRECTORY_ID, mainAvatarDirectory));
 
             OC2Modding.Log.LogInfo($"Skipped adding {skippedCount} directory entries due to redundant chefs");
+            
             Oc2BundleHelper.ModifyBundle(assetsReplacers, outBundlePath);
             OC2Modding.Log.LogInfo($"Successfully added {addedCount} of {avatarIDsAndNames.Count - skippedCount} attempted ChefAvatarData entries to OC2 and {assetsReplacers.Count - 1} dependencies from AYCE to OC2");
         }
@@ -322,6 +326,7 @@ namespace OC2Modding
         {
             AssetTypeValueField converted;
             var type = (AssetClassID)assetData.info.TypeId;
+            var scriptIndex = Oc2BundleHelper.GetScriptIndex(assetData.className);
 
             switch (type)
             {
@@ -344,7 +349,8 @@ namespace OC2Modding
                 case AssetClassID.GameObject:
                 {
                     converted = DefaultAssetConverter(assetData);
-                    break;
+                    return null; // TODO: this crashes the game
+                    // break;
                 }
                 case AssetClassID.Sprite:
                 {
@@ -369,7 +375,7 @@ namespace OC2Modding
             return new AssetsReplacerFromMemory(
                 assetData.info.PathId,
                 (int)type,
-                (ushort)assetData.scriptIndex,
+                (ushort)scriptIndex,
                 converted.WriteToByteArray()
             );
         }

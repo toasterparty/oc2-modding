@@ -146,6 +146,29 @@ namespace OC2Modding
             return Bundles[0];
         }
 
+        public bool ContainsID(long id)
+        {
+            foreach (var bundle in Bundles)
+            {
+                if (bundle.assets.file.GetAssetInfo(id) != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public AssetFileInfo GetAssetInfo(long id)
+        {
+            return this.GetAssetsInstance(id).file.GetAssetInfo(id);
+        }
+
+        public AssetClassID GetAssetType(long id)
+        {
+            return (AssetClassID)this.GetAssetInfo(id).TypeId;
+        }
+
         private AssetsFileInstance GetAssetsInstance(long id)
         {
             foreach (var bundle in Bundles)
@@ -157,16 +180,6 @@ namespace OC2Modding
             }
 
             throw new Exception($"{id} wasn't found in any of {Bundles.Count} loaded bundle(s)");
-        }
-
-        public AssetFileInfo GetAssetInfo(long id)
-        {
-            return this.GetAssetsInstance(id).file.GetAssetInfo(id);
-        }
-
-        public AssetClassID GetAssetType(long id)
-        {
-            return (AssetClassID)this.GetAssetInfo(id).TypeId;
         }
 
         public string GetClassName(long id)
