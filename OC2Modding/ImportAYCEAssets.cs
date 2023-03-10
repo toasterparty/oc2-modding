@@ -125,6 +125,7 @@ namespace OC2Modding
                             var variantBaseField = AyceBundleHelper.GetBaseField(variantID);
                             var variantName = variantBaseField["m_Name"].AsString;
                             avatarIDsAndNames[variantID] = variantName;
+                            return avatarIDsAndNames;
                         }
                         catch (Exception e)
                         {
@@ -348,12 +349,16 @@ namespace OC2Modding
                 }
                 case AssetClassID.GameObject:
                 {
-                    converted = DefaultAssetConverter(assetData);
-                    break;
+                    var name = assetData.baseField["m_Name"].AsString;
+                    OC2Modding.Log.LogInfo($"{assetData.info.PathId} - {name}");
+                    // converted = DefaultAssetConverter(assetData);
+                    // break;
+                    return null; // TODO: why
                 }
                 case AssetClassID.Sprite:
                 {
-                    return null; // causes crashes, isn't needed
+                    converted = DefaultAssetConverter(assetData);
+                    break;
                 }
                 case AssetClassID.AnimationClip:
                 {
