@@ -58,6 +58,7 @@ namespace OC2Modding
             IncreasedKnockback.Awake();
             ServerTickRate.Awake();
             DeathLinkImplementation.Awake();
+            FixedRNG.Awake();
 
             DisplayModsOnResultsScreen.Awake();
         }
@@ -75,6 +76,7 @@ namespace OC2Modding
             ArchipelagoClient.Update();
             ArchipelagoLoginGUI.Update();
             DeathLinkImplementation.Update();
+            FixedRNG.Update();
         }
 
         private void FixedUpdate()
@@ -90,6 +92,7 @@ namespace OC2Modding
             GameLog.OnGUI();
             ArchipelagoLoginGUI.OnGUI();
             ArchipelagoCommandGUI.OnGUI();
+            FixedRNG.OnGUI();
         }
     }
 }

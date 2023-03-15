@@ -120,6 +120,10 @@ namespace OC2Modding
             {
                 modsDisplay.m_Text += "\nDebug Cheats Enabled";
             }
+            if (OC2Config.Config.FixedMenuRNG)
+            {
+                modsDisplay.m_Text += "\nMenu RNG Hack Enabled";
+            }
             if (
                 OC2Config.Config.BurnSpeedMultiplier != 1.0f ||
                 OC2Config.Config.CustomOrderLifetime != 100.0 ||

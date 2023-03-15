@@ -41,6 +41,7 @@ namespace OC2Modding
         public bool CheatsEnabled = false;
         public bool SkipAllOnionKing = false;
         public bool ImpossibleTutorial = false;
+        public bool FixedMenuRNG = false;
         public float LevelTimerScale = 1.0f;
 
         // Unlockable Items
@@ -195,6 +196,14 @@ namespace OC2Modding
                 "Enables some not very fun cheats for debug purposes" // Friendly description
             );
             CheatsEnabled = configCheatsEnabled.Value;
+
+            ConfigEntry<bool> configFixedMenuRNG = configFile.Bind(
+                "GameModifications", // Config Category
+                "FixedMenuRNG", // Config key name
+                false, // Default Config value
+                "Enables the use of +/- on the keyboard to set a deterministic menu order. Press the END key at any time to instantly make the menu random again" // Friendly description
+            );
+            FixedMenuRNG = configFixedMenuRNG.Value;
 
             ConfigEntry<bool> configDisplayLeaderboardScores = configFile.Bind(
                 "QualityOfLife", // Config Category
@@ -358,6 +367,7 @@ namespace OC2Modding
             try { if (config.HasKey("CarnivalDispenserRefactoryTime" )) CarnivalDispenserRefactoryTime = config["CarnivalDispenserRefactoryTime" ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CarnivalDispenserRefactoryTime'" ); }
             try { if (config.HasKey("StarOffset"                     )) StarOffset                     = config["StarOffset"                     ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'StarOffset'"                     ); }
             try { if (config.HasKey("ImpossibleTutorial"             )) ImpossibleTutorial             = config["ImpossibleTutorial"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ImpossibleTutorial'"             ); }
+            try { if (config.HasKey("FixedMenuRNG"                  )) FixedMenuRNG                  = config["FixedMenuRNG"                  ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'FixedMenuRNG'"                  ); }
             try { if (config.HasKey("DisableRampButton"              )) DisableRampButton              = config["DisableRampButton"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableRampButton'"              ); }
             try { if (config.HasKey("DisableGreenRampButton"         )) DisableGreenRampButton         = config["DisableGreenRampButton"         ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableGreenRampButton'"         ); }
             try { if (config.HasKey("DisableYellowRampButton"        )) DisableYellowRampButton        = config["DisableYellowRampButton"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableYellowRampButton'"        ); }
