@@ -218,13 +218,28 @@ namespace OC2Modding
             {
                 try
                 {
+                    var name = "";
+                    try
+                    {
+                        name = assetData.baseField["m_Name"].AsString;
+                    }
+                    catch {}
+
+                    try
+                    {
+                        name = assetData.baseField["m_name"].AsString;
+                    }
+                    catch {}
+
                     var replacer = ConvertAsset(assetData);
                     if (replacer == null)
                     {
+                        OC2Modding.Log.LogWarning($"Skipped converting {assetData.className} / ${name} / {assetData.info.PathId}");
                         continue; // skip converting
                     }
 
                     assetsReplacers.Add(replacer);
+                    OC2Modding.Log.LogInfo($"Converted {assetData.className} / ${name} / {assetData.info.PathId}");
                 }
                 catch (Exception e)
                 {
@@ -329,6 +344,27 @@ namespace OC2Modding
             var type = (AssetClassID)assetData.info.TypeId;
             var scriptIndex = Oc2BundleHelper.GetScriptIndex(assetData.className);
 
+            // var SKIP_IDS = new long[] {
+            //     -6594572577078433743L,
+            //     -8987147349260460087L,
+            //     -1673985575946039472L,
+            //     5048923704244734417L,
+            //     -8343719870780976275L,
+            //     4358930316311271624L,
+            //     -6079689613363647449L,
+            //     8775198998330553421L,
+            //     3037418633120753884L,
+            //     6182019441836036947L,
+            // };
+
+            // if (SKIP_IDS.Contains(assetData.info.PathId))
+            // {
+            //     var name = assetData.baseField["m_Name"].AsString;
+            //     OC2Modding.Log.LogInfo($"{assetData.info.PathId} - {name} [skipped]");
+
+            //     return null;
+            // }
+
             switch (type)
             {
                 case AssetClassID.MonoBehaviour:
@@ -351,9 +387,9 @@ namespace OC2Modding
                 {
                     var name = assetData.baseField["m_Name"].AsString;
                     OC2Modding.Log.LogInfo($"{assetData.info.PathId} - {name}");
-                    // converted = DefaultAssetConverter(assetData);
-                    // break;
-                    return null; // TODO: why
+                    converted = DefaultAssetConverter(assetData);
+                    break;
+                    // return null; // TODO: why
                 }
                 case AssetClassID.Sprite:
                 {
