@@ -16,8 +16,13 @@ namespace OC2Modding
     {
         public static void Awake()
         {
-            Harmony.CreateAndPatchAll(typeof(VersusLevelsAsCoop));
-            Harmony.CreateAndPatchAll(typeof(OnCouchPlayClicked_Patch));
+            if (OC2Config.Config.VersusLevelsAsCoop)
+            {
+                Harmony.CreateAndPatchAll(typeof(VersusLevelsAsCoop));
+                Harmony.CreateAndPatchAll(typeof(OnCouchPlayClicked_Patch));
+            }
+
+            // TODO: this doesn't work for JSON files loaded late
         }
 
         // TODO: only patch what we need
@@ -248,19 +253,6 @@ namespace OC2Modding
             {
                 __instance.gameObject.DestroyChildren();
                 __instance.gameObject.Destroy();
-            }
-        }
-
-        [HarmonyPatch(typeof(ClientInputTransmitter), nameof(ClientInputTransmitter.Setup))]
-        [HarmonyPostfix]
-        private static void Setup(ref ClientInputTransmitter __instance, ref PlayerControls ___m_playerControls)
-        {
-            OC2Modding.Log.LogWarning($"ClientInputTransmitter.Setup - {__instance.gameObject.name}");
-            OC2Modding.Log.LogWarning($"InControl={__instance.IsInControl()}");
-            if (___m_playerControls != null)
-            {
-                var id = ___m_playerControls.PlayerIDProvider.GetID();
-                OC2Modding.Log.LogWarning($"PlayerID={id}");
             }
         }
 

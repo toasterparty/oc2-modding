@@ -42,6 +42,7 @@ namespace OC2Modding
         public bool SkipAllOnionKing = false;
         public bool ImpossibleTutorial = false;
         public bool FixedMenuRNG = false;
+        public bool VersusLevelsAsCoop = false;
         public float LevelTimerScale = 1.0f;
 
         // Unlockable Items
@@ -201,9 +202,17 @@ namespace OC2Modding
                 "GameModifications", // Config Category
                 "FixedMenuRNG", // Config key name
                 false, // Default Config value
-                "Enables the use of +/- on the keyboard to set a deterministic menu order. Press the END key at any time to instantly make the menu random again" // Friendly description
+                "Set to true to allow the use of +/- on the keyboard to set a deterministic menu order. Press the END key at any time to instantly make the menu random again" // Friendly description
             );
             FixedMenuRNG = configFixedMenuRNG.Value;
+
+            ConfigEntry<bool> configVersusLevelsAsCoop = configFile.Bind(
+                "GameModifications", // Config Category
+                "VersusLevelsAsCoop", // Config key name
+                false, // Default Config value
+                "Set to true to modify the 'versus' levels so that there is only one team. For 1P, this means the player controls both red chefs and for 2P, both player will spawn on the red side of the level." // Friendly description
+            );
+            VersusLevelsAsCoop = configVersusLevelsAsCoop.Value;
 
             ConfigEntry<bool> configDisplayLeaderboardScores = configFile.Bind(
                 "QualityOfLife", // Config Category
@@ -367,7 +376,8 @@ namespace OC2Modding
             try { if (config.HasKey("CarnivalDispenserRefactoryTime" )) CarnivalDispenserRefactoryTime = config["CarnivalDispenserRefactoryTime" ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CarnivalDispenserRefactoryTime'" ); }
             try { if (config.HasKey("StarOffset"                     )) StarOffset                     = config["StarOffset"                     ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'StarOffset'"                     ); }
             try { if (config.HasKey("ImpossibleTutorial"             )) ImpossibleTutorial             = config["ImpossibleTutorial"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ImpossibleTutorial'"             ); }
-            try { if (config.HasKey("FixedMenuRNG"                  )) FixedMenuRNG                  = config["FixedMenuRNG"                  ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'FixedMenuRNG'"                  ); }
+            try { if (config.HasKey("FixedMenuRNG"                   )) FixedMenuRNG                   = config["FixedMenuRNG"                   ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'FixedMenuRNG'"                   ); }
+            try { if (config.HasKey("VersusLevelsAsCoop"             )) VersusLevelsAsCoop             = config["VersusLevelsAsCoop"             ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'VersusLevelsAsCoop'"             ); }
             try { if (config.HasKey("DisableRampButton"              )) DisableRampButton              = config["DisableRampButton"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableRampButton'"              ); }
             try { if (config.HasKey("DisableGreenRampButton"         )) DisableGreenRampButton         = config["DisableGreenRampButton"         ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableGreenRampButton'"         ); }
             try { if (config.HasKey("DisableYellowRampButton"        )) DisableYellowRampButton        = config["DisableYellowRampButton"        ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableYellowRampButton'"        ); }
