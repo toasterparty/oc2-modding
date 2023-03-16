@@ -266,7 +266,14 @@ namespace OC2Modding
 
         private static bool InOnUpdateInRound = false;
         private static bool SkipOrderControllerUpdate = false;
-        private static bool once = false;
+        private static bool RemoveSpareChefs = false;
+
+        [HarmonyPatch(typeof(LoadingScreenFlow), nameof(LoadingScreenFlow.LoadScene))]
+        [HarmonyPrefix]
+        private static void LoadScene()
+        {
+            RemoveSpareChefs = true;
+        }
 
         [HarmonyPatch(typeof(ServerCompetitiveFlowController), "OnUpdateInRound")]
         [HarmonyPrefix]
@@ -275,9 +282,9 @@ namespace OC2Modding
             InOnUpdateInRound = true;
             SkipOrderControllerUpdate = false;
 
-            if (ServerUserSystem.m_Users.Count == 2 && !once)
+            if (ServerUserSystem.m_Users.Count == 2 && RemoveSpareChefs)
             {
-                once = true; // TODO
+                RemoveSpareChefs = false;
                 string teamOneToDelete = "";
                 string teamTwoToDelete = "";
                 string teamTwoToTransform = "";
@@ -342,6 +349,16 @@ namespace OC2Modding
                     }
                     catch { }
                 }
+            }
+        }
+
+        [HarmonyPatch(typeof(WorkableItem), nameof(WorkableItem.GetChopTimeMultiplier))]
+        [HarmonyPostfix]
+        private static void GetChopTimeMultiplier(ref int __result)
+        {
+            if (ServerUserSystem.m_Users.Count == 2)
+            {
+                __result = 1;
             }
         }
         
