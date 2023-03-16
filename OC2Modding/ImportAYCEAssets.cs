@@ -225,21 +225,15 @@ namespace OC2Modding
                     }
                     catch {}
 
-                    try
-                    {
-                        name = assetData.baseField["m_name"].AsString;
-                    }
-                    catch {}
-
                     var replacer = ConvertAsset(assetData);
                     if (replacer == null)
                     {
-                        OC2Modding.Log.LogWarning($"Skipped converting {assetData.className} / ${name} / {assetData.info.PathId}");
+                        OC2Modding.Log.LogWarning($"Skipped converting {assetData.info.TypeId} | {name} | {assetData.info.PathId}");
                         continue; // skip converting
                     }
 
                     assetsReplacers.Add(replacer);
-                    OC2Modding.Log.LogInfo($"Converted {assetData.className} / ${name} / {assetData.info.PathId}");
+                    OC2Modding.Log.LogInfo($"Converted {assetData.info.TypeId} | {name} | {assetData.info.PathId}");
                 }
                 catch (Exception e)
                 {
@@ -344,26 +338,24 @@ namespace OC2Modding
             var type = (AssetClassID)assetData.info.TypeId;
             var scriptIndex = Oc2BundleHelper.GetScriptIndex(assetData.className);
 
-            // var SKIP_IDS = new long[] {
-            //     -6594572577078433743L,
-            //     -8987147349260460087L,
-            //     -1673985575946039472L,
-            //     5048923704244734417L,
-            //     -8343719870780976275L,
-            //     4358930316311271624L,
-            //     -6079689613363647449L,
-            //     8775198998330553421L,
-            //     3037418633120753884L,
-            //     6182019441836036947L,
-            // };
+            var SKIP_IDS = new long[] {
+                // -6594572577078433743L, // Chef_AxolotlPink (ChefAvatarData)    `                                      
+                // -8987147349260460087L, // ChefAvatarData                       `                  
+                // -1673985575946039472L, // Chef_AxolotlPink                     `                      
+                // 5048923704244734417L,  // Chef_AxolotlPink_Frontend            `                              
+                // -8343719870780976275L, // Chef_AxolotlPink_UI                  `                          
+                // 4358930316311271624L,  // CHR_Chef_01                          `                  
+                // -6079689613363647449L, // chef_axolotl_pink                    `                      
+                // 8775198998330553421L,  // New_Chef@FE_Idle_01                  `                          
+                // 3037418633120753884L,  // New_Chef@Celebrate_01                `                          
+                // 6182019441836036947L,  // 
+            };
 
-            // if (SKIP_IDS.Contains(assetData.info.PathId))
-            // {
-            //     var name = assetData.baseField["m_Name"].AsString;
-            //     OC2Modding.Log.LogInfo($"{assetData.info.PathId} - {name} [skipped]");
-
-            //     return null;
-            // }
+            if (SKIP_IDS.Contains(assetData.info.PathId))
+            {
+                var name = assetData.baseField["m_Name"].AsString;
+                return null;
+            }
 
             switch (type)
             {
@@ -386,7 +378,6 @@ namespace OC2Modding
                 case AssetClassID.GameObject:
                 {
                     var name = assetData.baseField["m_Name"].AsString;
-                    OC2Modding.Log.LogInfo($"{assetData.info.PathId} - {name}");
                     converted = DefaultAssetConverter(assetData);
                     break;
                     // return null; // TODO: why
