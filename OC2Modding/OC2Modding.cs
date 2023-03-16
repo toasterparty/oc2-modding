@@ -59,6 +59,7 @@ namespace OC2Modding
             ServerTickRate.Awake();
             DeathLinkImplementation.Awake();
             FixedRNG.Awake();
+            VersusLevelsAsCoop.Awake();
 
             DisplayModsOnResultsScreen.Awake();
         }
