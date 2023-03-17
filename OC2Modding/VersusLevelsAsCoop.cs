@@ -110,29 +110,7 @@ namespace OC2Modding
                 }
             }
 
-            TeamID team = user.Team;
-            if (team != TeamID.None)
-            {
-                if (team != TeamID.One)
-                {
-                    if (team == TeamID.Two)
-                    {
-                        user.Team = TeamID.None;
-                        user.Colour = m_lobbyFlow.m_noTeamColourIndex;
-                    }
-                }
-                else if (twoCount < Mathf.CeilToInt((float)ServerUserSystem.m_Users.Count / 2f))
-                {
-                    user.Team = TeamID.Two;
-                    user.Colour = m_lobbyFlow.m_blueTeamColourIndex;
-                }
-                else
-                {
-                    user.Team = TeamID.None;
-                    user.Colour = m_lobbyFlow.m_noTeamColourIndex;
-                }
-            }
-            else if (oneCount < Mathf.CeilToInt((float)ServerUserSystem.m_Users.Count / 2f))
+            if (oneCount <= twoCount)
             {
                 user.Team = TeamID.One;
                 user.Colour = m_lobbyFlow.m_redTeamColourIndex;
@@ -274,7 +252,7 @@ namespace OC2Modding
             InOnUpdateInRound = true;
             SkipOrderControllerUpdate = false;
 
-            if (ServerUserSystem.m_Users.Count == 2 && RemoveSpareChefs)
+            if ((ServerUserSystem.m_Users.Count == 2 || ServerUserSystem.m_Users.Count == 3) && RemoveSpareChefs)
             {
                 RemoveSpareChefs = false;
                 string teamOneToDelete = "";
@@ -293,18 +271,23 @@ namespace OC2Modding
                     try
                     {
                         var playerID = player.RequestComponent<PlayerIDProvider>();
-                        if (playerID.GetTeam() == TeamID.One && teamOneToDelete == "")
+                        if (ServerUserSystem.m_Users.Count == 2)
                         {
-                            teamOneToDelete = name;
-                            teamTwoTransform = player.gameObject.transform;
+                            if (playerID.GetTeam() == TeamID.One && teamOneToDelete == "")
+                            {
+                                teamOneToDelete = name;
+                                teamTwoTransform = player.gameObject.transform;
+                            }
+                            
+                            if (playerID.GetTeam() == TeamID.Two && teamTwoToTransform == "")
+                            {
+                                teamTwoToTransform = name;
+                            }
                         }
-                        else if (playerID.GetTeam() == TeamID.Two && teamTwoToDelete == "")
+
+                        if (playerID.GetTeam() == TeamID.Two && teamTwoToDelete == "")
                         {
                             teamTwoToDelete = name;
-                        }
-                        else if (playerID.GetTeam() == TeamID.Two && teamTwoToTransform == "")
-                        {
-                            teamTwoToTransform = name;
                         }
                     }
                     catch { }
@@ -348,12 +331,12 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void GetChopTimeMultiplier(ref int __result)
         {
-            if (ServerUserSystem.m_Users.Count == 2)
+            if (ServerUserSystem.m_Users.Count >= 2)
             {
                 __result = 1;
             }
         }
-        
+
         [HarmonyPatch(typeof(ServerOrderControllerBase), nameof(ServerOrderControllerBase.Update))]
         [HarmonyPrefix]
         private static bool Update()
