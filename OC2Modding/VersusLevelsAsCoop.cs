@@ -1,14 +1,11 @@
+using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Reflection.Emit;
 
 using UnityEngine;
 using HarmonyLib;
 
-using GameModes;
 using Team17.Online;
-using Team17.Online.Multiplayer;
-using Team17.Online.Multiplayer.Messaging;
 
 namespace OC2Modding
 {
@@ -277,20 +274,26 @@ namespace OC2Modding
                             {
                                 teamOneToDelete = name;
                                 teamTwoTransform = player.gameObject.transform;
+                                continue;
                             }
-                            
+
                             if (playerID.GetTeam() == TeamID.Two && teamTwoToTransform == "")
                             {
                                 teamTwoToTransform = name;
+                                continue;
                             }
                         }
 
                         if (playerID.GetTeam() == TeamID.Two && teamTwoToDelete == "")
                         {
                             teamTwoToDelete = name;
+                            continue;
                         }
                     }
-                    catch { }
+                    catch (Exception e)
+                    {
+                        OC2Modding.Log.LogError($"Error when checking {name}:\n{e}");
+                    }
                 }
 
                 foreach (var player in GameObject.FindGameObjectsWithTag("Player"))
@@ -315,11 +318,18 @@ namespace OC2Modding
 
                         if (name == teamTwoToTransform)
                         {
-                            OC2Modding.Log.LogInfo($"Transforming {name}");
-                            player.gameObject.transform.localPosition = teamTwoTransform.localPosition;
-                            player.gameObject.transform.position = teamTwoTransform.position;
-                            player.gameObject.transform.localRotation = teamTwoTransform.localRotation;
-                            player.gameObject.transform.rotation = teamTwoTransform.rotation;
+                            if (teamTwoTransform == null)
+                            {
+                                OC2Modding.Log.LogError($"Can't move {name} because no transform was collected from red team");
+                            }
+                            else
+                            {
+                                player.gameObject.transform.localPosition = teamTwoTransform.localPosition;
+                                player.gameObject.transform.position = teamTwoTransform.position;
+                                player.gameObject.transform.localRotation = teamTwoTransform.localRotation;
+                                player.gameObject.transform.rotation = teamTwoTransform.rotation;
+                                OC2Modding.Log.LogInfo($"Moved {name}");
+                            }
                         }
                     }
                     catch { }
@@ -335,6 +345,62 @@ namespace OC2Modding
             {
                 __result = 1;
             }
+        }
+
+        public class AvatarSet
+        {
+            public int ActiveAvatar
+            {
+                get
+                {
+                    return this.m_activeAvatar;
+                }
+                set
+                {
+                    this.m_activeAvatar = value;
+                    for (int i = 0; i < this.Avatars.Length; i++)
+                    {
+                        PlayerControls playerControls = this.Avatars[i].RequireComponent<PlayerControls>();
+                        playerControls.SetDirectlyUnderPlayerControl(i == this.m_activeAvatar);
+                    }
+                }
+            }
+
+            public PlayerControls SelectedAvatar
+            {
+                get
+                {
+                    if (this.ActiveAvatar != -1 && this.ActiveAvatar < this.Avatars.Length)
+                    {
+                        return this.Avatars[this.ActiveAvatar].RequireComponent<PlayerControls>();
+                    }
+                    return null;
+                }
+            }
+
+            private int m_activeAvatar = -1;
+            public GameObject[] Avatars;
+            public ILogicalButton[] SwitchButtons;
+            public PlayerInputLookup.Player PlayerId;
+        }
+
+        [HarmonyPatch(typeof(PlayerSwitchingManager), "SwitchAvatars")]
+        [HarmonyPrefix]
+        private static bool SwitchAvatars(ref AvatarSet _set, ref int _avatarId)
+        {
+            if (ServerUserSystem.m_Users.Count == 1)
+            {
+                return true;
+            }
+
+            var player = _set.Avatars[_avatarId];
+            var body = player.gameObject.RequestComponent<Rigidbody>();
+            if (body.detectCollisions)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         [HarmonyPatch(typeof(ServerOrderControllerBase), nameof(ServerOrderControllerBase.Update))]
