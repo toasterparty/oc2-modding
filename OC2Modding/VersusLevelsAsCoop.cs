@@ -328,6 +328,9 @@ namespace OC2Modding
                                 player.gameObject.transform.position = teamTwoTransform.position;
                                 player.gameObject.transform.localRotation = teamTwoTransform.localRotation;
                                 player.gameObject.transform.rotation = teamTwoTransform.rotation;
+
+                                var respawnBehavior = player.gameObject.RequestComponent<PlayerRespawnBehaviour>();
+                                respawnBehavior.m_startLocation = teamTwoTransform.localPosition;
                                 OC2Modding.Log.LogInfo($"Moved {name}");
                             }
                         }
