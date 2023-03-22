@@ -339,16 +339,16 @@ namespace OC2Modding
             var scriptIndex = Oc2BundleHelper.GetScriptIndex(assetData.className);
 
             var SKIP_IDS = new long[] {
-                // -6594572577078433743L, // Chef_AxolotlPink (ChefAvatarData)    `                                      
-                // -8987147349260460087L, // ChefAvatarData                       `                  
-                // -1673985575946039472L, // Chef_AxolotlPink                     `                      
-                // 5048923704244734417L,  // Chef_AxolotlPink_Frontend            `                              
-                // -8343719870780976275L, // Chef_AxolotlPink_UI                  `                          
-                // 4358930316311271624L,  // CHR_Chef_01                          `                  
-                // -6079689613363647449L, // chef_axolotl_pink                    `                      
-                // 8775198998330553421L,  // New_Chef@FE_Idle_01                  `                          
-                // 3037418633120753884L,  // New_Chef@Celebrate_01                `                          
-                // 6182019441836036947L,  // 
+                // -6594572577078433743L, // Chef_AxolotlPink (ChefAvatarData)
+                // -8987147349260460087L, // ChefAvatarData (MonoScript)
+                // -1673985575946039472L, // Chef_AxolotlPink (GameObject)
+                // 5048923704244734417L,  // Chef_AxolotlPink_Frontend (GameObject)
+                // -8343719870780976275L, // Chef_AxolotlPink_UI (GameObject)
+                // 4358930316311271624L,  // CHR_Chef_01 (GameObject)
+                // -6079689613363647449L, // chef_axolotl_pink (Sprite)
+                // 8775198998330553421L,  // New_Chef@FE_Idle_01 (AnimationClip)
+                // 3037418633120753884L,  // New_Chef@Celebrate_01 (AnimationClip)
+                // 6182019441836036947L,  // New_Chef@Character_Select_Final_Celebration_Plane (AnimationClip)
             };
 
             if (SKIP_IDS.Contains(assetData.info.PathId))

@@ -37,25 +37,21 @@ namespace OC2Modding
 
         public static void CopyAsset(ref AssetTypeValueField toData, ref AssetTypeValueField fromData, ref BundleHelper bundleHelper)
         {
+            // Copy key/value pairs
             var keys = new List<string>();
             FlattenAssetKeys(fromData, "", ref keys);
             foreach (var key in keys)
             {
-                if (
-                        key.EndsWith("m_FileID") &&
-                        bundleHelper != null &&
-                        fromData[key].Value.AsInt != 0 &&
-                        !bundleHelper.ContainsID(fromData[key.Replace("m_FileID", "m_PathID")].Value.AsLong) // TODO check if this is in the list of assets to convert
-                    )
-                {
-                    // In all you can eat, this file belonged to a dependency bundle, however we write these assets to the main bundle for oc2
-                    OC2Modding.Log.LogWarning("adjust m_FileID");
-                    toData[key].Value.AsInt = 0;
-                }
-                else
-                {
-                    toData[key].Value = fromData[key].Value;
-                }
+                toData[key].Value = fromData[key].Value;
+            }
+
+            // Copy Arrays
+            CopyAssetArrays(toData, fromData);
+
+            // Adjust FileID where appropriate
+            if (bundleHelper != null)
+            {
+                AdjustFileID(toData, ref bundleHelper);
             }
         }
 
@@ -82,6 +78,59 @@ namespace OC2Modding
             foreach (var key in field.Children)
             {
                 FlattenAssetKeys(key, currentKey, ref keys);
+            }
+        }
+
+        private static void CopyAssetArrays(AssetTypeValueField toData, AssetTypeValueField fromData)
+        {            
+            if (toData == null || fromData == null)
+            {
+                return;
+            }
+
+            if (fromData.Children == null || fromData.Children.Count == 0)
+            {
+                return;
+            }
+
+            if (fromData.Value != null && fromData.Value.ValueType == AssetValueType.Array && toData.Value.ValueType == AssetValueType.Array)
+            {
+                foreach (var child in fromData.Children)
+                {
+                    toData.Children.Add(child);
+                }
+                return;
+            }
+
+            foreach (var child in fromData.Children)
+            {
+                var fn = child.FieldName;
+                CopyAssetArrays(toData.Get(fn), fromData.Get(fn));
+            }
+        }
+
+        private static void AdjustFileID(AssetTypeValueField toData, ref BundleHelper bundleHelper)
+        {
+            if (toData.Children == null)
+            {
+                return;
+            }
+
+            foreach (var child in toData.Children)
+            {
+                if (
+                    child.FieldName == "m_FileID" && 
+                    child.Value.AsInt != 0 &&
+                    !bundleHelper.ContainsID(toData["m_PathID"].Value.AsLong) // TODO check if this is in the list of assets to convert
+                )
+                {
+                    // In all you can eat, this file belonged to a dependency bundle, however we write these assets to the main bundle for oc2
+                    OC2Modding.Log.LogWarning("adjust m_FileID");
+                    child.Value.AsInt = 0;
+                    continue;
+                }
+
+                AdjustFileID(child, ref bundleHelper);
             }
         }
 
@@ -239,8 +288,8 @@ namespace OC2Modding
                     var depData = bundleHelper.GetBaseField(depID);
                     deps.Add(depID);
 
-                    // collect all dependencies from depenent asset
-                    CollectAssetDependencies(ref bundleHelper, field, ref deps);
+                    // collect all dependencies from dependent asset
+                    CollectAssetDependencies(ref bundleHelper, depData, ref deps);
                 }
                 catch (Exception e)
                 {
@@ -250,15 +299,10 @@ namespace OC2Modding
                 return; // end of tree branch (id)
             }
 
-            if (field.Children == null)
-            {
-                return; // end of tree branch (non-id)
-            }
-
-            foreach (var child in field.Children)
+            foreach (var nextField in field)
             {
                 // continue searching this asset
-                CollectAssetDependencies(ref bundleHelper, child, ref deps);
+                CollectAssetDependencies(ref bundleHelper, nextField, ref deps);
             }
         }
 
