@@ -65,4 +65,9 @@
         <HintPath>..\dist\AssetTools.NET\AssetsTools.NET.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="AssetsTools.NET.MonoCecil">
+        <HintPath>..\dist\AssetTools.NET\AssetsTools.NET.MonoCecil.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
