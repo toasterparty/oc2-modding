@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
@@ -27,11 +28,9 @@ namespace OC2Modding
             public int index;
             public int fileID;
             public long pathID;
-            public AssetTypeTemplateField template;
         };
 
         private AssetsManager Manager;
-        private Dictionary<int, AssetTypeReference> ScriptTypeInfos;
         private List<BundleData> Bundles;
 
         private Dictionary<string, MonoBehaviourInfo> MonoBehaviourInfos = new Dictionary<string, MonoBehaviourInfo>();
@@ -99,34 +98,13 @@ namespace OC2Modding
             {
                 Manager.LoadClassPackage(classDataTpkPath);
             }
-
-            if (managedPath != null)
-            {
-                Manager.MonoTempGenerator = new MonoCecilTempGenerator(managedPath);
-                if (Manager.MonoTempGenerator == null)
-                {
-                    throw new Exception($"Failed to init Mono template generator at {managedPath}");
-                }
-            }
         }
 
         /* The first bundle you call is the "Main Bundle", further calls are used to find dependencies */
         public void LoadBundle(string bundlePath)
         {
             var bundleData = GetBundleData(bundlePath);
-            Bundles.Add(
-                bundleData
-            );
-
-            if (ScriptTypeInfos == null)
-            {
-                ScriptTypeInfos = AssetHelper.GetAssetsFileScriptInfos(Manager, bundleData.assets);
-                if (ScriptTypeInfos == null)
-                {
-                    throw new Exception($"Failed to GetAssetsFileScriptInfos");
-                }
-            }
-
+            Bundles.Add(bundleData);
             OC2Modding.Log.LogInfo($"Loaded {bundlePath}");
         }
 
@@ -342,56 +320,20 @@ namespace OC2Modding
         {
             var assets = this.MainBundleData().assets;
 
-            int scriptIndex = -1;
-            foreach (var kvp in ScriptTypeInfos)
-            {
-                if (kvp.Value.ClassName == className)
-                {
-                    scriptIndex = kvp.Key;
-                    break;
-                }
-            }
-
+            var scriptTypeInfos = AssetHelper.GetAssetsFileScriptInfos(Manager, assets);
+            var scriptIndex = scriptTypeInfos.Values.ToList().FindIndex(x => x.ClassName == className);
             if (scriptIndex == -1)
             {
                 throw new Exception($"Failed to find class of type '{className}'");
             }
 
-            var scriptTypeInfo = ScriptTypeInfos[scriptIndex];
-            if (scriptTypeInfo == null)
-            {
-                throw new Exception($"Failed to get script info for class '{className}'");
-            }
-
-            AssetTypeTemplateField template = null;
-            if (Manager.MonoTempGenerator != null)
-            {
-                var unityVersion = new UnityVersion(assets.file.Metadata.UnityVersion);
-                var mbTempField = Manager.GetTemplateBaseField(assets, assets.file.Reader, -1, (int)AssetClassID.MonoBehaviour, (ushort)scriptIndex, AssetReadFlags.SkipMonoBehaviourFields);
-                if (mbTempField == null)
-                {
-                    throw new Exception($"Failed to get template base field for assets file");
-                }
-
-                template = Manager.MonoTempGenerator.GetTemplateField(
-                        mbTempField,
-                        scriptTypeInfo.AsmName,
-                        scriptTypeInfo.Namespace,
-                        className,
-                        unityVersion
-                    );
-                if (template == null)
-                {
-                    throw new Exception($"Failed to make template for {className}");
-                }
-            }
+            var monoScriptPPtr = assets.file.Metadata.ScriptTypes[scriptIndex];
 
             var typeData = new MonoBehaviourInfo {
                 name = className,
                 index = scriptIndex,
-                fileID = assets.file.Metadata.ScriptTypes[scriptIndex].FileId,
-                pathID = assets.file.Metadata.ScriptTypes[scriptIndex].PathId,
-                template = template,
+                fileID = monoScriptPPtr.FileId,
+                pathID = monoScriptPPtr.PathId,
             };
     
             MonoBehaviourInfos[className] = typeData;
@@ -402,15 +344,12 @@ namespace OC2Modding
         public AssetTypeValueField CreateBaseField(string className)
         {
             var info = GetMonoBehaviourInfo(className);
-
-            if (info.template == null)
-            {
-                throw new Exception($"no template for {className}");
-            }
-
-            var baseField = ValueBuilder.DefaultValueFieldFromTemplate(info.template);            
+            var assets = this.MainBundleData().assets;
+            
+            var baseField = Manager.CreateValueBaseField(assets, (int)AssetClassID.MonoBehaviour, (ushort)info.index);
             baseField["m_Script.m_FileID"].AsInt = info.fileID;
             baseField["m_Script.m_PathID"].AsLong = info.pathID;
+
             return baseField;
         }
 

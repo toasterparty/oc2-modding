@@ -377,10 +377,8 @@ namespace OC2Modding
                 }
                 case AssetClassID.GameObject:
                 {
-                    var name = assetData.baseField["m_Name"].AsString;
                     converted = DefaultAssetConverter(assetData);
                     break;
-                    // return null; // TODO: why
                 }
                 case AssetClassID.Sprite:
                 {
