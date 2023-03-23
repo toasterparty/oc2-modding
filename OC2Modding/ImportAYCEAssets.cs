@@ -19,11 +19,20 @@ namespace OC2Modding
         private static string[] AYCE_BUNDLE_NAMES = new string[] {
             "persistent_assets_all.bundle", // Main Bundle
             "chefs_assets_all.bundle",
+            "startup_unitybuiltinshaders.bundle",
+            "startup_assets_all.bundle",
+            "global_throne_assets_all.bundle",
             "duplicate_aasets_models_characters_assets_all.bundle",
             "duplicate_aasets_models_characters_assets_all1.bundle",
             "duplicate_aasets_models_characters_assets_all2.bundle",
             "duplicate_aasets_models_characters_assets_all3.bundle",
-            "duplicateassetisolation_assets_all11.bundle", // TODO: this is just a single sprite logo for cat ginger
+            "duplicateassetisolation_assets_all.bundle",
+            "duplicateassetisolation_assets_all1.bundle",
+            "duplicateassetisolation_assets_all2.bundle",
+            "duplicateassetisolation_assets_all4.bundle",
+            "duplicateassetisolation_assets_all5.bundle",
+            "duplicateassetisolation_assets_all7.bundle",
+            "duplicateassetisolation_assets_all11.bundle",
         };
 
         private static string OC2_BUNDLE_PATH = "Overcooked2_Data/StreamingAssets/Windows/";
@@ -88,7 +97,7 @@ namespace OC2Modding
 
             /* Convert assets to OC2 format and write new bundle */
 
-            List<AssetsReplacer> replacers = ConvertAvatarAssets(avatarAssets);
+            List<AssetsReplacer> replacers = ConvertAvatarAssets(ref avatarAssets);
             AddAvatarsToBundle(avatarIDsAndNames, replacers, oc2AvatarBundlePath);
             Oc2BundleHelper.UnloadAll();
             OC2Modding.Log.LogInfo($"Unloaded OC2 Bundles");
@@ -125,7 +134,7 @@ namespace OC2Modding
                             var variantBaseField = AyceBundleHelper.GetBaseField(variantID);
                             var variantName = variantBaseField["m_Name"].AsString;
                             avatarIDsAndNames[variantID] = variantName;
-                            return avatarIDsAndNames;
+                            return avatarIDsAndNames; // TODO
                         }
                         catch (Exception e)
                         {
@@ -210,7 +219,7 @@ namespace OC2Modding
             return avatarAssets;
         }
 
-        private static List<AssetsReplacer> ConvertAvatarAssets(List<AssetData> avatarAssets)
+        private static List<AssetsReplacer> ConvertAvatarAssets(ref List<AssetData> avatarAssets)
         {
             var assetsReplacers = new List<AssetsReplacer>();
 
@@ -225,7 +234,7 @@ namespace OC2Modding
                     }
                     catch {}
 
-                    var replacer = ConvertAsset(assetData);
+                    var replacer = ConvertAsset(assetData, ref avatarAssets);
                     if (replacer == null)
                     {
                         OC2Modding.Log.LogWarning($"Skipped converting {assetData.info.TypeId} | {name} | {assetData.info.PathId}");
@@ -332,7 +341,7 @@ namespace OC2Modding
             OC2Modding.Log.LogInfo($"Successfully added {addedCount} of {avatarIDsAndNames.Count - skippedCount} attempted ChefAvatarData entries to OC2 and {assetsReplacers.Count - 1} dependencies from AYCE to OC2");
         }
 
-        private static AssetsReplacerFromMemory ConvertAsset(AssetData assetData)
+        private static AssetsReplacerFromMemory ConvertAsset(AssetData assetData, ref List<AssetData> avatarAssets)
         {
             AssetTypeValueField converted;
             var type = (AssetClassID)assetData.info.TypeId;
@@ -372,27 +381,52 @@ namespace OC2Modding
                 }
                 case AssetClassID.MonoScript:
                 {
-                    converted = DefaultAssetConverter(assetData);
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
                     break;
                 }
                 case AssetClassID.GameObject:
                 {
-                    converted = DefaultAssetConverter(assetData);
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
                     break;
                 }
                 case AssetClassID.Sprite:
                 {
-                    converted = DefaultAssetConverter(assetData);
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
                     break;
                 }
                 case AssetClassID.AnimationClip:
                 {
-                    converted = DefaultAssetConverter(assetData);
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
                     break;
                 }
                 case AssetClassID.Material:
                 {
-                    converted = DefaultAssetConverter(assetData);
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
+                    break;
+                }
+                case AssetClassID.Transform:
+                {
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
+                    break;
+                }
+                case AssetClassID.SkinnedMeshRenderer:
+                {
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
+                    break;
+                }
+                case AssetClassID.Shader:
+                {
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
+                    break;
+                }
+                case AssetClassID.Texture2D:
+                {
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
+                    break;
+                }
+                case AssetClassID.Mesh:
+                {
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
                     break;
                 }
                 default:
@@ -409,10 +443,10 @@ namespace OC2Modding
             );
         }
 
-        private static AssetTypeValueField DefaultAssetConverter(AssetData assetData)
+        private static AssetTypeValueField DefaultAssetConverter(AssetData assetData, ref List<AssetData> avatarAssets)
         {
             var newBaseField = Oc2BundleHelper.CreateBaseField((AssetClassID)assetData.info.TypeId);
-            BundleHelper.CopyAsset(ref newBaseField, ref assetData.baseField, ref Oc2BundleHelper);
+            BundleHelper.CopyAsset(ref newBaseField, ref assetData.baseField, ref Oc2BundleHelper, ref avatarAssets);
             return newBaseField;
         }
 

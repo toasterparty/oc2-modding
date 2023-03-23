@@ -35,7 +35,7 @@ namespace OC2Modding
 
         private Dictionary<string, MonoBehaviourInfo> MonoBehaviourInfos = new Dictionary<string, MonoBehaviourInfo>();
 
-        public static void CopyAsset(ref AssetTypeValueField toData, ref AssetTypeValueField fromData, ref BundleHelper bundleHelper)
+        public static void CopyAsset(ref AssetTypeValueField toData, ref AssetTypeValueField fromData, ref BundleHelper bundleHelper, ref List<AssetData> avatarAssets)
         {
             // Copy key/value pairs
             var keys = new List<string>();
@@ -51,7 +51,7 @@ namespace OC2Modding
             // Adjust FileID where appropriate
             if (bundleHelper != null)
             {
-                AdjustFileID(toData, ref bundleHelper);
+                AdjustFileID(toData, ref bundleHelper, ref avatarAssets);
             }
         }
 
@@ -102,14 +102,19 @@ namespace OC2Modding
                 return;
             }
 
+            if (toData.IsDummy || fromData.IsDummy)
+            {
+                return;
+            }
+
             foreach (var child in fromData.Children)
             {
                 var fn = child.FieldName;
-                CopyAssetArrays(toData.Get(fn), fromData.Get(fn));
+                CopyAssetArrays(toData[fn], fromData[fn]);
             }
         }
 
-        private static void AdjustFileID(AssetTypeValueField toData, ref BundleHelper bundleHelper)
+        private static void AdjustFileID(AssetTypeValueField toData, ref BundleHelper bundleHelper, ref List<AssetData> avatarAssets)
         {
             if (toData.Children == null)
             {
@@ -121,16 +126,23 @@ namespace OC2Modding
                 if (
                     child.FieldName == "m_FileID" && 
                     child.Value.AsInt != 0 &&
-                    !bundleHelper.ContainsID(toData["m_PathID"].Value.AsLong) // TODO check if this is in the list of assets to convert
+                    !bundleHelper.ContainsID(toData["m_PathID"].Value.AsLong)
                 )
                 {
                     // In all you can eat, this file belonged to a dependency bundle, however we write these assets to the main bundle for oc2
                     OC2Modding.Log.LogWarning("adjust m_FileID");
                     child.Value.AsInt = 0;
+
+                    if (!avatarAssets.Any(x => x.info.PathId == toData["m_PathID"].Value.AsLong))
+                    {
+                        // The referenced ID isn't actually coming with the converted files, so null it out
+                        toData["m_PathID"].AsLong = 0;
+                    }
+
                     continue;
                 }
 
-                AdjustFileID(child, ref bundleHelper);
+                AdjustFileID(child, ref bundleHelper, ref avatarAssets);
             }
         }
 
@@ -362,27 +374,32 @@ namespace OC2Modding
          */
         private void ReadMonoBehaviourInfo(string className)
         {
-            var assets = this.MainBundleData().assets;
-
-            var scriptTypeInfos = AssetHelper.GetAssetsFileScriptInfos(Manager, assets);
-            var scriptIndex = scriptTypeInfos.Values.ToList().FindIndex(x => x.ClassName == className);
-            if (scriptIndex == -1)
+            foreach (var bundleData in this.Bundles)
             {
-                throw new Exception($"Failed to find class of type '{className}'");
+                var assets = bundleData.assets;
+
+                var scriptTypeInfos = AssetHelper.GetAssetsFileScriptInfos(Manager, assets);
+                var scriptIndex = scriptTypeInfos.Values.ToList().FindIndex(x => x.ClassName == className);
+                if (scriptIndex == -1)
+                {
+                    continue;
+                }
+
+                var monoScriptPPtr = assets.file.Metadata.ScriptTypes[scriptIndex];
+
+                var typeData = new MonoBehaviourInfo {
+                    name = className,
+                    index = scriptIndex,
+                    fileID = monoScriptPPtr.FileId,
+                    pathID = monoScriptPPtr.PathId,
+                };
+        
+                MonoBehaviourInfos[className] = typeData;
+                // OC2Modding.Log.LogInfo($"{className} is index={typeData.index}");
+                return; 
             }
 
-            var monoScriptPPtr = assets.file.Metadata.ScriptTypes[scriptIndex];
-
-            var typeData = new MonoBehaviourInfo {
-                name = className,
-                index = scriptIndex,
-                fileID = monoScriptPPtr.FileId,
-                pathID = monoScriptPPtr.PathId,
-            };
-    
-            MonoBehaviourInfos[className] = typeData;
-
-            // OC2Modding.Log.LogInfo($"{className} is index={typeData.index}"); 
+            throw new Exception($"Failed to find class of type '{className}'");
         }
 
         public AssetTypeValueField CreateBaseField(string className)
