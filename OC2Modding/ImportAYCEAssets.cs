@@ -97,8 +97,8 @@ namespace OC2Modding
 
             /* Convert assets to OC2 format and write new bundle */
 
-            List<AssetsReplacer> replacers = ConvertAvatarAssets(ref avatarAssets);
-            AddAvatarsToBundle(ref avatarIDsAndNames, ref replacers, oc2AvatarBundlePath);
+            var replacers = AddAvatarAssetsToBundle(ref avatarAssets, oc2AvatarBundlePath);
+            AddAvatarsToDirectory(ref avatarIDsAndNames, ref replacers, oc2AvatarBundlePath);
             Oc2BundleHelper.UnloadAll();
             OC2Modding.Log.LogInfo($"Unloaded OC2 Bundles");
         }
@@ -237,12 +237,13 @@ namespace OC2Modding
             return avatarAssets;
         }
 
-        private static List<AssetsReplacer> ConvertAvatarAssets(ref List<AssetData> avatarAssets)
+        private static List<AssetsReplacer> AddAvatarAssetsToBundle(ref List<AssetData> avatarAssets, string outBundlePath)
         {
             var assetsReplacers = new List<AssetsReplacer>();
 
             OC2Modding.Log.LogInfo($"Converting Assets...");
             int i = 0;
+            int success = 0;
 
             foreach (var assetData in avatarAssets)
             {
@@ -257,15 +258,26 @@ namespace OC2Modding
                     }
                     catch {}
 
+                    // if (assetsReplacers.Count >= 100)
+                    // {
+                    //     // dump to disk every now and again to save memory
+                    //     Oc2BundleHelper.ModifyBundle(ref assetsReplacers, outBundlePath);
+                    //     assetsReplacers.Clear();
+                    // }
+
+                    var type = (AssetClassID)assetData.info.TypeId;
+                    // OC2Modding.Log.LogInfo($"Converting {type} | {name} | {assetData.info.PathId}");
                     var replacer = ConvertAsset(assetData, ref avatarAssets);
+                    // OC2Modding.Log.LogInfo($"Converted");
+
                     if (replacer == null)
                     {
-                        OC2Modding.Log.LogWarning($"Skipped converting {assetData.info.TypeId} | {name} | {assetData.info.PathId}");
+                        OC2Modding.Log.LogWarning($"Skipped converting {type} | {name} | {assetData.info.PathId}");
                         continue; // skip converting
                     }
 
                     assetsReplacers.Add(replacer);
-                    OC2Modding.Log.LogInfo($"Converted {assetData.info.TypeId} | {name} | {assetData.info.PathId}");
+                    success++;
                 }
                 catch (Exception e)
                 {
@@ -273,17 +285,18 @@ namespace OC2Modding
                 }
             }
 
-            if (assetsReplacers.Count == 0)
+            // Oc2BundleHelper.ModifyBundle(ref assetsReplacers, outBundlePath);
+
+            if (success == 0)
             {
                 throw new Exception("Failed to convert any AYCE avatar-related assets to OC2 specifications");
             }
 
-            OC2Modding.Log.LogInfo($"Converted {assetsReplacers.Count} avatar-related assets from AYCE's format to OC2's format");
-
+            OC2Modding.Log.LogInfo($"Converted {success} of {avatarAssets.Count} avatar-related assets from AYCE's format to OC2's format");
             return assetsReplacers;
         }
 
-        private static void AddAvatarsToBundle(ref Dictionary<long, string> avatarIDsAndNames, ref List<AssetsReplacer> assetsReplacers, string outBundlePath)
+        private static void AddAvatarsToDirectory(ref Dictionary<long, string> avatarIDsAndNames, ref List<AssetsReplacer> assetsReplacers, string outBundlePath)
         {
             int addedCount = 0;
             int skippedCount = 0;
@@ -351,17 +364,12 @@ namespace OC2Modding
                 }
             }
 
-            int beforeLen = assetsReplacers.Count;
-            assetsReplacers = assetsReplacers.Where(x => !Oc2BundleHelper.ContainsID(x.GetPathID())).ToList();
-
-            OC2Modding.Log.LogInfo($"Skipped adding {beforeLen - assetsReplacers.Count} assets whose IDs already existed in OC2");
-
             assetsReplacers.Add(Oc2BundleHelper.FileReplacer(MAIN_AVATAR_DIRECTORY_ID, mainAvatarDirectory));
 
             OC2Modding.Log.LogInfo($"Skipped adding {skippedCount} directory entries due to redundant chefs");
-            
-            Oc2BundleHelper.ModifyBundle(assetsReplacers, outBundlePath);
-            OC2Modding.Log.LogInfo($"Successfully added {addedCount} of {avatarIDsAndNames.Count - skippedCount} attempted ChefAvatarData entries to OC2 and {assetsReplacers.Count - 1} dependencies from AYCE to OC2");
+
+            Oc2BundleHelper.ModifyBundle(ref assetsReplacers, outBundlePath);
+            OC2Modding.Log.LogInfo($"Successfully added {addedCount} of {avatarIDsAndNames.Count - skippedCount} attempted ChefAvatarData entries to OC2");
         }
 
         private static AssetsReplacerFromMemory ConvertAsset(AssetData assetData, ref List<AssetData> avatarAssets)
@@ -381,6 +389,7 @@ namespace OC2Modding
                 // 8775198998330553421L,  // New_Chef@FE_Idle_01 (AnimationClip)
                 // 3037418633120753884L,  // New_Chef@Celebrate_01 (AnimationClip)
                 // 6182019441836036947L,  // New_Chef@Character_Select_Final_Celebration_Plane (AnimationClip)
+                952725256833404699,
             };
 
             if (SKIP_IDS.Contains(assetData.info.PathId))
@@ -414,11 +423,13 @@ namespace OC2Modding
                 }
                 case AssetClassID.Sprite:
                 {
+                    // AYCE has m_Bones but OC2 does not
                     converted = DefaultAssetConverter(assetData, ref avatarAssets);
                     break;
                 }
                 case AssetClassID.AnimationClip:
                 {
+                    // AYCE has m_HasGenericRootTransform and m_HasMotionFloatCurves but OC2 does not
                     converted = DefaultAssetConverter(assetData, ref avatarAssets);
                     break;
                 }
@@ -439,6 +450,7 @@ namespace OC2Modding
                 }
                 case AssetClassID.Shader:
                 {
+                    // vector offsets, vector compressedLengths,  is nested differently this is likely causing problems
                     converted = DefaultAssetConverter(assetData, ref avatarAssets);
                     break;
                 }
@@ -448,6 +460,21 @@ namespace OC2Modding
                     break;
                 }
                 case AssetClassID.Mesh:
+                {
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
+                    break;
+                }
+                case AssetClassID.Animator:
+                {
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
+                    break;
+                }
+                case AssetClassID.AnimatorController:
+                {
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
+                    break;
+                }
+                case AssetClassID.Avatar:
                 {
                     converted = DefaultAssetConverter(assetData, ref avatarAssets);
                     break;
@@ -494,6 +521,34 @@ namespace OC2Modding
                     return ConvertMBChefAvatarData(oldBaseField, newBaseField);
                 }
                 case "DLCFrontendData":
+                {
+                    return null;
+                }
+                case "AnimatorCommunications":
+                {
+                    return null;
+                }
+                case "AnimatorAudioComponent":
+                {
+                    return null;
+                }
+                case "ForwardTriggersToParent":
+                {
+                    return null;
+                }
+                case "SendTriggerToObject":
+                {
+                    return null;
+                }
+                case "RandomizeAnimParam":
+                {
+                    return null;
+                }
+                case "RandomizeAnimParam_02":
+                {
+                    return null;
+                }
+                case "SetBoolDuringState":
                 {
                     return null;
                 }

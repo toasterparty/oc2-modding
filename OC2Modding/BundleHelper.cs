@@ -32,7 +32,6 @@ namespace OC2Modding
 
         private AssetsManager Manager;
         private List<BundleData> Bundles;
-
         private Dictionary<string, MonoBehaviourInfo> MonoBehaviourInfos = new Dictionary<string, MonoBehaviourInfo>();
 
         public static void CopyAsset(ref AssetTypeValueField toData, ref AssetTypeValueField fromData, ref BundleHelper bundleHelper, ref List<AssetData> avatarAssets)
@@ -130,7 +129,7 @@ namespace OC2Modding
                 )
                 {
                     // In all you can eat, this file belonged to a dependency bundle, however we write these assets to the main bundle for oc2
-                    OC2Modding.Log.LogWarning("adjust m_FileID");
+                    // OC2Modding.Log.LogWarning("adjust m_FileID");
                     child.Value.AsInt = 0;
 
                     if (!avatarAssets.Any(x => x.info.PathId == toData["m_PathID"].Value.AsLong))
@@ -297,6 +296,11 @@ namespace OC2Modding
 
                 try
                 {
+                    if (bundleHelper.GetClassName(depID) == "DLCFrontendData")
+                    {
+                        return; // avoid unecessary work
+                    }
+
                     var depData = bundleHelper.GetBaseField(depID);
                     deps.Add(depID);
 
@@ -325,7 +329,7 @@ namespace OC2Modding
             return new AssetsReplacerFromMemory(file, info, baseField);
         }
 
-        public void ModifyBundle(List<AssetsReplacer> assetsReplacers, string outPath = null)
+        public void ModifyBundle(ref List<AssetsReplacer> assetsReplacers, string outPath = null)
         {
             var bundleData = this.MainBundleData();
             
@@ -342,7 +346,26 @@ namespace OC2Modding
             {
                 bundleData.bundle.file.Write(writer, bundleReplacers);
             }
+            // Reinitialize(outPath);
         }
+
+        // private void Reinitialize(string newMainBundlePath)
+        // {
+        //     List<string> paths = new List<string>();
+        //     foreach(var bundleData in Bundles)
+        //     {
+        //         paths.Add(bundleData.bundle.path);
+        //     }
+
+        //     paths[0] = newMainBundlePath;
+
+        //     this.UnloadAll();
+
+        //     foreach (var path in paths)
+        //     {
+        //         this.LoadBundle(path);
+        //     }
+        // }
 
         public ushort GetScriptIndex(string className)
         {
@@ -427,6 +450,7 @@ namespace OC2Modding
         public void UnloadAll()
         {
             Bundles.Clear();
+            MonoBehaviourInfos.Clear();
             Manager.UnloadAll();
         }
 
