@@ -13,7 +13,21 @@ namespace OC2Modding
         public int scriptIndex;
         public AssetTypeValueField baseField;
     };
-    
+
+    public static class ListExtension
+    {
+        public static void AddSorted<T>(this List<T> list, T value)
+        {
+            int x = list.BinarySearch(value);
+            list.Insert((x >= 0) ? x : ~x, value);
+        }
+
+        public static bool ContainsSorted<T>(this List<T> list, T value)
+        {
+            return list.BinarySearch(value) >= 0;
+        }
+    }
+
     public class BundleHelper
     {
         private struct BundleData
@@ -275,9 +289,8 @@ namespace OC2Modding
             };
         }
 
-        public List<long> GetDependencies(long id)
+        public List<long> GetDependencies(long id, ref List<long> deps)
         {
-            var deps = new List<long>();
             var baseField = this.GetBaseField(id);
             var bundleHelper = this;
             CollectAssetDependencies(ref bundleHelper, baseField, ref deps);
@@ -295,7 +308,7 @@ namespace OC2Modding
                     return; // "null" reference
                 }
 
-                if (deps.Contains(depID))
+                if (deps.ContainsSorted(depID))
                 {
                     return; // avoid infinite recursion
                 }
@@ -308,7 +321,7 @@ namespace OC2Modding
                     }
 
                     var depData = bundleHelper.GetBaseField(depID);
-                    deps.Add(depID);
+                    deps.AddSorted(depID);
 
                     // collect all dependencies from dependent asset
                     CollectAssetDependencies(ref bundleHelper, depData, ref deps);

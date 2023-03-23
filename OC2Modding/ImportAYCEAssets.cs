@@ -181,11 +181,7 @@ namespace OC2Modding
                 OC2Modding.Log.LogInfo($"    {++i}/{avatarIDs.Count}");
                 try
                 {
-                    var depIDs = AyceBundleHelper.GetDependencies(avatarID);
-                    foreach (var depID in depIDs)
-                    {
-                        avatarRelatedIDs.Add(depID);
-                    }
+                    AyceBundleHelper.GetDependencies(avatarID, ref avatarRelatedIDs);
                 }
                 catch (Exception e)
                 {
@@ -258,13 +254,6 @@ namespace OC2Modding
                     }
                     catch {}
 
-                    // if (assetsReplacers.Count >= 100)
-                    // {
-                    //     // dump to disk every now and again to save memory
-                    //     Oc2BundleHelper.ModifyBundle(ref assetsReplacers, outBundlePath);
-                    //     assetsReplacers.Clear();
-                    // }
-
                     var type = (AssetClassID)assetData.info.TypeId;
                     // OC2Modding.Log.LogInfo($"Converting {type} | {name} | {assetData.info.PathId}");
                     var replacer = ConvertAsset(assetData, ref avatarAssets);
@@ -284,8 +273,6 @@ namespace OC2Modding
                     OC2Modding.Log.LogError($"Failed to convert {assetData.className} {assetData.info.PathId}:\n{e}");
                 }
             }
-
-            // Oc2BundleHelper.ModifyBundle(ref assetsReplacers, outBundlePath);
 
             if (success == 0)
             {
@@ -378,25 +365,6 @@ namespace OC2Modding
             var type = (AssetClassID)assetData.info.TypeId;
             var scriptIndex = Oc2BundleHelper.GetScriptIndex(assetData.className);
 
-            var SKIP_IDS = new long[] {
-                // -6594572577078433743L, // Chef_AxolotlPink (ChefAvatarData)
-                // -8987147349260460087L, // ChefAvatarData (MonoScript)
-                // -1673985575946039472L, // Chef_AxolotlPink (GameObject)
-                // 5048923704244734417L,  // Chef_AxolotlPink_Frontend (GameObject)
-                // -8343719870780976275L, // Chef_AxolotlPink_UI (GameObject)
-                // 4358930316311271624L,  // CHR_Chef_01 (GameObject)
-                // -6079689613363647449L, // chef_axolotl_pink (Sprite)
-                // 8775198998330553421L,  // New_Chef@FE_Idle_01 (AnimationClip)
-                // 3037418633120753884L,  // New_Chef@Celebrate_01 (AnimationClip)
-                // 6182019441836036947L,  // New_Chef@Character_Select_Final_Celebration_Plane (AnimationClip)
-            };
-
-            if (SKIP_IDS.Contains(assetData.info.PathId))
-            {
-                var name = assetData.baseField["m_Name"].AsString;
-                return null;
-            }
-
             switch (type)
             {
                 case AssetClassID.MonoBehaviour:
@@ -417,6 +385,11 @@ namespace OC2Modding
                     break;
                 }
                 case AssetClassID.Mesh:
+                {
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
+                    break;
+                }
+                case AssetClassID.ParticleSystem:
                 {
                     converted = DefaultAssetConverter(assetData, ref avatarAssets);
                     break;
@@ -646,7 +619,13 @@ namespace OC2Modding
         {
             if (___m_combinedAvatarDirectory != null)
             {
-                __result =___m_combinedAvatarDirectory.Avatars;
+                var before = ___m_combinedAvatarDirectory.Avatars.Length;
+                __result =___m_combinedAvatarDirectory.Avatars.FindAll(x => x != null);
+                var after = __result.Length;
+                if (after < before)
+                {
+                    OC2Modding.Log.LogWarning($"{before - after} avatars failed to load from MainAvatarDirectory");
+                }
             }
         }
     }
