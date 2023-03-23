@@ -34,7 +34,7 @@ namespace OC2Modding
         private List<BundleData> Bundles;
         private Dictionary<string, MonoBehaviourInfo> MonoBehaviourInfos = new Dictionary<string, MonoBehaviourInfo>();
 
-        public static void CopyAsset(ref AssetTypeValueField toData, ref AssetTypeValueField fromData, ref BundleHelper bundleHelper, ref List<AssetData> avatarAssets)
+        public static void CopyAsset(ref AssetTypeValueField toData, ref AssetTypeValueField fromData, BundleHelper bundleHelper, ref List<AssetData> avatarAssets)
         {
             // Copy key/value pairs
             var keys = new List<string>();

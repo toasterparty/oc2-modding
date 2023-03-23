@@ -389,7 +389,6 @@ namespace OC2Modding
                 // 8775198998330553421L,  // New_Chef@FE_Idle_01 (AnimationClip)
                 // 3037418633120753884L,  // New_Chef@Celebrate_01 (AnimationClip)
                 // 6182019441836036947L,  // New_Chef@Character_Select_Final_Celebration_Plane (AnimationClip)
-                952725256833404699,
             };
 
             if (SKIP_IDS.Contains(assetData.info.PathId))
@@ -411,12 +410,23 @@ namespace OC2Modding
 
                     break;
                 }
-                case AssetClassID.MonoScript:
+                case AssetClassID.Shader:
+                {
+                    // vector offsets, vector compressedLengths,  is nested differently this is likely causing problems
+                    converted = ConvertShader(assetData, ref avatarAssets);
+                    break;
+                }
+                case AssetClassID.Mesh:
                 {
                     converted = DefaultAssetConverter(assetData, ref avatarAssets);
                     break;
                 }
                 case AssetClassID.GameObject:
+                {
+                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
+                    break;
+                }
+                case AssetClassID.MonoScript:
                 {
                     converted = DefaultAssetConverter(assetData, ref avatarAssets);
                     break;
@@ -448,18 +458,7 @@ namespace OC2Modding
                     converted = DefaultAssetConverter(assetData, ref avatarAssets);
                     break;
                 }
-                case AssetClassID.Shader:
-                {
-                    // vector offsets, vector compressedLengths,  is nested differently this is likely causing problems
-                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
-                    break;
-                }
                 case AssetClassID.Texture2D:
-                {
-                    converted = DefaultAssetConverter(assetData, ref avatarAssets);
-                    break;
-                }
-                case AssetClassID.Mesh:
                 {
                     converted = DefaultAssetConverter(assetData, ref avatarAssets);
                     break;
@@ -496,8 +495,44 @@ namespace OC2Modding
         private static AssetTypeValueField DefaultAssetConverter(AssetData assetData, ref List<AssetData> avatarAssets)
         {
             var newBaseField = Oc2BundleHelper.CreateBaseField((AssetClassID)assetData.info.TypeId);
-            BundleHelper.CopyAsset(ref newBaseField, ref assetData.baseField, ref Oc2BundleHelper, ref avatarAssets);
+            BundleHelper.CopyAsset(ref newBaseField, ref assetData.baseField, Oc2BundleHelper, ref avatarAssets);
             return newBaseField;
+        }
+
+        private static AssetTypeValueField ConvertShader(AssetData assetData, ref List<AssetData> avatarAssets)
+        {
+            var oldData = assetData.baseField;
+            var newData = Oc2BundleHelper.CreateBaseField((AssetClassID)assetData.info.TypeId);
+            BundleHelper.CopyAsset(ref newData, ref oldData, null, ref avatarAssets);
+
+            newData["offsets.Array"].Children.Clear();
+            foreach (var child in oldData["offsets.Array"])
+            {
+                foreach (var child2 in child["Array"])
+                {
+                    newData["offsets.Array"].Children.Add(child2);
+                }
+            }
+
+            newData["compressedLengths.Array"].Children.Clear();
+            foreach (var child in oldData["compressedLengths.Array"])
+            {
+                foreach (var child2 in child["Array"])
+                {
+                    newData["compressedLengths.Array"].Children.Add(child2);
+                }
+            }
+
+            newData["decompressedLengths.Array"].Children.Clear();
+            foreach (var child in oldData["decompressedLengths.Array"])
+            {
+                foreach (var child2 in child["Array"])
+                {
+                    newData["decompressedLengths.Array"].Children.Add(child2);
+                }
+            }
+
+            return newData;
         }
 
         private static AssetTypeValueField ConvertMonoBehaviour(AssetData assetData)
