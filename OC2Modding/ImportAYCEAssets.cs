@@ -98,13 +98,15 @@ namespace OC2Modding
             /* Convert assets to OC2 format and write new bundle */
 
             List<AssetsReplacer> replacers = ConvertAvatarAssets(ref avatarAssets);
-            AddAvatarsToBundle(avatarIDsAndNames, replacers, oc2AvatarBundlePath);
+            AddAvatarsToBundle(ref avatarIDsAndNames, ref replacers, oc2AvatarBundlePath);
             Oc2BundleHelper.UnloadAll();
             OC2Modding.Log.LogInfo($"Unloaded OC2 Bundles");
         }
 
         private static Dictionary<long, string> GetAyceAvatarIDsAndNames()
         {
+            OC2Modding.Log.LogInfo($"Searching AYCE for Avatars...");
+
             var avatarIDsAndNames = new Dictionary<long, string>();
             var mainAvatarDirectory = AyceBundleHelper.GetBaseField(MAIN_AVATAR_DIRECTORY_ID);
             if (mainAvatarDirectory["m_Name"].AsString != "MainAvatarDirectory")
@@ -114,8 +116,17 @@ namespace OC2Modding
 
             var baseAvatars = mainAvatarDirectory["m_baseAvatars"][0];
 
+            int total = 0;
             foreach (var baseAvatar in baseAvatars)
             {
+                total += baseAvatar["m_variants"][0].Children.Count;
+            }
+
+            int i = 0;
+            foreach (var baseAvatar in baseAvatars)
+            {
+                OC2Modding.Log.LogInfo($"    {++i}/{total}");
+
                 string baseName = "<unknown-name>";
 
                 try
@@ -162,8 +173,12 @@ namespace OC2Modding
         {
             List<long> avatarRelatedIDs = new List<long>(avatarIDs);
 
+            OC2Modding.Log.LogInfo($"Enumerating dependencies...");
+
+            int i = 0;
             foreach (var avatarID in avatarIDs)
             {
+                OC2Modding.Log.LogInfo($"    {++i}/{avatarIDs.Count}");
                 try
                 {
                     var depIDs = AyceBundleHelper.GetDependencies(avatarID);
@@ -197,8 +212,11 @@ namespace OC2Modding
 
             var avatarAssets = new List<AssetData>();
 
+            int i = 0;
             foreach (var assetID in assetIDs)
             {
+                OC2Modding.Log.LogInfo($"    {++i}/{assetIDs.Count}");
+
                 try
                 {
                     avatarAssets.Add(AyceBundleHelper.GetAssetData(assetID));
@@ -223,8 +241,13 @@ namespace OC2Modding
         {
             var assetsReplacers = new List<AssetsReplacer>();
 
+            OC2Modding.Log.LogInfo($"Converting Assets...");
+            int i = 0;
+
             foreach (var assetData in avatarAssets)
             {
+                OC2Modding.Log.LogInfo($"    {++i}/{avatarAssets.Count}");
+
                 try
                 {
                     var name = "";
@@ -260,7 +283,7 @@ namespace OC2Modding
             return assetsReplacers;
         }
 
-        private static void AddAvatarsToBundle(Dictionary<long, string> avatarIDsAndNames, List<AssetsReplacer> assetsReplacers, string outBundlePath)
+        private static void AddAvatarsToBundle(ref Dictionary<long, string> avatarIDsAndNames, ref List<AssetsReplacer> assetsReplacers, string outBundlePath)
         {
             int addedCount = 0;
             int skippedCount = 0;
@@ -330,7 +353,7 @@ namespace OC2Modding
 
             int beforeLen = assetsReplacers.Count;
             assetsReplacers = assetsReplacers.Where(x => !Oc2BundleHelper.ContainsID(x.GetPathID())).ToList();
-            
+
             OC2Modding.Log.LogInfo($"Skipped adding {beforeLen - assetsReplacers.Count} assets whose IDs already existed in OC2");
 
             assetsReplacers.Add(Oc2BundleHelper.FileReplacer(MAIN_AVATAR_DIRECTORY_ID, mainAvatarDirectory));
