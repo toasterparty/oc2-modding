@@ -37,12 +37,7 @@ namespace OC2Modding
         public static void CopyAsset(ref AssetTypeValueField toData, ref AssetTypeValueField fromData, BundleHelper bundleHelper, ref List<AssetData> avatarAssets)
         {
             // Copy key/value pairs
-            var keys = new List<string>();
-            FlattenAssetKeys(fromData, "", ref keys);
-            foreach (var key in keys)
-            {
-                toData[key].Value = fromData[key].Value;
-            }
+            CopyAssetFields(ref toData, ref fromData, "");
 
             // Copy Arrays
             CopyAssetArrays(toData, fromData);
@@ -54,29 +49,40 @@ namespace OC2Modding
             }
         }
 
-        private static void FlattenAssetKeys(AssetTypeValueField field, string currentKey, ref List<string> keys)
+        private static void CopyAssetFields(ref AssetTypeValueField toData, ref AssetTypeValueField fromData, string key)
         {
-            if (field.FieldName != "Base")
+            if (fromData[key].Value != null && fromData[key].Value.ValueType == AssetValueType.Array)
             {
-                if (currentKey == "")
-                {
-                    currentKey += field.FieldName;
-                }
-                else
-                {
-                    currentKey += "." + field.FieldName;
-                }
+                return; // arrays handled in another method
             }
 
-            if (field.Children == null || field.Children.Count == 0)
+            if (fromData[key].Children == null || fromData[key].Children.Count == 0)
             {
-                keys.Add(currentKey);
+                if (fromData[key].Value != null)
+                {
+                    toData[key].Value = fromData[key].Value;
+                }
                 return;
             }
 
-            foreach (var key in field.Children)
+            foreach (var child in fromData)
             {
-                FlattenAssetKeys(key, currentKey, ref keys);
+                if (child.FieldName == "")
+                {
+                    continue;
+                }
+
+                string newKey;
+                if (key == "")
+                {
+                    newKey = child.FieldName;
+                }
+                else
+                {
+                    newKey = key + "." + child.FieldName;
+                }
+
+                CopyAssetFields(ref toData, ref fromData, newKey);
             }
         }
 
