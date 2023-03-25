@@ -369,10 +369,10 @@ namespace OC2Modding
             {
                 case AssetClassID.MonoBehaviour:
                 {
-                    converted = ConvertMonoBehaviour(assetData);
+                    converted = ConvertMonoBehaviour(assetData, ref avatarAssets);
                     if (converted == null)
                     {
-                        OC2Modding.Log.LogWarning($"{assetData.className} converter not yet implemented");
+                        OC2Modding.Log.LogWarning($"{assetData.className} ({assetData.scriptIndex}) converter not yet implemented");
                         return null;
                     }
 
@@ -472,6 +472,19 @@ namespace OC2Modding
             return newBaseField;
         }
 
+        private static AssetTypeValueField DefaultMonoBehaviorConverter(AssetTypeValueField fromData, AssetTypeValueField toData, ref List<AssetData> avatarAssets)
+        {
+            var fileID = toData["m_Script.m_FileID"].AsInt;
+            var pathID = toData["m_Script.m_PathID"].AsLong;
+
+            BundleHelper.CopyAsset(ref toData, ref fromData, Oc2BundleHelper, ref avatarAssets);
+
+            toData["m_Script.m_FileID"].AsInt = fileID;
+            toData["m_Script.m_PathID"].AsLong = pathID;
+
+            return toData;
+        }
+
         private static AssetTypeValueField ConvertShader(AssetData assetData, ref List<AssetData> avatarAssets)
         {
             var oldData = assetData.baseField;
@@ -508,7 +521,7 @@ namespace OC2Modding
             return newData;
         }
 
-        private static AssetTypeValueField ConvertMonoBehaviour(AssetData assetData)
+        private static AssetTypeValueField ConvertMonoBehaviour(AssetData assetData, ref List<AssetData> avatarAssets)
         {
             var oldBaseField = assetData.baseField;
             if (oldBaseField == null)
@@ -530,39 +543,39 @@ namespace OC2Modding
                 }
                 case "DLCFrontendData":
                 {
-                    return null;
+                    return DefaultMonoBehaviorConverter(oldBaseField, newBaseField, ref avatarAssets);
                 }
                 case "AnimatorCommunications":
                 {
-                    return null;
+                    return DefaultMonoBehaviorConverter(oldBaseField, newBaseField, ref avatarAssets);
                 }
                 case "AnimatorAudioComponent":
                 {
-                    return null;
+                    return DefaultMonoBehaviorConverter(oldBaseField, newBaseField, ref avatarAssets);
                 }
                 case "ForwardTriggersToParent":
                 {
-                    return null;
+                    return DefaultMonoBehaviorConverter(oldBaseField, newBaseField, ref avatarAssets);
                 }
                 case "SendTriggerToObject":
                 {
-                    return null;
+                    return DefaultMonoBehaviorConverter(oldBaseField, newBaseField, ref avatarAssets);
                 }
                 case "RandomizeAnimParam":
                 {
-                    return null;
+                    return DefaultMonoBehaviorConverter(oldBaseField, newBaseField, ref avatarAssets);
                 }
                 case "RandomizeAnimParam_02":
                 {
-                    return null;
+                    return DefaultMonoBehaviorConverter(oldBaseField, newBaseField, ref avatarAssets);
                 }
                 case "SetBoolDuringState":
                 {
-                    return null;
+                    return DefaultMonoBehaviorConverter(oldBaseField, newBaseField, ref avatarAssets);
                 }
                 default:
                 {
-                    throw new Exception($"Error: Cannot convert MonoBehavior '{assetData.className}' because no converter is implemented");
+                    throw new Exception($"Error: Cannot convert MonoBehavior '{assetData.className} ({assetData.scriptIndex})' because no converter is implemented");
                 }
             }
         }
@@ -600,18 +613,6 @@ namespace OC2Modding
 
             return toData;
         }
-
-        // [HarmonyPatch(typeof(MetaGameProgress), "Awake")]
-        // [HarmonyPostfix]
-        // private static void Awake(ref AvatarDirectoryData ___m_combinedAvatarDirectory)
-        // {
-        //     var dir = ___m_combinedAvatarDirectory;
-        //     if (___m_combinedAvatarDirectory == null) return;
-
-        //     OC2Modding.Log.LogInfo($"Before: {dir.Avatars.Length}|{dir.Colours.Length}");
-        //     ApplyExtraAvatars(ref dir);
-        //     OC2Modding.Log.LogInfo($"After: {dir.Avatars.Length}|{dir.Colours.Length}");
-        // }
 
         [HarmonyPatch(typeof(MetaGameProgress), nameof(MetaGameProgress.GetUnlockedAvatars))]
         [HarmonyPostfix]
