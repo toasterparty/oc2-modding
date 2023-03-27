@@ -37,7 +37,7 @@ namespace OC2Modding
         {
             string objectName = _objectToPlace.name;
 
-            if (OC2Config.Config.DisableFireExtinguisher && objectName.Contains("utensil_fire_extinguisher"))
+            if (OC2Config.Config.DisableFireExtinguisher && null != _objectToPlace.GetComponent(typeof(FireExtinguishSpray)))
             {
                 return false;
             }
@@ -133,6 +133,23 @@ namespace OC2Modding
             {
                 MethodInfo dynMethod = __instance.GetType().GetMethod("OnItemTaken", BindingFlags.NonPublic | BindingFlags.Instance);
                 dynMethod.Invoke(__instance, new object[] { });
+            }
+        }
+
+        [HarmonyPatch(typeof(ServerAttachStation), "AttachInitialObjects")]
+        [HarmonyPostfix]
+        private static void AttachInitialObjects()
+        {
+            if (OC2Config.Config.DisableFireExtinguisher)
+            {
+                var allObjects = GameObject.FindObjectsOfType(typeof(GameObject));
+                foreach (GameObject obj in allObjects)
+                {
+                    if (null != obj.RequestComponent<FireExtinguishSpray>())
+                    {
+                        obj.SetActive(false);
+                    }
+                }
             }
         }
 
