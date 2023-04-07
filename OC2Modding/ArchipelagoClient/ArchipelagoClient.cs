@@ -527,6 +527,11 @@ namespace OC2Modding
 
         public static void SendDeathLink(string cause)
         {
+            ThreadPool.QueueUserWorkItem((o) => SendDeathLinkTask(cause));
+        }
+
+        private static void SendDeathLinkTask(string cause)
+        {
             if (deathLinkService == null || !IsConnected || session == null)
             {
                 return; // not connected or DeathLink disabled
