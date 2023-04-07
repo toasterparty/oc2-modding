@@ -2,5 +2,6 @@
 */obj/*
 dist/curl/*
 dist/BepInEx*
+dist/leaderboard_scores.csv
 */com.github.toasterparty.*.dll
 OC2Modding/OC2Modding.csproj
