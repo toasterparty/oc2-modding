@@ -115,6 +115,11 @@ namespace OC2Modding
             return ClientUserSystem.m_Users.Count;
         }
 
+        public static bool HasLeaderboardScores()
+        {
+            return 0 != getScoresFromLeaderboard(-1, 37, 1);
+        }
+
         public static int getScoresFromLeaderboard(int dlcID, int levelId, int playerCount)
         {
             DlcAndLevel dlcAndLevel = getLevelName(dlcID, levelId);
@@ -388,11 +393,13 @@ namespace OC2Modding
             return levelName.Contains("_Dynamic_") || levelName.Contains("_Special_");
         }
 
-        private static void BuildLeaderboardScores()
+        public static void BuildLeaderboardScores(bool noDownload = false)
         {
             leaderboardScores = new Dictionary<LeaderboardScoresKey, int>();
 
-            downloadLeaderboardFile();
+            if (noDownload) {
+                downloadLeaderboardFile();
+            }
 
             IEnumerable<string> lines;
             try

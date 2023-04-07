@@ -392,6 +392,16 @@ namespace OC2Modding
                 Thread.Sleep(100);
             }
 
+            cachedConnectionResult = null;
+            if (!OC2Helpers.HasLeaderboardScores())
+            {
+                OC2Helpers.BuildLeaderboardScores(false);
+                if (!OC2Helpers.HasLeaderboardScores())
+                {
+                    return new LoginFailure("Failed to fetch leaderboard scores which is required for randomizer");   
+                }
+            }
+
             IsConnecting = true;
 
             try
