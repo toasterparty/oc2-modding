@@ -1,3 +1,9 @@
+#if NET35
+    #define STEAM
+#elif NET46
+    #define EPIC
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,7 +12,7 @@ using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Models;
 using Archipelago.MultiClient.Net.Packets;
-using Archipelago.MultiClient.Net.Helpers;
+using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -630,9 +636,20 @@ namespace OC2Modding
             }
         }
 
+#if STEAM
+        public static void DisconnectTask()
+        {
+            session?.Socket.Disconnect();
+        }
+#endif
+
         public static void Disconnect()
         {
-            session?.Socket?.DisconnectAsync();
+#if EPIC
+            session?.Socket.DisconnectAsync();
+#elif STEAM
+            ThreadPool.QueueUserWorkItem((o) => DisconnectTask());
+#endif 
 
             serverUrl = null;
             userName = null;
