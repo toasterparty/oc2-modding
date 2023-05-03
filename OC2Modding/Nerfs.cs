@@ -37,7 +37,7 @@ namespace OC2Modding
         {
             string objectName = _objectToPlace.name;
 
-            if (OC2Config.Config.DisableFireExtinguisher && null != _objectToPlace.GetComponent(typeof(FireExtinguishSpray)))
+            if (OC2Config.Config.DisableFireExtinguisher && IsFireExtinguisher(_objectToPlace))
             {
                 return false;
             }
@@ -136,6 +136,13 @@ namespace OC2Modding
             }
         }
 
+        private static bool IsFireExtinguisher(GameObject obj)
+        {
+            bool hasFireExtinguishSpray = null != obj.RequestComponent<FireExtinguishSpray>();
+            bool hasWaterGunSpray = null != obj.RequestComponent<WaterGunSpray>();
+            return hasFireExtinguishSpray && !hasWaterGunSpray;
+        }
+
         [HarmonyPatch(typeof(ServerAttachStation), "AttachInitialObjects")]
         [HarmonyPostfix]
         private static void AttachInitialObjects()
@@ -145,7 +152,7 @@ namespace OC2Modding
                 var allObjects = GameObject.FindObjectsOfType(typeof(GameObject));
                 foreach (GameObject obj in allObjects)
                 {
-                    if (null != obj.RequestComponent<FireExtinguishSpray>())
+                    if (IsFireExtinguisher(obj))
                     {
                         obj.SetActive(false);
                     }
