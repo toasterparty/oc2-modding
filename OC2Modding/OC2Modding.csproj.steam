@@ -3,7 +3,7 @@
     <TargetFramework>net35</TargetFramework>
     <AssemblyName>com.github.toasterparty.oc2modding.steam</AssemblyName>
     <Description>Overcooked! 2 Modding</Description>
-    <Version>1.8.1</Version>
+    <Version>1.8.2</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>

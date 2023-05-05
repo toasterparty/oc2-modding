@@ -414,40 +414,51 @@ namespace OC2Modding
             {
                 // Derrive the full uri, accounting for every possible variation of user stupidity
                 serverUrl = server.ToLower();
-                serverUrl = serverUrl.Replace("http://", "");
-                serverUrl = serverUrl.Replace("https://", "");
+
+                if (serverUrl.Contains("://"))
+                {
+                    var split = serverUrl.Split(new string[] { "://" }, StringSplitOptions.None);
+                    serverUrl = split[split.Length - 1];
+                }
+
                 serverUrl = serverUrl.Replace("/connect", "");
                 serverUrl = serverUrl.Replace("connect", "");
                 serverUrl = serverUrl.Replace("'", "");
                 serverUrl = serverUrl.Replace(" ", "");
-                if (!serverUrl.StartsWith("ws://") && !serverUrl.StartsWith("wss://"))
-                {
-                    serverUrl = "ws://" + serverUrl;
-                }
-
-                OC2Modding.Log.LogInfo($"Connecting to {serverUrl}");
 
                 userName = user;
                 password = pass;
 
-                var uri = new Uri(serverUrl);
-                session = ArchipelagoSessionFactory.CreateSession(uri);        
+                LoginResult result = null;
+                foreach(string prefix in new string[] {"wss://", "ws://"})
+                {
+                    var url = prefix + serverUrl;
+                    var uri = new Uri(url);
+                    session = ArchipelagoSessionFactory.CreateSession(uri);
 
-                session.MessageLog.OnMessageReceived += OnMessageReceived;
+                    OC2Modding.Log.LogInfo($"Connecting to {url}");
 
-                var result = session.TryConnectAndLogin(
-                    "Overcooked! 2",
-                    userName,
-                    REMOTE_INVENTORY ? ItemsHandlingFlags.AllItems : ItemsHandlingFlags.RemoteItems,
-                    MinimumProtocolVersion,
-                    tags: new string[0],
-                    uuid: null,
-                    password: password
-                );
+                    result = session.TryConnectAndLogin(
+                        "Overcooked! 2",
+                        userName,
+                        REMOTE_INVENTORY ? ItemsHandlingFlags.AllItems : ItemsHandlingFlags.RemoteItems,
+                        MinimumProtocolVersion,
+                        tags: new string[0],
+                        uuid: null,
+                        password: password
+                    );
+                    
+                    if (result is LoginSuccessful)
+                    {
+                        break;
+                    }
+                }
 
                 if (result is LoginSuccessful loginSuccess)
                 {
                     /* Login was successful */
+
+                    session.MessageLog.OnMessageReceived += OnMessageReceived;
 
                     // non-seeded random number unique to this instance of this seed + slot
                     session.DataStorage["SaveDirSuffix"].Initialize((new Random()).Next(minValue: 0, maxValue: 10000));
