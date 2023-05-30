@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using UnityEngine;
-using HarmonyLib;
 using System.Linq;
+using HarmonyLib;
+using UnityEngine;
 
 namespace OC2Modding
 {
@@ -16,6 +16,7 @@ namespace OC2Modding
         private static Rect textRect;
         private static Rect hideShowbuttonRect;
         private static Rect autoCompleteButtonRect;
+        private static Rect endLevelButtonRect;
         private static string autoCompleteButtonText = "";
         public enum AutoCompleteMode
         {
@@ -57,6 +58,14 @@ namespace OC2Modding
             UpdateWindow();
         }
 
+        public static void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Delete))
+            {
+                OC2Helpers.EndLevel();
+            }
+        }
+
         public static void OnGUI()
         {
             if (logLines.Count == 0)
@@ -82,33 +91,17 @@ namespace OC2Modding
                 UpdateWindow();
             }
 
-            if (!isHidden && GUI.Button(autoCompleteButtonRect, autoCompleteButtonText))
+            if (!isHidden)
             {
-                switch (autoCompleteMode)
+                if (GUI.Button(autoCompleteButtonRect, autoCompleteButtonText))
                 {
-                    case AutoCompleteMode.AUTO_COMPLETE_DISABLED:
-                    {
-                        autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_THREE_STAR;
-                        break;
-                    }
-                    case AutoCompleteMode.AUTO_COMPLETE_THREE_STAR:
-                    {
-                        autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_TWO_STAR;
-                        break;
-                    }
-                    case AutoCompleteMode.AUTO_COMPLETE_TWO_STAR:
-                    {
-                        autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_ONE_STAR;
-                        break;
-                    }
-                    case AutoCompleteMode.AUTO_COMPLETE_ONE_STAR:
-                    {
-                        autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_DISABLED;
-                        break;
-                    }
+                    OnAutoCompleteClicked();
                 }
 
-                UpdateWindow();
+                if (OC2Helpers.ShouldEndLevelButton() && GUI.Button(endLevelButtonRect, "End Level (del)"))
+                {
+                    OC2Helpers.EndLevel();
+                }
             }
         }
 
@@ -216,8 +209,41 @@ namespace OC2Modding
                 }
             }
 
+            int oldWidth = buttonWidth;
+            buttonWidth = (int)((float)Screen.width*0.08f);
+            endLevelButtonRect = new Rect((Screen.width / 2) + (width / 2) + (oldWidth / 2) + (oldWidth - buttonWidth) / 2, Screen.height*0.010f + buttonHeight*1.5f, buttonWidth, buttonHeight);
+            
             ArchipelagoLoginGUI.UpdateGUI();
             ArchipelagoCommandGUI.UpdateGUI();
+        }
+
+        private static void OnAutoCompleteClicked()
+        {
+            switch (autoCompleteMode)
+            {
+                case AutoCompleteMode.AUTO_COMPLETE_DISABLED:
+                {
+                    autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_THREE_STAR;
+                    break;
+                }
+                case AutoCompleteMode.AUTO_COMPLETE_THREE_STAR:
+                {
+                    autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_TWO_STAR;
+                    break;
+                }
+                case AutoCompleteMode.AUTO_COMPLETE_TWO_STAR:
+                {
+                    autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_ONE_STAR;
+                    break;
+                }
+                case AutoCompleteMode.AUTO_COMPLETE_ONE_STAR:
+                {
+                    autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_DISABLED;
+                    break;
+                }
+            }
+
+            UpdateWindow();
         }
 
         [HarmonyPatch(typeof(FixedAspectRatioManager), "LateUpdate")]

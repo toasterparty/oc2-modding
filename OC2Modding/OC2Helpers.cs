@@ -20,6 +20,7 @@ namespace OC2Modding
             /* Asynchronously download leaderboard file and populate memory structure with score */
             ThreadPool.QueueUserWorkItem((o) => BuildLeaderboardScores());
 
+            Harmony.CreateAndPatchAll(typeof(OC2Helpers));
             Harmony.CreateAndPatchAll(typeof(CurrentDLC));
             Harmony.CreateAndPatchAll(typeof(CurrentDLC.DLCMenu));
             Harmony.CreateAndPatchAll(typeof(CurrentDLC.CampaignMenu));
@@ -566,6 +567,42 @@ namespace OC2Modding
                         // OC2Modding.Log.LogWarning($"Unexpected DLC '{dlc}'");
                         return -2;
                     }
+            }
+        }
+
+        
+        private static bool Printed = false;
+        [HarmonyPatch(typeof(LoadingScreenFlow), nameof(LoadingScreenFlow.LoadScene))]
+        [HarmonyPrefix]
+        private static void LoadScene()
+        {
+            Printed = false;
+        }
+
+        public static bool ShouldEndLevelButton()
+        {
+            return !Printed && null != GameObject.FindObjectOfType<ServerCampaignFlowController>();
+        }
+
+        public static void EndLevel()
+        {
+            if (!OC2Helpers.IsHostPlayer())
+            {
+                return;
+            }
+
+            ServerCampaignFlowController flowController = GameObject.FindObjectOfType<ServerCampaignFlowController>();
+            if (flowController == null)
+            {
+                OC2Modding.Log.LogWarning("Couldn't end level early due to not being able to find ServerCampaignFlowController");
+                return;
+            }
+
+            flowController.SkipToEnd();
+            if (!Printed)
+            {
+                Printed = true;
+                GameLog.LogMessage($"Ending level early...");
             }
         }
 

@@ -71,6 +71,7 @@ namespace OC2Modding
             LeaderboardMod.Update();
             DisplayFPS.Update();
             DisplayModsOnResultsScreen.Update();
+            GameLog.Update();
             Cheats.Update();
             AutoCompleteLevel.Update();
             ArchipelagoClient.Update();

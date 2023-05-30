@@ -6,7 +6,6 @@ namespace OC2Modding
 {
     public static class Cheats
     {
-        private static bool SkipLevel = false;
         private static bool Printed = false;
 
         public static void Awake()
@@ -20,12 +19,8 @@ namespace OC2Modding
             {
                 return;
             }
-            
-            if (Input.GetKeyDown(KeyCode.Delete))
-            {
-                SkipLevel = true;
-            }
-            else if (Input.GetKeyDown(KeyCode.Keypad1))
+
+            if (Input.GetKeyDown(KeyCode.Keypad1))
             {
                 FinishLevel(1);
             }
@@ -130,20 +125,8 @@ namespace OC2Modding
         [HarmonyPrefix]
         private static void LoadScene()
         {
-            SkipLevel = false;
             Printed = false;
             forceFinishHorde = -1;
-        }
-
-        [HarmonyPatch(typeof(ServerCampaignFlowController), "OnSuccessfulDelivery")]
-        [HarmonyPostfix]
-        private static void OnSuccessfulDelivery(ref ServerCampaignFlowController __instance)
-        {
-            if (SkipLevel && OC2Helpers.IsHostPlayer())
-            {
-                SkipLevel = false;
-                __instance.SkipToEnd();
-            }
         }
     }
 }
