@@ -37,8 +37,13 @@ namespace OC2Modding
 
         public static void Update()
         {
-            if (applied) return;
-            ApplyCachedVolumes();
+            if (!applied) {
+                ApplyCachedVolumes();
+            }
+
+            if (FlushPending) {
+                DoFlush();
+            }
         }
 
         private static float VolumeTodB(int vol)
@@ -206,9 +211,16 @@ namespace OC2Modding
             }
         }
 
+        private static bool FlushPending = false;
         public static void Flush()
         {
-            // TODO: Async
+            FlushPending = true;
+        }
+
+        private static void DoFlush()
+        {
+            FlushPending = false;
+
             try
             {
                 File.WriteAllText(CachePath, JsonConvert.SerializeObject(cache));
