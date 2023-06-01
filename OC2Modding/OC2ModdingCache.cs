@@ -1,4 +1,7 @@
+using System;
 using System.IO;
+using System.Collections.Generic;
+using System.Reflection;
 using Newtonsoft.Json;
 using UnityEngine;
 using HarmonyLib;
@@ -18,6 +21,7 @@ namespace OC2Modding
             public int lastQuality = -1;
             public int lastMusicVolume = -1;
             public int lastSfxVolume = -1;
+            public Dictionary<string, Dictionary<string, string>> bindings = new Dictionary<string, Dictionary<string, string>>();
         }
 
         public static Cache cache = new Cache();
@@ -26,6 +30,7 @@ namespace OC2Modding
         {
             Read();
             Harmony.CreateAndPatchAll(typeof(OC2ModdingCache));
+            Harmony.CreateAndPatchAll(typeof(GlobalSave_Get_Patch));
         }
 
         private static bool applied = false;
@@ -117,6 +122,60 @@ namespace OC2Modding
             SetOptionHelper(ref ___m_options, 8, 1);
         }
 
+        // Need to know about this function because it writes defaults which we want to avoid caching
+        private static bool InByteSave = false;
+        [HarmonyPatch(typeof(MetaGameProgress), nameof(MetaGameProgress.ByteSave))]
+        [HarmonyPrefix]
+        private static void ByteSave_Prefix()
+        {
+            InByteSave = true;
+        }
+        [HarmonyPatch(typeof(MetaGameProgress), nameof(MetaGameProgress.ByteSave))]
+        [HarmonyPostfix]
+        private static void ByteSave_Postfix()
+        {
+            InByteSave = false;
+        }
+
+        // Intercept keybind load to pull from cache
+        [HarmonyPatch]
+        public static class GlobalSave_Get_Patch
+        {
+            static MethodBase TargetMethod()
+            {
+                Type[] parameterTypes = { typeof(string), typeof(Dictionary<string, string>).MakeByRefType(), typeof(Dictionary<string, string>) };
+                return AccessTools.Method(typeof(GlobalSave), nameof(GlobalSave.Get), parameterTypes);
+            }
+
+            static void Postfix(string key, ref Dictionary<string, string> value, ref bool __result)
+            {
+                if (cache.bindings.ContainsKey(key))
+                {
+                    value = cache.bindings[key];
+                    __result = true;
+                }
+            }
+        }
+
+        // Add updated keybinds to cache
+        [HarmonyPatch(typeof(GlobalSave), nameof(GlobalSave.Set))]
+        [HarmonyPatch(new Type[] { typeof(string), typeof(Dictionary<string, string>) })]
+        [HarmonyPostfix]
+        private static void GlobalSave_Set(string key, ref Dictionary<string, string> value)
+        {
+            if (!key.StartsWith("UserKeyBindings_")) {
+                return; // we only care about keybinds
+            }
+
+            if (InByteSave) {
+                return; // ByteSave will trigger a save before we've had a chance to load from the cache
+            }
+
+            // Set new binding to use across all save files
+            cache.bindings[key] = value;
+            Flush();
+        }
+
         private static string CachePath
         {
             get
@@ -149,6 +208,7 @@ namespace OC2Modding
 
         public static void Flush()
         {
+            // TODO: Async
             try
             {
                 File.WriteAllText(CachePath, JsonConvert.SerializeObject(cache));
