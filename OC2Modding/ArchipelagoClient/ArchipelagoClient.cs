@@ -415,16 +415,23 @@ namespace OC2Modding
                 // Derrive the full uri, accounting for every possible variation of user stupidity
                 serverUrl = server.ToLower();
 
+                // remove the protocol
                 if (serverUrl.Contains("://"))
                 {
                     var split = serverUrl.Split(new string[] { "://" }, StringSplitOptions.None);
                     serverUrl = split[split.Length - 1];
                 }
 
+                // remove common non-url characters
                 serverUrl = serverUrl.Replace("/connect", "");
                 serverUrl = serverUrl.Replace("connect", "");
                 serverUrl = serverUrl.Replace("'", "");
                 serverUrl = serverUrl.Replace(" ", "");
+
+                // add default port if none is provided
+                if (!serverUrl.Contains(":")) {
+                    serverUrl += ":38281";
+                }
 
                 userName = user;
                 password = pass;
