@@ -53,6 +53,10 @@ namespace OC2Modding
 
         private static void ApplyCachedVolumes()
         {
+            if (cache == null) {
+                return;
+            }
+
             var audioManager = GameUtils.RequireManager<AudioManager>();
             if (audioManager == null)
             {
@@ -93,38 +97,70 @@ namespace OC2Modding
         [HarmonyPostfix]
         private static void LoadFromSave(ref IOption[] ___m_options)
         {
-            // This is called when saving/loading settings
-            SetOptionHelper(ref ___m_options, 4, cache.lastMusicVolume);
-            SetOptionHelper(ref ___m_options, 5, cache.lastSfxVolume);
+            try
+            {
+                if (___m_options == null || cache == null) {
+                    return;
+                }
+                // This is called when saving/loading settings
+                SetOptionHelper(ref ___m_options, 4, cache.lastMusicVolume);
+                SetOptionHelper(ref ___m_options, 5, cache.lastSfxVolume);
+            }
+            catch (Exception e)
+            {
+                OC2Modding.Log.LogError(e.Message);
+            }
         }
 
         [HarmonyPatch(typeof(OptionsData), nameof(OptionsData.AddToSave))]
         [HarmonyPostfix]
         private static void AddToSave(ref IOption[] ___m_options)
         {
-            // This is called when saving settings
-            cache.lastResolution  = ___m_options[0].GetOption();
-            cache.lastVSync       = ___m_options[2].GetOption();
-            cache.lastWindowed    = ___m_options[1].GetOption();
-            cache.lastQuality     = ___m_options[3].GetOption();
-            cache.lastMusicVolume = ___m_options[4].GetOption();
-            cache.lastSfxVolume   = ___m_options[5].GetOption();
+            try
+            {
+                if (___m_options == null || cache == null) {
+                    return;
+                }
 
-            Flush();
+                // This is called when saving settings
+                cache.lastResolution  = ___m_options[0].GetOption();
+                cache.lastVSync       = ___m_options[2].GetOption();
+                cache.lastWindowed    = ___m_options[1].GetOption();
+                cache.lastQuality     = ___m_options[3].GetOption();
+                cache.lastMusicVolume = ___m_options[4].GetOption();
+                cache.lastSfxVolume   = ___m_options[5].GetOption();
+
+                Flush();
+            }
+            catch (Exception e)
+            {
+                OC2Modding.Log.LogError(e.Message);
+            }
         }
 
         [HarmonyPatch(typeof(OptionsData), nameof(OptionsData.Unload))]
         [HarmonyPostfix]
         private static void Unload(ref IOption[] ___m_options)
         {
-            // This is called only on new file creation
-            SetOptionHelper(ref ___m_options, 0, cache.lastResolution);
-            SetOptionHelper(ref ___m_options, 2, cache.lastVSync);
-            SetOptionHelper(ref ___m_options, 1, cache.lastWindowed);
-            SetOptionHelper(ref ___m_options, 3, cache.lastQuality);
-            SetOptionHelper(ref ___m_options, 4, cache.lastMusicVolume);
-            SetOptionHelper(ref ___m_options, 5, cache.lastSfxVolume);
-            SetOptionHelper(ref ___m_options, 8, 1);
+            try
+            {
+                if (___m_options == null || cache == null) {
+                    return;
+                }
+
+                // This is called only on new file creation
+                SetOptionHelper(ref ___m_options, 0, cache.lastResolution);
+                SetOptionHelper(ref ___m_options, 2, cache.lastVSync);
+                SetOptionHelper(ref ___m_options, 1, cache.lastWindowed);
+                SetOptionHelper(ref ___m_options, 3, cache.lastQuality);
+                SetOptionHelper(ref ___m_options, 4, cache.lastMusicVolume);
+                SetOptionHelper(ref ___m_options, 5, cache.lastSfxVolume);
+                SetOptionHelper(ref ___m_options, 8, 1);
+            }
+            catch (Exception e)
+            {
+                OC2Modding.Log.LogError(e.Message);
+            }
         }
 
         // Need to know about this function because it writes defaults which we want to avoid caching
@@ -208,6 +244,7 @@ namespace OC2Modding
             catch
             {
                 OC2Modding.Log.LogWarning($"Failed to parse json from {CachePath}");
+                cache = new Cache();
             }
         }
 
