@@ -69,6 +69,14 @@ namespace OC2Modding
             }
         }
 
+        private static bool ActuallyConnected
+        {
+            get
+            {
+                return session?.Socket?.Connected ?? false;
+            }
+        }
+
         // must follow: https://github.com/toasterparty/Archipelago/blob/overcooked2/worlds/overcooked2/Items.py
         private enum Oc2Item
         {
@@ -128,7 +136,7 @@ namespace OC2Modding
 
         public static void Update()
         {
-            if (IsConnected && (session == null || !session.Socket.Connected))
+            if (IsConnected && !ActuallyConnected)
             {
                 Disconnect();
                 GameLog.isHidden = false;
@@ -258,12 +266,19 @@ namespace OC2Modding
 
         public static void SendMessage(string message)
         {
-            if (!IsConnected || session == null)
+            try
             {
-                GameLog.LogMessage($"Failed to send '{message}' due to disconnect.");
-                return;
+                if (!IsConnected || !ActuallyConnected)
+                {
+                    GameLog.LogMessage($"Failed to send '{message}' due to disconnect.");
+                    return;
+                }
+                session.Socket.SendPacketAsync(new SayPacket(){Text = message});
             }
-            session.Socket.SendPacketAsync(new SayPacket(){Text = message});
+            catch (Exception e)
+            {
+                OC2Modding.Log.LogError(e);
+            }
         }
 
         /* Apply to end of save directory to garuntee uniqueness across rooms of the same seed */
@@ -382,7 +397,7 @@ namespace OC2Modding
 
         private static LoginResult ConnectionAttempt(string server, string user, string pass = null, string connectionId = null)
         {
-            if (IsConnected && session.Socket.Connected && cachedConnectionResult != null)
+            if (IsConnected && ActuallyConnected && cachedConnectionResult != null)
             {
                 if (serverUrl == server && userName == user && password == pass)
                 {
@@ -655,16 +670,16 @@ namespace OC2Modding
         }
 
 #if STEAM
-        public static void DisconnectTask()
+        private static void DisconnectTask()
         {
-            session?.Socket.Disconnect();
+            session?.Socket?.Disconnect();
         }
 #endif
 
-        public static void Disconnect()
+        private static void Disconnect()
         {
 #if EPIC
-            session?.Socket.DisconnectAsync();
+            session?.Socket?.DisconnectAsync();
 #elif STEAM
             ThreadPool.QueueUserWorkItem((o) => DisconnectTask());
 #endif 
@@ -715,16 +730,6 @@ namespace OC2Modding
             }
 
             PendingLocationUpdate = true;
-        }
-
-        static void ReconnectIfNeeded()
-        {
-            if (IsConnected && session.Socket.Connected)
-            {
-                return;
-            }
-
-            ConnectionAttempt(serverUrl, userName, password, session.ConnectionInfo.Uuid);
         }
 
         static void OnMessageReceived(LogMessage message)
