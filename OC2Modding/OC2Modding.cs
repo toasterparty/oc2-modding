@@ -36,7 +36,8 @@ namespace OC2Modding
             OnLevelCompleted.Awake();
             LevelProgression.Awake();
             CustomLevelOrder.Awake();
-            
+            InGameSettings.Awake();
+
             // Visual Mods
             LeaderboardMod.Awake();
             DisplayFPS.Awake();
