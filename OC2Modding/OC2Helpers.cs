@@ -276,13 +276,13 @@ namespace OC2Modding
             public uint playerCount;
         }
 
-        private class DlcAndLevel
+        public class DlcAndLevel
         {
             public string dlc;
             public string level;
         }
 
-        private static DlcAndLevel getLevelName(int DLCID, int levelId)
+        public static DlcAndLevel getLevelName(int DLCID, int levelId)
         {
             string dlc = CurrentDLC.DLCToString(DLCID);
 

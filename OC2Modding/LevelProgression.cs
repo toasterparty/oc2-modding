@@ -145,6 +145,22 @@ namespace OC2Modding
             }
         }
 
+        [HarmonyPatch(typeof(CoopStarRatingUIController), nameof(CoopStarRatingUIController.SetScoreData))]
+        [HarmonyPostfix]
+        private static void SetScoreData(ref T17Text ___m_levelTitleText)
+        {
+            if (OC2Config.Config.ShowWorldName) 
+            {
+                GameSession gameSession = GameUtils.GetGameSession();
+                int levelID = GameUtils.GetLevelID();
+
+                OC2Helpers.DlcAndLevel dal = OC2Helpers.getLevelName(gameSession.DLC, levelID);
+
+                ___m_levelTitleText.m_bNeedsLocalization = false;
+                ___m_levelTitleText.text = dal.dlc + " " + dal.level;
+            }
+        }
+
         // Stolen from dnSpy
         [RequireComponent(typeof(Transform))]
         [NativeHeader("Runtime/Graphics/Mesh/MeshFilter.h")]
