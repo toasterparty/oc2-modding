@@ -35,6 +35,7 @@ namespace OC2Modding
         public bool RevealAllLevels;
         public bool PurchaseAllLevels;
         public bool SkipTutorial;
+        public bool ShowWorldName;
         public float ServerTickRate;
         public float ServerTickRateUrgent;
         public float FixedDeltaTime;
@@ -261,6 +262,14 @@ namespace OC2Modding
             );
             SkipTutorial = configSkipTutorial.Value;
 
+            ConfigEntry<bool> configShowWorldName = configFile.Bind(
+                "QualityOfLife", // Config Category
+                "ShowWorldName", // Config key name
+                true, // Default Config value
+                "Set to true to show the world name in the Score Screen" // Friendly description
+            );
+            ShowWorldName = configShowWorldName.Value;
+
             ConfigEntry<float> configServerTickRate = configFile.Bind(
                 "Performance", // Config Category
                 "ServerTickRate", // Config key name
@@ -342,6 +351,7 @@ namespace OC2Modding
             try { if (config.HasKey("RevealAllLevels"                )) RevealAllLevels                = config["RevealAllLevels"                ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'RevealAllLevels'"                ); }
             try { if (config.HasKey("PurchaseAllLevels"              )) PurchaseAllLevels              = config["PurchaseAllLevels"              ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'PurchaseAllLevels'"              ); }
             try { if (config.HasKey("SkipTutorial"                   )) SkipTutorial                   = config["SkipTutorial"                   ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SkipTutorial'"                   ); }
+            try { if (config.HasKey("ShowWorldName"                  )) ShowWorldName                  = config["ShowWorldName"                  ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'ShowWorldName'"                  ); }
             try { if (config.HasKey("CheatsEnabled"                  )) CheatsEnabled                  = config["CheatsEnabled"                  ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'CheatsEnabled'"                  ); }
             try { if (config.HasKey("SaveFolderName"                 )) SaveFolderName                 = config["SaveFolderName"                 ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'SaveFolderName'"                 ); }
             try { if (config.HasKey("DisableWood"                    )) DisableWood                    = config["DisableWood"                    ]; } catch { OC2Modding.Log.LogWarning($"Failed to parse key 'DisableWood'"                    ); }
