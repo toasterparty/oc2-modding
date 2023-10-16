@@ -3,5 +3,7 @@
 dist/curl/*
 dist/BepInEx*
 dist/leaderboard_scores.csv
+dist/Newtonsoft.Json.dll
+dist/Archipelago.MultiClient.Net.dll
 */com.github.toasterparty.*.dll
 OC2Modding/OC2Modding.csproj

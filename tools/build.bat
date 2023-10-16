@@ -22,6 +22,7 @@ dotnet build || exit 1
 xcopy %BUILD_DIR%\net46\com.github.toasterparty.oc2modding.epic.dll %DIST_DIR% /y /q || exit 1
 xcopy %BUILD_DIR%\net35\com.github.toasterparty.oc2modding.steam.dll %DIST_DIR% /y /q || exit 1
 xcopy %BUILD_DIR%\net35\Archipelago.MultiClient.Net.dll %DIST_DIR% /y /q || exit 1
+xcopy %BUILD_DIR%\net35\Newtonsoft.Json.dll %DIST_DIR% /y /q || exit 1
 
 %DIST_DIR%\curl\curl\curl.exe https://overcooked.greeny.dev/assets/data/data.csv --output %DIST_DIR%\leaderboard_scores.csv
 
