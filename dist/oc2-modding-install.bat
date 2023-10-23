@@ -9,6 +9,8 @@ set NO_PAUSE=%~1
 
 set STEAM_BEPINEX_VER=BepInEx_x86_5.4.21.0
 set EPIC_BEPINEX_VER=BepInEx_UnityMono_x64_6.0.0-pre.1
+set STEAM_C_WSPP_WEBSOCKET_PATH=c-wspp-websocket-v0.4.1\win32
+set EPIC_C_WSPP_WEBSOCKET_PATH=c-wspp-websocket-v0.4.1\win64
 
 echo.
 echo Overcooked! 2 Mod Installer
@@ -20,6 +22,8 @@ if not exist %DIST_DIR%\leaderboard_scores.csv goto fail
 if not exist %DIST_DIR%\curl\curl\curl.exe goto fail
 if not exist %DIST_DIR%\%STEAM_BEPINEX_VER% goto fail
 if not exist %DIST_DIR%\%EPIC_BEPINEX_VER% goto fail
+if not exist %DIST_DIR%\%STEAM_C_WSPP_WEBSOCKET_PATH% goto fail
+if not exist %DIST_DIR%\%EPIC_C_WSPP_WEBSOCKET_PATH% goto fail
 
 goto check_params
 
@@ -61,6 +65,10 @@ if     exist "%~dp1\UnityCrashHandler64.exe" xcopy %DIST_DIR%\%EPIC_BEPINEX_VER%
 if not exist "%~dp1\UnityCrashHandler64.exe" xcopy %DIST_DIR%\%STEAM_BEPINEX_VER% %GAME_DIR% /y /q /s /e
 
 xcopy %DIST_DIR%\*.dll %PLUGINS_DIR% /y /q
+
+if     exist "%~dp1\UnityCrashHandler64.exe" xcopy %DIST_DIR%\%EPIC_C_WSPP_WEBSOCKET_PATH%  %PLUGINS_DIR% /y /q /s /e
+if not exist "%~dp1\UnityCrashHandler64.exe" xcopy %DIST_DIR%\%STEAM_C_WSPP_WEBSOCKET_PATH% %PLUGINS_DIR% /y /q /s /e
+
 xcopy %DIST_DIR%\oc2-modding-uninstall.bat %GAME_DIR% /y /q
 xcopy %DIST_DIR%\leaderboard_scores.csv %GAME_DIR% /y /q
 xcopy %DIST_DIR%\curl %GAME_DIR% /y /q /s /e
