@@ -414,6 +414,7 @@ namespace OC2Modding
             }
 
             cachedConnectionResult = null;
+
             if (!OC2Helpers.HasLeaderboardScores())
             {
                 OC2Helpers.BuildLeaderboardScores(false);
@@ -429,6 +430,8 @@ namespace OC2Modding
             {
                 // Derrive the full uri, accounting for every possible variation of user stupidity
                 serverUrl = server.ToLower();
+
+                var wsFirst = serverUrl.StartsWith("ws://");
 
                 // remove the protocol
                 if (serverUrl.Contains("://"))
@@ -452,27 +455,51 @@ namespace OC2Modding
                 password = pass;
 
                 LoginResult result = null;
-                foreach(string prefix in new string[] {"wss://", "ws://"})
+
+                string[] prefixes;
+                if (wsFirst)
                 {
-                    var url = prefix + serverUrl;
-                    var uri = new Uri(url);
-                    session = ArchipelagoSessionFactory.CreateSession(uri);
+                    prefixes = new string[] {"ws://", "wss://", ""};
+                }
+                else
+                {
+                    prefixes = new string[] {"wss://", "ws://", ""};
+                }
 
-                    OC2Modding.Log.LogInfo($"Connecting to {url}");
-
-                    result = session.TryConnectAndLogin(
-                        "Overcooked! 2",
-                        userName,
-                        REMOTE_INVENTORY ? ItemsHandlingFlags.AllItems : ItemsHandlingFlags.RemoteItems,
-                        MinimumProtocolVersion,
-                        tags: new string[0],
-                        uuid: null,
-                        password: password
-                    );
-                    
-                    if (result is LoginSuccessful)
+                foreach(string prefix in prefixes)
+                {
+                    try
                     {
-                        break;
+                        var url = prefix + serverUrl;
+                        var uri = new Uri(url);
+                        session = ArchipelagoSessionFactory.CreateSession(uri);
+
+                        OC2Modding.Log.LogInfo($"Connecting to {url}");
+
+                        var tempResult = session.TryConnectAndLogin(
+                            "Overcooked! 2",
+                            userName,
+                            REMOTE_INVENTORY ? ItemsHandlingFlags.AllItems : ItemsHandlingFlags.RemoteItems,
+                            MinimumProtocolVersion,
+                            tags: new string[0],
+                            uuid: null,
+                            password: password
+                        );
+                        
+                        if (tempResult is LoginSuccessful)
+                        {
+                            result = tempResult;
+                            break;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        OC2Modding.Log.LogWarning($"{e.Message}");
+
+                        if (result == null)
+                        {
+                            result = new LoginFailure(e.GetBaseException().Message);
+                        }
                     }
                 }
 
