@@ -491,6 +491,10 @@ namespace OC2Modding
                             result = tempResult;
                             break;
                         }
+
+                        var failure = tempResult as LoginFailure;
+                        var error = (failure?.Errors.Length > 0) ? failure.Errors[0] : "Unexpected Error";
+                        throw new Exception($"{error}");
                     }
                     catch (Exception e)
                     {
