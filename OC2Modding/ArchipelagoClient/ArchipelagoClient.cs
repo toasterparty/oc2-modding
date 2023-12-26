@@ -452,7 +452,7 @@ namespace OC2Modding
                 }
 
                 userName = user;
-                password = pass;
+                password = pass == "" ? null : pass;
 
                 LoginResult result = null;
 
@@ -465,6 +465,10 @@ namespace OC2Modding
                 {
                     prefixes = new string[] {"wss://", "ws://", ""};
                 }
+
+                OC2Modding.Log.LogInfo($"Connecting as \"{userName}\"");
+                var x = password == null ? "without" : "with";
+                OC2Modding.Log.LogInfo($"Connecting {x} password");
 
                 foreach(string prefix in prefixes)
                 {
@@ -481,20 +485,38 @@ namespace OC2Modding
                             userName,
                             REMOTE_INVENTORY ? ItemsHandlingFlags.AllItems : ItemsHandlingFlags.RemoteItems,
                             MinimumProtocolVersion,
-                            tags: new string[0],
+                            tags: new string[0] {},
                             uuid: null,
                             password: password
                         );
                         
-                        if (tempResult is LoginSuccessful)
+                        if (tempResult is LoginFailure)
                         {
-                            result = tempResult;
-                            break;
+                            var failure = tempResult as LoginFailure;
+
+                            if (failure?.Errors.Length > 0)
+                            {
+                                foreach (var e in failure.Errors)
+                                {
+                                    OC2Modding.Log.LogWarning($"{e}");
+                                }
+                            }
+                            else
+                            {
+                                OC2Modding.Log.LogWarning("Unexpected Error");
+                            }
+
+                            /* Only record first failure */
+                            if (result == null)
+                            {
+                                result = tempResult;
+                            }
+
+                            continue;
                         }
 
-                        var failure = tempResult as LoginFailure;
-                        var error = (failure?.Errors.Length > 0) ? failure.Errors[0] : "Unexpected Error";
-                        throw new Exception($"{error}");
+                        result = tempResult;
+                        break;
                     }
                     catch (Exception e)
                     {
