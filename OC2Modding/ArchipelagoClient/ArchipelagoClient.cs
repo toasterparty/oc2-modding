@@ -179,10 +179,10 @@ namespace OC2Modding
                 try
                 {
                     doFlush = true;
-                    NetworkItem item = session.Items.AllItemsReceived[OC2Config.Config.ItemIndex];
+                    ItemInfo item = session.Items.AllItemsReceived[OC2Config.Config.ItemIndex];
                     OC2Config.Config.ItemIndex++;
 
-                    long itemId = item.Item - 213700; // "oc2" in ascii
+                    long itemId = item.ItemId - 213700; // "oc2" in ascii
                     if (!GiveItem((int)itemId))
                     {
                         OC2Modding.Log.LogError("Archipelago sent an item which goes above our inventory limits");
@@ -582,9 +582,9 @@ namespace OC2Modding
                 {
                     // Set of completed levels and their completed star counts
                     session.DataStorage[PseudoSaveKey].Initialize(JObject.FromObject(new Dictionary<int, int>()));
-                    session.DataStorage[PseudoSaveKey].OnValueChanged += (_old, _new) =>
+                    session.DataStorage[PseudoSaveKey].OnValueChanged += (oldData, newData, additionalArguments) =>
                     {
-                        OnPseudoSaveChanged(_new.ToObject<Dictionary<int, int>>());
+                        OnPseudoSaveChanged(newData.ToObject<Dictionary<int, int>>());
                     };
 
                     // Reverse semaphore for ensuring connections are between the right people
