@@ -15,7 +15,7 @@
         {
             "label": "Install",
             "type": "shell",
-            "command": "${workspaceFolder}/dist/oc2-modding-install.bat nopause \\\"Program Files (x86)\\Steam\\steamapps\\common\\Overcooked! 2\\Overcooked2.exe\\\"",
+            "command": "${workspaceFolder}/dist/oc2-modding-install.bat nopause \\\"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Overcooked! 2\\Overcooked2.exe\\\"",
             "dependsOn": ["Build"],
             "presentation": {
                 "close": true
