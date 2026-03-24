@@ -9,13 +9,15 @@ set RELEASE_DIR="%~dp0\..\release"
 if not exist %DIST_DIR% mkdir %DIST_DIR%
 if not exist %RELEASE_DIR% mkdir %RELEASE_DIR%
 
+call %TOOLS_DIR%\fetch-deps.bat
+
 cd %SRC_DIR% || exit 1
 
-xcopy %SRC_DIR%\OC2Modding.csproj.epic %SRC_DIR%\OC2Modding.csproj /y /q || exit 1
+copy /y "%SRC_DIR%\OC2Modding.csproj.epic" "%SRC_DIR%\OC2Modding.csproj" || exit 1
 dotnet restore || exit 1
 dotnet build || exit 1
 
-xcopy %SRC_DIR%\OC2Modding.csproj.steam %SRC_DIR%\OC2Modding.csproj /y /q || exit 1
+copy /y "%SRC_DIR%\OC2Modding.csproj.steam" "%SRC_DIR%\OC2Modding.csproj" || exit 1
 dotnet restore || exit 1
 dotnet build || exit 1
 
