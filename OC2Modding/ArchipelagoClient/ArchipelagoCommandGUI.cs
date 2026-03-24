@@ -47,7 +47,7 @@ namespace OC2Modding
 
         private static void UpdateTextStyles()
         {
-            int desiredFontSize = Mathf.Max(12, Mathf.RoundToInt((float)Screen.height * 0.016f));
+            int desiredFontSize = Mathf.Max(16, Mathf.RoundToInt((float)Screen.height * 0.020f));
             if (desiredFontSize == currentFontSize && textFieldStyle != null && buttonStyle != null)
             {
                 return;
@@ -64,16 +64,24 @@ namespace OC2Modding
 
         public static void UpdateGUI()
         {
-            int width = (int)((float)Screen.width * 0.4f);
-            int yPos = (int)((float)Screen.height * 0.307f);
-            int xPos = (int)(((float)Screen.width / 2.0f) - ((float)width / 2.0f));
-            int height = (int)((float)Screen.height * 0.022f);
+            int safeMarginY = Mathf.RoundToInt((float)Screen.height * 0.01f);
+
+            int width = GameLog.GetSharedOverlayWidth();
+
+            int xPos = (Screen.width - width) / 2;
+            int yPos = Mathf.RoundToInt((float)Screen.height * 0.34f);
+
+            int height = Mathf.RoundToInt((float)Screen.height * 0.033f);
+            height = Mathf.Max(34, height);
 
             CommandTextRect = new Rect(xPos, yPos, width, height);
 
-            width = (int)((float)Screen.width * 0.035f);
-            yPos += (int)((float)Screen.height * 0.03f);
-            SendButtonRect = new Rect(xPos, yPos, width, height);
+            int sendButtonWidth = Mathf.RoundToInt((float)Screen.width * 0.065f);
+            sendButtonWidth = Mathf.Clamp(sendButtonWidth, 96, 180);
+
+            yPos += height + safeMarginY;
+            yPos = Mathf.Min(yPos, Screen.height - safeMarginY - height);
+            SendButtonRect = new Rect(xPos, yPos, sendButtonWidth, height);
         }
 
         public static void OnGUI()
@@ -104,3 +112,5 @@ namespace OC2Modding
         }
     }
 }
+
+

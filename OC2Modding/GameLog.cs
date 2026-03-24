@@ -34,6 +34,8 @@ namespace OC2Modding
         private static float lastUpdateTime = Time.time;
         private const int MAX_LOG_LINES = 80;
         private const float HIDDEN_TIMEOUT_S = 15f;
+        private const float LOG_WIDTH_RATIO = 0.44f;
+        private const float LOG_SAFE_MARGIN_X_RATIO = 0.02f;
 
         public static void Awake()
         {
@@ -68,6 +70,8 @@ namespace OC2Modding
             }
         }
 
+        
+
         private static void UpdateButtonTextStyle()
         {
             int desiredFontSize = Mathf.Max(12, (int)((float)Screen.height * 0.015f));
@@ -79,6 +83,13 @@ namespace OC2Modding
             buttonFontSize = desiredFontSize;
             buttonTextStyle = new GUIStyle(GUI.skin.button);
             buttonTextStyle.fontSize = buttonFontSize;
+        }
+        public static int GetSharedOverlayWidth()
+        {
+            int safeMarginX = Mathf.RoundToInt((float)Screen.width * LOG_SAFE_MARGIN_X_RATIO);
+            int maxWidth = Screen.width - (safeMarginX * 2);
+            int preferredWidth = Mathf.RoundToInt((float)Screen.width * LOG_WIDTH_RATIO);
+            return Mathf.Clamp(preferredWidth, 760, maxWidth);
         }
 
         public static void OnGUI()
@@ -146,19 +157,19 @@ namespace OC2Modding
                 }
             }
 
-            int width = (int)((float)Screen.width*0.4f);
+            int width = GetSharedOverlayWidth();
             int height;
             int scrollDepth;
 
             if (isHidden)
             {
-                height = (int)((float)Screen.height*0.03f);
+                height = (int)((float)Screen.height * 0.045f);
                 scrollDepth = height;
             }
             else
             {
-                height = (int)((float)Screen.height*0.3f);
-                scrollDepth = height*10;
+                height = (int)((float)Screen.height * 0.3f);
+                scrollDepth = height * 10;
             }
 
             windowRect = new Rect((Screen.width / 2) - (width / 2), 0, width, height);
@@ -167,27 +178,13 @@ namespace OC2Modding
             textRect = new Rect(0, 0, width, scrollDepth);
 
             textStyle.alignment = TextAnchor.LowerLeft;
-            if (isHidden)
-            {
-                textStyle.fontSize = (int)((float)Screen.height * 0.0165f);
-            }
-            else
-            {
-                textStyle.fontSize = (int)((float)Screen.height * 0.0185f);
-            }
+            textStyle.fontSize = (int)((float)Screen.height * 0.0195f);
             textStyle.normal.textColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
             textStyle.wordWrap = !isHidden;
 
-            int xPadding = (int)((float)Screen.width*0.01f);
-            int yPadding = (int)((float)Screen.height*0.01f);
-            if(isHidden)
-            {
-                textStyle.padding = new RectOffset(xPadding/2, xPadding/2, yPadding/2, yPadding/2);
-            }
-            else
-            {
-                textStyle.padding = new RectOffset(xPadding, xPadding, yPadding, yPadding);
-            }
+            int xPadding = (int)((float)Screen.width * 0.01f);
+            int yPadding = (int)((float)Screen.height * 0.01f);
+            textStyle.padding = new RectOffset(xPadding, xPadding, yPadding, yPadding);
 
             int buttonWidth = (int)((float)Screen.width*0.035f);
             int buttonHeight = (int)((float)Screen.height*0.03f);
@@ -282,6 +279,11 @@ namespace OC2Modding
         }
     }
 }
+
+
+
+
+
 
 
 
