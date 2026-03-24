@@ -42,6 +42,16 @@ namespace OC2Modding
         private static GUIStyle buttonStyle = null;
         private static int currentFontSize = -1;
 
+        private static bool IsEnterEvent(Event currentEvent)
+        {
+            return currentEvent != null
+                && (currentEvent.type == EventType.KeyDown || currentEvent.type == EventType.KeyUp)
+                && (currentEvent.keyCode == KeyCode.Return
+                    || currentEvent.keyCode == KeyCode.KeypadEnter
+                    || currentEvent.character == '\n'
+                    || currentEvent.character == '\r');
+        }
+
         public static void Awake()
         {
             Harmony.CreateAndPatchAll(typeof(ArchipelagoLoginGUI));
@@ -172,8 +182,17 @@ namespace OC2Modding
                 return;
             }
 
+            Event currentEvent = Event.current;
+            bool pressedEnter = IsEnterEvent(currentEvent) && currentEvent.type == EventType.KeyUp;
+
             if (ArchipelagoClient.IsConnected || ContinueWithoutArchipelago)
             {
+                if (pressedEnter && !ArchipelagoCommandGUI.HasPendingCommand)
+                {
+                    ArchipelagoClient.Connect(serverUrl, userName, password);
+                    currentEvent.Use();
+                }
+
                 GUI.Box(bgRectMini, "");
                 GUI.Box(bgRectMini, "");
                 GUI.Label(statusRect, StatusText, labelStyle);
@@ -202,9 +221,14 @@ namespace OC2Modding
 
             if (!ArchipelagoClient.IsConnecting)
             {
-                if (GUI.Button(connectButtonRect, "Connect", buttonStyle))
+                if (GUI.Button(connectButtonRect, "Connect", buttonStyle) || pressedEnter)
                 {
                     ArchipelagoClient.Connect(serverUrl, userName, password);
+
+                    if (pressedEnter)
+                    {
+                        currentEvent.Use();
+                    }
                 }
             }
             else

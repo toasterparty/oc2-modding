@@ -6,6 +6,14 @@ namespace OC2Modding
 {
     public static class ArchipelagoCommandGUI
     {
+        public static bool HasPendingCommand
+        {
+            get
+            {
+                return CommandText != "";
+            }
+        }
+
         private static bool ShouldShow
         {
             get
@@ -26,6 +34,16 @@ namespace OC2Modding
         private static GUIStyle textFieldStyle = null;
         private static GUIStyle buttonStyle = null;
         private static int currentFontSize = -1;
+
+        private static bool IsEnterEvent(Event currentEvent)
+        {
+            return currentEvent != null
+                && (currentEvent.type == EventType.KeyDown || currentEvent.type == EventType.KeyUp)
+                && (currentEvent.keyCode == KeyCode.Return
+                    || currentEvent.keyCode == KeyCode.KeypadEnter
+                    || currentEvent.character == '\n'
+                    || currentEvent.character == '\r');
+        }
 
         private static void UpdateTextStyles()
         {
@@ -68,12 +86,21 @@ namespace OC2Modding
             UpdateTextStyles();
 
             CommandText = GUI.TextField(CommandTextRect, CommandText, textFieldStyle);
-            if (CommandText != "" && GUI.Button(SendButtonRect, "Send", buttonStyle))
+
+            Event currentEvent = Event.current;
+            bool pressedEnter = IsEnterEvent(currentEvent) && currentEvent.type == EventType.KeyUp;
+            bool shouldSend = CommandText != "" && (GUI.Button(SendButtonRect, "Send", buttonStyle) || pressedEnter);
+
+            if (shouldSend)
             {
                 ArchipelagoClient.SendMessage(CommandText);
                 CommandText = "";
+
+                if (pressedEnter)
+                {
+                    currentEvent.Use();
+                }
             }
         }
     }
 }
-
