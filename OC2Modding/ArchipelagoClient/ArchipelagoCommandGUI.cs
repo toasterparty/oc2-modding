@@ -22,6 +22,28 @@ namespace OC2Modding
         private static string CommandText = "!help";
         private static Rect CommandTextRect = new Rect();
         private static Rect SendButtonRect = new Rect();
+
+        private static GUIStyle textFieldStyle = null;
+        private static GUIStyle buttonStyle = null;
+        private static int currentFontSize = -1;
+
+        private static void UpdateTextStyles()
+        {
+            int desiredFontSize = Mathf.Max(12, Mathf.RoundToInt((float)Screen.height * 0.016f));
+            if (desiredFontSize == currentFontSize && textFieldStyle != null && buttonStyle != null)
+            {
+                return;
+            }
+
+            currentFontSize = desiredFontSize;
+
+            textFieldStyle = new GUIStyle(GUI.skin.textField);
+            textFieldStyle.fontSize = currentFontSize;
+
+            buttonStyle = new GUIStyle(GUI.skin.button);
+            buttonStyle.fontSize = currentFontSize;
+        }
+
         public static void UpdateGUI()
         {
             int width = (int)((float)Screen.width * 0.4f);
@@ -38,14 +60,20 @@ namespace OC2Modding
 
         public static void OnGUI()
         {
-            if (!ShouldShow) return;
+            if (!ShouldShow)
+            {
+                return;
+            }
 
-            CommandText = GUI.TextField(CommandTextRect, CommandText);
-            if (CommandText != "" && GUI.Button(SendButtonRect, "Send"))
-            {   
+            UpdateTextStyles();
+
+            CommandText = GUI.TextField(CommandTextRect, CommandText, textFieldStyle);
+            if (CommandText != "" && GUI.Button(SendButtonRect, "Send", buttonStyle))
+            {
                 ArchipelagoClient.SendMessage(CommandText);
-                CommandText= "";
+                CommandText = "";
             }
         }
     }
 }
+

@@ -19,9 +19,28 @@ namespace OC2Modding
         private static string userName = "";
         private static string password = "";
 
-        private static Rect bgRect = new Rect(5, 5, 350, 143);
-        private static Rect bgRectMini = new Rect(5, 5, 250, 45);
-        private static Rect ScreenRect = new Rect(0, 0, Screen.width, Screen.height);
+        private const float REFERENCE_WIDTH = 1920f;
+        private const float REFERENCE_HEIGHT = 1080f;
+        private const float LOGIN_UI_SCALE = 1.3f;
+
+        private static Rect bgRect = new Rect();
+        private static Rect bgRectMini = new Rect();
+        private static Rect ScreenRect = new Rect();
+        private static Rect statusRect = new Rect();
+        private static Rect hostLabelRect = new Rect();
+        private static Rect playerNameLabelRect = new Rect();
+        private static Rect passwordLabelRect = new Rect();
+        private static Rect serverFieldRect = new Rect();
+        private static Rect userFieldRect = new Rect();
+        private static Rect passwordFieldRect = new Rect();
+        private static Rect connectButtonRect = new Rect();
+        private static Rect connectingLabelRect = new Rect();
+        private static Rect continueButtonRect = new Rect();
+
+        private static GUIStyle labelStyle = null;
+        private static GUIStyle textFieldStyle = null;
+        private static GUIStyle buttonStyle = null;
+        private static int currentFontSize = -1;
 
         public static void Awake()
         {
@@ -63,6 +82,54 @@ namespace OC2Modding
             }
         }
 
+        private static float ScaleX(float value)
+        {
+            return value * ((float)Screen.width / REFERENCE_WIDTH);
+        }
+
+        private static float ScaleY(float value)
+        {
+            return value * ((float)Screen.height / REFERENCE_HEIGHT);
+        }
+
+        private static Rect ScaledRect(float x, float y, float width, float height)
+        {
+            return new Rect(ScaleX(x), ScaleY(y), ScaleX(width), ScaleY(height));
+        }
+
+        private static Rect LoginRect(float x, float y, float width, float height)
+        {
+            const float anchorX = 5f;
+            const float anchorY = 5f;
+
+            float scaledX = anchorX + (x - anchorX) * LOGIN_UI_SCALE;
+            float scaledY = anchorY + (y - anchorY) * LOGIN_UI_SCALE;
+            float scaledWidth = width * LOGIN_UI_SCALE;
+            float scaledHeight = height * LOGIN_UI_SCALE;
+
+            return ScaledRect(scaledX, scaledY, scaledWidth, scaledHeight);
+        }
+
+        private static void UpdateTextStyles()
+        {
+            int desiredFontSize = Mathf.Max(12, Mathf.RoundToInt(ScaleY(16f)));
+            if (desiredFontSize == currentFontSize && labelStyle != null && textFieldStyle != null && buttonStyle != null)
+            {
+                return;
+            }
+
+            currentFontSize = desiredFontSize;
+
+            labelStyle = new GUIStyle(GUI.skin.label);
+            labelStyle.fontSize = currentFontSize;
+
+            textFieldStyle = new GUIStyle(GUI.skin.textField);
+            textFieldStyle.fontSize = currentFontSize;
+
+            buttonStyle = new GUIStyle(GUI.skin.button);
+            buttonStyle.fontSize = currentFontSize;
+        }
+
         // TODO: call on client connect/disconnect
         public static void UpdateGUI()
         {
@@ -76,10 +143,30 @@ namespace OC2Modding
                 StatusText += $"Connected ";
                 StatusText += OC2Helpers.IsHostPlayer() ? "[Host]" : "[Guest]";
             }
+
+            bgRect = LoginRect(5f, 5f, 350f, 143f);
+            bgRectMini = LoginRect(5f, 5f, 250f, 45f);
+            ScreenRect = new Rect(0f, 0f, Screen.width, Screen.height);
+
+            statusRect = LoginRect(16f, 16f, 300f, 20f);
+            hostLabelRect = LoginRect(16f, 36f, 150f, 20f);
+            playerNameLabelRect = LoginRect(16f, 56f, 150f, 20f);
+            passwordLabelRect = LoginRect(16f, 76f, 150f, 20f);
+
+            serverFieldRect = LoginRect(174f, 36f, 150f, 20f);
+            userFieldRect = LoginRect(174f, 56f, 150f, 20f);
+            passwordFieldRect = LoginRect(174f, 76f, 150f, 20f);
+
+            connectButtonRect = LoginRect(17f, 110f, 100f, 30f);
+            connectingLabelRect = LoginRect(17f, 115f, 110f, 30f);
+            continueButtonRect = LoginRect(145f, 110f, 195f, 30f);
         }
 
         public static void OnGUI()
         {
+            UpdateGUI();
+            UpdateTextStyles();
+
             if (GameLog.isHidden || OC2Config.Config.DisableArchipelagoLogin)
             {
                 return;
@@ -89,7 +176,7 @@ namespace OC2Modding
             {
                 GUI.Box(bgRectMini, "");
                 GUI.Box(bgRectMini, "");
-                GUI.Label(new Rect(16, 16, 300, 20), StatusText);
+                GUI.Label(statusRect, StatusText, labelStyle);
                 return;
             }
 
@@ -104,33 +191,30 @@ namespace OC2Modding
 
             GUI.Box(bgRect, "");
 
-            GUI.Label(new Rect(16, 16, 300, 20), "Archipelago Status: Not Connected");
-            GUI.Label(new Rect(16, 36, 150, 20), "Host: ");
-            GUI.Label(new Rect(16, 56, 150, 20), "Player Name: ");
-            GUI.Label(new Rect(16, 76, 150, 20), "Password: ");
+            GUI.Label(statusRect, "Archipelago Status: Not Connected", labelStyle);
+            GUI.Label(hostLabelRect, "Host: ", labelStyle);
+            GUI.Label(playerNameLabelRect, "Player Name: ", labelStyle);
+            GUI.Label(passwordLabelRect, "Password: ", labelStyle);
 
-            serverUrl =
-                GUI.TextField(new Rect(150 + 16 + 8, 36, 150, 20), serverUrl);
-            userName =
-                GUI.TextField(new Rect(150 + 16 + 8, 56, 150, 20), userName);
-            password =
-                GUI.TextField(new Rect(150 + 16 + 8, 76, 150, 20), password);
+            serverUrl = GUI.TextField(serverFieldRect, serverUrl, textFieldStyle);
+            userName = GUI.TextField(userFieldRect, userName, textFieldStyle);
+            password = GUI.TextField(passwordFieldRect, password, textFieldStyle);
 
             if (!ArchipelagoClient.IsConnecting)
             {
-                if (GUI.Button(new Rect(17, 110, 100, 30), "Connect"))
+                if (GUI.Button(connectButtonRect, "Connect", buttonStyle))
                 {
                     ArchipelagoClient.Connect(serverUrl, userName, password);
                 }
             }
             else
             {
-                GUI.Label(new Rect(17, 115, 110, 30), "Connecting...");
+                GUI.Label(connectingLabelRect, "Connecting...", labelStyle);
             }
 
-            if (!ContinueWithoutArchipelago && GUI.Button(new Rect(145, 110, 195, 30), "Continue Without Archipelago"))
+            if (!ContinueWithoutArchipelago && GUI.Button(continueButtonRect, "Continue Without Archipelago", buttonStyle))
             {
-                ContinueWithoutArchipelago = true;               
+                ContinueWithoutArchipelago = true;
                 GameLog.isHidden = true;
                 GameLog.LogMessage("Continuing without Archipelago support...");
             }
@@ -157,3 +241,5 @@ namespace OC2Modding
         }
     }
 }
+
+

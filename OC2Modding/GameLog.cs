@@ -28,6 +28,8 @@ namespace OC2Modding
         }
         public static AutoCompleteMode autoCompleteMode = AutoCompleteMode.AUTO_COMPLETE_DISABLED;
         private static GUIStyle textStyle = new GUIStyle();
+        private static GUIStyle buttonTextStyle = null;
+        private static int buttonFontSize = -1;
         private static string scrollText = "";
         private static float lastUpdateTime = Time.time;
         private const int MAX_LOG_LINES = 80;
@@ -66,12 +68,27 @@ namespace OC2Modding
             }
         }
 
+        private static void UpdateButtonTextStyle()
+        {
+            int desiredFontSize = Mathf.Max(12, (int)((float)Screen.height * 0.015f));
+            if (buttonTextStyle != null && desiredFontSize == buttonFontSize)
+            {
+                return;
+            }
+
+            buttonFontSize = desiredFontSize;
+            buttonTextStyle = new GUIStyle(GUI.skin.button);
+            buttonTextStyle.fontSize = buttonFontSize;
+        }
+
         public static void OnGUI()
         {
             if (logLines.Count == 0)
             {
                 return; // Do not display if nothing is logged
             }
+
+            UpdateButtonTextStyle();
 
             if (!isHidden || Time.time - lastUpdateTime < HIDDEN_TIMEOUT_S)
             {
@@ -85,7 +102,7 @@ namespace OC2Modding
                 GUI.EndScrollView();
             }
 
-            if (GUI.Button(hideShowbuttonRect, isHidden ? "Show" : "Hide"))
+            if (GUI.Button(hideShowbuttonRect, isHidden ? "Show" : "Hide", buttonTextStyle))
             {
                 isHidden = isHidden ? false : true;
                 UpdateWindow();
@@ -93,12 +110,12 @@ namespace OC2Modding
 
             if (!isHidden)
             {
-                if (GUI.Button(autoCompleteButtonRect, autoCompleteButtonText))
+                if (GUI.Button(autoCompleteButtonRect, autoCompleteButtonText, buttonTextStyle))
                 {
                     OnAutoCompleteClicked();
                 }
 
-                if (OC2Helpers.ShouldEndLevelButton() && GUI.Button(endLevelButtonRect, "End Level (del)"))
+                if (OC2Helpers.ShouldEndLevelButton() && GUI.Button(endLevelButtonRect, "End Level (del)", buttonTextStyle))
                 {
                     OC2Helpers.EndLevel();
                 }
@@ -265,3 +282,6 @@ namespace OC2Modding
         }
     }
 }
+
+
+
