@@ -266,19 +266,30 @@ namespace OC2Modding
 
         public static void SendMessage(string message)
         {
-            try
+            if (!IsConnected || !ActuallyConnected)
             {
-                if (!IsConnected || !ActuallyConnected)
+                GameLog.LogMessage($"Failed to send '{message}' due to disconnect.");
+                return;
+            }
+
+            ArchipelagoSession activeSession = session;
+            if (activeSession == null)
+            {
+                GameLog.LogMessage($"Failed to send '{message}' due to disconnect.");
+                return;
+            }
+
+            ThreadPool.QueueUserWorkItem(delegate
+            {
+                try
                 {
-                    GameLog.LogMessage($"Failed to send '{message}' due to disconnect.");
-                    return;
+                    activeSession.Socket.SendPacketAsync(new SayPacket() { Text = message });
                 }
-                session.Socket.SendPacketAsync(new SayPacket(){Text = message});
-            }
-            catch (Exception e)
-            {
-                OC2Modding.Log.LogError(e);
-            }
+                catch (Exception e)
+                {
+                    OC2Modding.Log.LogError(e);
+                }
+            });
         }
 
         /* Apply to end of save directory to garuntee uniqueness across rooms of the same seed */
@@ -1132,3 +1143,4 @@ namespace OC2Modding
         }
     }
 }
+
