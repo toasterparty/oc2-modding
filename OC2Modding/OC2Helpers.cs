@@ -765,6 +765,7 @@ namespace OC2Modding
             else if (dlc == "Moon Harvest")
             {
                 levels = new string[] {
+                    "1-1",
                     "1-3",
                 };
             }
